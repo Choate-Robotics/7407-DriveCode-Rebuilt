@@ -8,7 +8,7 @@ from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds
 
-from subsystems.drivetrain.constants import TunerSwerveDrivetrain
+from generated.tuner_constants import TunerSwerveDrivetrain
 
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
