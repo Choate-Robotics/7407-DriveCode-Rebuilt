@@ -17,6 +17,15 @@ from wpilib import DriverStation
 from wpimath.geometry import Rotation2d
 from wpimath.units import rotationsToRadians
 
+import math
+
+
+def curve(x, d, c=1):
+    if abs(x) < d:
+        return 0
+    elif x < 0:
+        return -1 * math.pow((-1 * (x + d) / (1 - d)), c)
+    return math.pow(((x - d) / (1 - d)), c)
 
 class RobotContainer:
     """
@@ -31,16 +40,12 @@ class RobotContainer:
             1.0 * TunerConstants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed
         self._max_angular_rate = rotationsToRadians(
-            0.75
+            1.5
         )  # 3/4 of a rotation per second max angular velocity
 
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.1)
-            .with_rotational_deadband(
-                self._max_angular_rate * 0.1
-            )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
             )  # Use open-loop control for drive motors
@@ -71,13 +76,13 @@ class RobotContainer:
             self.drivetrain.apply_request(
                 lambda: (
                     self._drive.with_velocity_x(
-                        -self._joystick.getLeftY() * self._max_speed
+                        curve(-self._joystick.getLeftY(), 0.1) * self._max_speed
                     )  # Drive forward with negative Y (forward)
                     .with_velocity_y(
-                        -self._joystick.getRightX() * self._max_speed
+                        curve(-self._joystick.getLeftX(), 0.1, 2) * self._max_speed
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        -self._joystick.getLeftX() * self._max_angular_rate
+                        -self._joystick.getRightX() * self._max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
                 )
             )
