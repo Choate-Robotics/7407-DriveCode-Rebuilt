@@ -6,8 +6,14 @@ from typing import Callable, overload
 from wpilib import DriverStation, Notifier, RobotController
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.kinematics import ChassisSpeeds
 
 from subsystems.drivetrain.constants import TunerSwerveDrivetrain
+
+from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.controller import PPHolonomicDriveController
+from pathplannerlib.config import RobotConfig, PIDConstants
+from wpilib import DriverStation
 
 
 class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
@@ -224,6 +230,31 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
 
         if utils.is_simulation():
             self._start_sim_thread()
+
+        pp_config = RobotConfig.fromGUISettings()
+
+        AutoBuilder.configure(
+            self.get_pose,
+            self.reset_pose,
+            self.get_speeds,
+            lambda speeds, feedforwards: self.set_control(swerve.requests.ApplyRobotSpeeds.with_speeds(speeds).with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons).with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)),
+            PPHolonomicDriveController(
+                PIDConstants(5, 0, 0),
+                PIDConstants(5, 0, 0)
+            ),
+            pp_config,
+            self.should_flip_path,
+            self
+        )
+
+    def get_pose(self) -> Pose2d:
+        return self.get_state().pose
+    
+    def get_speeds(self) -> ChassisSpeeds:
+        return self.get_state().speeds
+    
+    def should_flip_path(self) -> bool:
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]
