@@ -3,13 +3,10 @@ from phoenix6 import StatusSignal, controls, configs, hardware, signals
 #ID values
 leader_motor_id = 26 #placeholder
 follower_motor_id = 27 #placeholder
-climber_cancoder_id = 23 #placeholder
 
 # other constants
-climber_motion_magic_cruise_velocity = 97 #placeholder
 climber_gear_ratio = 2 #placeholder
 climber_drop_voltage = 2 #placeholder
-drum_circumference = 2 #placeholder
 
 
 leader_motor_configs = (
@@ -18,9 +15,13 @@ leader_motor_configs = (
                 configs.MotorOutputConfigs()
                 .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
                 .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+            ).with_feedback(
+                configs.FeedbackConfigs()
+                .with_feedback_remote_sensor_id(signals.FeedbackSensorSourceValue.FUSED_CANCODER.value)
+                .with_sensor_to_mechanism_ratio(climber_gear_ratio)
             ).with_motion_magic(
                 configs.MotionMagicConfigs()
-                .with_motion_magic_cruise_velocity(climber_motion_magic_cruise_velocity)
+                .with_motion_magic_cruise_velocity(97)
                 
             ).with_slot0(
                 configs.Slot0Configs() #all placeholders
@@ -48,7 +49,7 @@ follower_motor_configs = (
                 
             ).with_motion_magic(
                 configs.MotionMagicConfigs()
-                .with_motion_magic_cruise_velocity(climber_motion_magic_cruise_velocity) 
+                .with_motion_magic_cruise_velocity(97) 
                 
             ).with_slot0(
                 configs.Slot0Configs() #all placeholders
