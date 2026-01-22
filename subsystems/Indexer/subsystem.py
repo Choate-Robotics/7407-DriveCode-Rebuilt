@@ -1,6 +1,6 @@
 
 import constants
-from toolkit.subsystem import Subsystem
+from commands2.Subsystem import Subsystem
 import wpilib
 from phoenix6 import hardware, controls, configs, CANcoder, StatusCode
 import ntcore
@@ -11,6 +11,7 @@ class Indexer(Subsystem):
         super().__init__()
         self.indexer_motor: TalonFX = hardware.TalonFX(constants.indexer_motor_id)
         self.tower_motor: TalonFX = hardware.TalonFX(constants.tower_motor_id)
+        self.control = controls.DutyCycleOut(0)
 
         self.indexer_config = constants.indexer_config
         self.tower_config = constants.tower_config

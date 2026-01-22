@@ -1,3 +1,4 @@
+from phoenix6 import configs
 
 #motor configs
 indexer_motor_id = 30 #TODO: placeholder
