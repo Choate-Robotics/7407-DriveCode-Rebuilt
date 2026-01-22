@@ -69,3 +69,25 @@ class Indexer(Subsystem):
         )
 
         self.indexer_running = False
+    
+    def get_tower_motor_current(self) -> float:
+        return self.tower_motor.get_motor_current()
+
+    def get_indexer_motor_current(self) -> float:
+        return self.indexer_motor.get_motor_current()
+
+    def get_indexer_motor_velocity(self) -> float:
+        return self.indexer_motor.get_motor_velocity()
+    
+    def get_tower_motor_velocity(self) -> float:
+        return self.tower_motor.get_motor_velocity()
+
+    def update_table(self) -> None:
+        table = ntcore.NetworkTableInstance.getDefault().getTable("Indexer")
+
+        table.putBoolean("indexer running", self.indexer_running)
+        table.putBoolean("indexer reversed", self.indexer_reversed)
+        table.putNumber("tower current", self.get_tower_motor_current)
+        table.putNumber("indexer motor current", self.get_indexer_motor_current)
+        table.putNumber("indexer motor velocity", self.get_indexer_motor_velocity)
+        table.putNumber("tower motor velocity", self.get_tower_motor_velocity)
