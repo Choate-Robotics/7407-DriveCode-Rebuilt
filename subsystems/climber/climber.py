@@ -39,8 +39,8 @@ class Climber(commands2.Subsystem):
         self.moving = True
         target = 0
     
-    def get_motor_revolutions(self) -> float:
-        return self.leader_motor.get_position().value
+    def get_motor_position(self) -> float:
+        return constants.climber_gear_ratio * constants.drum_circumference
 
     def update_table(self) -> None:
         table = ntcore.NetworkTableInstance.getDefault().getTable("climber")

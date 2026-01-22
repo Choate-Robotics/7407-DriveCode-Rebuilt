@@ -9,7 +9,7 @@ climber_cancoder_id = 23 #placeholder
 climber_motion_magic_cruise_velocity = 97 #placeholder
 climber_gear_ratio = 2 #placeholder
 climber_drop_voltage = 2 #placeholder
-motor_resistance = 2
+drum_circumference = 2 #placeholder
 
 
 leader_motor_configs = (
