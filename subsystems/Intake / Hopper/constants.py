@@ -28,7 +28,8 @@ pivot_motor_configs = (
                 .with_neutral_mode(signals.NeutralModeValue.BRAKE)
             ).with_feedback(
                 configs.FeedbackConfigs()
-                .with_feedback_remote_sensor_id(signals.FeedbackSensorSourceValue.FUSED_CANCODER.value) 
+                .with_feedback_remote_sensor_id(pivot_motor_id)
+                .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)
                 .with_sensor_to_mechanism_ratio(5) # placeholder
             ).with_motion_magic(
                 configs.MotionMagicConfigs()
