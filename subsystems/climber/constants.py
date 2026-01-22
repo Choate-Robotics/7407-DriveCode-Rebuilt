@@ -1,9 +1,16 @@
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals
+#ID values
 leader_motor_id = 26 #placeholder
-follower_motor_id = 27 # placeholder
+follower_motor_id = 27 #placeholder
+climber_cancoder_id = 23 #placeholder
+
+# other constants
 climber_motion_magic_cruise_velocity = 97 #placeholder
-climber_gear_ratio = 2
+climber_gear_ratio = 2 #placeholder
+climber_drop_voltage = 2 #placeholder
+motor_resistance = 2
+
 
 leader_motor_configs = (
             configs.TalonFXConfiguration()
