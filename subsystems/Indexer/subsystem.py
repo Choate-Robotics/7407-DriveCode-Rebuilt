@@ -24,7 +24,9 @@ class Indexer(Subsystem):
         self.tower_motor.configurator.apply(self.tower_config)
 
     def run_indexer(self):
-
+        """
+        Runs the indexer motor
+        """
         self.indexer_motor.set_control(
             self.control.with_output(constants.indexer_speed)
         )
@@ -33,7 +35,9 @@ class Indexer(Subsystem):
         self.indexer_reversed: bool = False
 
     def run_tower(self):
-
+        """
+        Runs the tower motor
+        """
         self.tower_motor.set_control(
             self.control.with_output(constants.tower_speed)
         )
@@ -42,7 +46,9 @@ class Indexer(Subsystem):
         self.indexer_reversed: bool = False
         
     def run_indexer_reverse(self):
-
+        """
+        Runs the indexer motor in reverse
+        """
         self.indexer_motor.set_control(
             self.control.with_output(-constants.indexer_speed)
         )
@@ -51,7 +57,9 @@ class Indexer(Subsystem):
         self.indexer_reversed: bool = True
 
     def run_tower_reverse(self):
-
+        """
+        Runs the tower motor in reverse
+        """
         self.tower_motor.set_control(
             self.control.with_output(-constants.tower_speed)
         )
@@ -60,6 +68,9 @@ class Indexer(Subsystem):
         self.indexer_reversed: bool = True
 
     def stop(self):
+        """
+        Stops the indexer
+        """
         self.indexer_motor.set_control(
             self.control.with_output(0)
         )
@@ -71,18 +82,33 @@ class Indexer(Subsystem):
         self.indexer_running = False
     
     def get_tower_motor_current(self) -> float:
+        """
+        gets tower motor current
+        """
         return self.tower_motor.get_motor_current()
 
     def get_indexer_motor_current(self) -> float:
+        """
+        gets indexer motor current
+        """
         return self.indexer_motor.get_motor_current()
 
     def get_indexer_motor_velocity(self) -> float:
+        """
+        gets indexer motor velocity
+        """
         return self.indexer_motor.get_motor_velocity()
     
     def get_tower_motor_velocity(self) -> float:
+        """
+        gets tower motor velocity
+        """
         return self.tower_motor.get_motor_velocity()
 
     def update_table(self) -> None:
+        """
+        updates network tables
+        """
         table = ntcore.NetworkTableInstance.getDefault().getTable("Indexer")
 
         table.putBoolean("indexer running", self.indexer_running)

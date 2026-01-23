@@ -19,3 +19,7 @@ tower_config = configs.TalonFXConfiguation().with_motor_output(
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 )
 
+#debouncer thresholds
+motor_velocity_threshold = 0.3 #TODO: placeholder
+motor_current_threshold = 0.4 #TODO: placeholder
+debouncer_time = 1 #TODO: placeholder, in seconds
