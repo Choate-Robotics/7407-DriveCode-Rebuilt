@@ -1,4 +1,5 @@
 import constants
+import math
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
 
@@ -11,7 +12,14 @@ class Shooter(Subsystem):
         self.right_leader_motor = hardware.TalonFX(constants.right_lead_id)
         self.right_follower_motor = hardware.TalonFX(constants.right_follow_id)
 
+        self.velocity_torque_current = controls.VelocityTorqueCurrentFOC(0)
+
         self.hood_motor = hardware.TalonFX(constants.hood_id)
+        self.motion_magic = controls.MotionMagicVoltage(0)
+
+        self.left_target_velocity = 0
+        self.right_target_velocity = 0 
+        self.hood_target_angle = 0
     
     def init(self):
         self.left_leader_motor.configurator.apply(constants.flywheel_config.with_motor_output(
@@ -27,3 +35,113 @@ class Shooter(Subsystem):
         self.right_follower_motor.set_control(controls.Follower(constants.right_lead_id, False))
 
         self.hood_motor.configurator.apply(constants.hood_config)
+
+    def set_left_target_velocity(self, velocity: float):
+        """
+        sets the target velocity of the left flywheel
+        
+        Args:
+            velocity (rotations per second): intended left flywheel velocity in rotations per second
+        """
+        self.left_target_velocity = velocity
+
+        self.left_leader_motor.set_control(self.velocity_torque_current.with_velocity(self.left_target_velocity))
+
+    def set_right_target_velocity(self, velocity: float):
+        """
+        sets the target velocity of the right flywheel
+        
+        Args:
+            velocity (rotations per second): intended right flywheel velocity in rotations per second
+        """
+        self.right_target_velocity = velocity
+
+        self.right_leader_motor.set_control(self.velocity_torque_current.with_velocity(self.right_target_velocity))
+
+    def get_left_velocity(self):
+        """
+        obtains the current velocity of the left flywheel
+
+        Returns:
+            return_float: current left flywheel velocity in rotations per second
+        """
+        return self.left_leader_motor.get_velocity().value_as_double
+    
+    def get_right_velocity(self):
+        """
+        obtains the current velocity of the right flywheel
+
+        Returns:
+            return_float: current right flywheel velocity in rotations per second
+        """
+        return self.right_leader_motor.get_velocity().value_as_double
+    
+    def left_is_at_velocity(self, velocity: float):
+        """
+        checks if the left flywheel is at a certain velocity
+
+        Args:
+            velocity (rotations per second): velocity to be checked
+
+        Returns:
+            boolean: whether or not the left flywheel is at the velocity (true it is and false it isn't)
+        """
+        return abs(self.get_left_velocity() - velocity) < constants.flywheel_threshold
+    
+    def right_is_at_velocity(self, velocity: float):
+        """
+        checks if the right flywheel is at a certain velocity
+
+        Args:
+            velocity (rotations per second): velocity to be checked
+
+        Returns:
+            boolean: whether or not the right flywheel is at the velocity (true it is and false it isn't)
+        """
+        return abs(self.get_right_velocity() - velocity) < constants.flywheel_threshold
+    
+    def set_hood_angle(self, angle: float):
+        """
+        brings the hood to given angle
+
+        Args:
+            angle (radians): intended hood angle in radians
+        """
+        self.hood_target_angle = angle
+
+        rotations = self.hood_target_angle / (2 * math.pi) * constants.hood_gear_ratio
+
+        self.hood_motor.set_control(self.motion_magic.with_position(rotations))
+
+    def get_hood_angle(self):
+        """
+        obtains the current position of the hood
+        
+        Returns:
+            return_float: current hood position in radians
+        """
+        return (self.hood_motor.get_position()) * (2 * math.pi)
+    
+    def hood_is_at_angle(self, angle: float):
+        """
+        checks if the right hood is at a certain angle
+
+        Args:
+            angle (radians): angle to be checked
+
+        Returns:
+            boolean: whether or not the hood is at the angle (true it is and false it isn't)
+        """
+        return abs(self.get_hood_angle() - angle) < constants.hood_threshold
+    
+    def ready_to_shoot(self):
+        """
+        checks if the system is ready to shoot by checking if the left and right flywheels are at the target velocities and the hood is at the target angle
+        
+        Returns:
+            boolean: whether or not the system is ready to shoot (true it is and false it isn't)
+        """
+        if self.left_is_at_velocity(self.left_target_velocity) == True and self.right_is_at_velocity(self.right_target_velocity) and self.hood_is_at_angle(self.hood_target_angle) == True:
+            return True
+        else:
+            return False

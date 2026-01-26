@@ -6,6 +6,11 @@ right_lead_id = 60 # placeholder
 right_follow_id = 61 # placeholder
 hood_id = 62 # placeholder
 
+flywheel_threshold = 2.0 # placeholder
+hood_threshold = 2.0 # placeholder
+
+hood_gear_ratio = 0 # placeholder
+
 left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
 
