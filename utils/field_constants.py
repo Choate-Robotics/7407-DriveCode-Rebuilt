@@ -1,4 +1,14 @@
 """
+These classes are inspireed by the FieldConstants class in
+    6328's 2026 code.
+    https://github.com/Mechanical-Advantage/RobotCode2026Public/blob/main/src/main/java/org/littletonrobotics/frc2026/FieldConstants.java
+    // Copyright (c) 2025-2026 FRC 6328
+    // http://github.com/Mechanical-Advantage
+    //
+    // Use of this source code is governed by an MIT-style
+    // license that can be found in the LICENSE file at
+    // the root directory of this project.
+
 Contains information for location of field element and other useful reference points.
 
 NOTE: All constants are defined relative to the field coordinate system, and from the
