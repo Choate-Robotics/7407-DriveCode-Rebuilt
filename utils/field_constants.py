@@ -11,7 +11,7 @@ from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 
 
 # Load the AprilTag layout (equivalent to AprilTagLayoutType.OFFICIAL.getLayout())
-_layout = AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltWelded)
+_layout = AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltAndyMark)
 
 # AprilTag related constants
 APRILTAG_COUNT = len(_layout.getTags())
