@@ -1,4 +1,4 @@
-from commands2.command import SubsystemCommand
+import commands2.Command 
 
 import constants
 from subsystem import Indexer
@@ -8,13 +8,14 @@ from wpilib.filter import Debouncer
 
 log = LocalLogger("Indexer command")
 
-class RunIndexer(SubsystemCommand[Indexer]):
+class RunIndexer(commands2.Command):
     """
     Runs Indexer
     """
     def __init__(self, subsystem: Indexer):
-        super().__init__(subsystem)
+        super().__init__()
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
 
     def initialize(self) -> None:
         self.subsystem.run_indexer()
@@ -27,15 +28,17 @@ class RunIndexer(SubsystemCommand[Indexer]):
         return False
 
     def end(self, interrupted) -> None:
-        self.subsystem.stop()
+        self.stop_indexer_motor()
+        self.stop_tower_motor()
 
-class RunIndexerReversed(SubsystemCommand[Indexer]):
+class RunIndexerReversed(commands2.Command):
     """
     Runs Indexer in reverse
     """
     def __init__(self, subsystem: Indexer):
-        super().__init__(subsystem)
+        super().__init__()
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
 
     def initialize(self) -> None:
         self.subsystem.run_indexer_reverse()
@@ -48,30 +51,37 @@ class RunIndexerReversed(SubsystemCommand[Indexer]):
         return False
 
     def end(self, interrupted) -> None:
-        self.subsystem.stop()
+        self.stop_indexer_motor()
+        self.stop_tower_motor()
 
-class AutoUnjamming(SubsystemCommand[Indexer]):
+class AutoUnjamming(commands2.Command):
     """
     uses a debouncer to unjam game pieces 
     """
 
     def __init__(self, subsystem: Indexer):
-        super().__init__(subsystem)
+        super().__init__()
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
         self.debouncer = Debouncer(constants.debouncer_time, Debouncer.DebounceType.kRising)
-        self.tower_velocity = self.get_tower_motor_velocity() < constants.motor_velocity_threshold
-        self.tower_current = self.get_tower_motor_current() > constants.motor_current_threshold
 
     def initialize(self) -> None:
-        if self.debouncer.calculate(self.tower_velocity and self.tower_current):
-            self.subsystem.run_indexer_reverse()
-            self.subsystem.run_tower_reverse()
+        pass
     
     def execute(self) -> None:
-        pass
+        if self.debouncer.calculate(
+            self.get_tower_motor_velocity() < constants.motor_velocity_threshold 
+            and self.get_tower_motor_current() > constants.motor_current_threshold
+        ):
+            self.subsystem.run_indexer_reverse()
+            self.subsystem.run_tower_reverse()
+        else:
+            self.subsystem.run_indexer()
+            self.subsystem.run_tower() 
     
     def isFinished(self) -> None:
         return False
 
     def end(self, interrupted) -> None:
-        self.subsystem.stop()
+        self.stop_indexer_motor()
+        self.stop_tower_motor()
