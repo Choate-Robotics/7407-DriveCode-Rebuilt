@@ -10,21 +10,23 @@ class Climber(commands2.Subsystem):
         super().__init__()
         self.moving = False
         self.zeroed = True
-        self.leader_motor = hardware.TalonFX(constants.leader_motor_id)
-        self.follower_motor = hardware.TalonFX(constants.follower_motor_id)
-        self.motors = [self.follower_motor, self.leader_motor]
+        self.left_motor = hardware.TalonFX(constants.leader_motor_id)
+        self.right_motor = hardware.TalonFX(constants.follower_motor_id)
+        self.motors = [self.right_motor, self.left_motor]
+        self.left_motor_out = controls.VoltageOut(0)
+        self.right_motor_out = controls.VoltageOut(0)
 
 
     def init(self) -> None:
-        self.leader_motor_out = controls.VoltageOut(0)
-        self.follower_motor_out = controls.VoltageOut(0)
-        self.leader_motor.configurator.apply(constants.leader_motor_configs)
-        self.follower_motor.configurator.apply(constants.follower_motor_configs)
+        self.left_motor.configurator.apply(constants.climber_motor_configs)
+        self.right_motor.configurator.apply(constants.climber_motor_configs)
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("climber")
         self.pos_pub = self.table.getDoubleTopic("climber_motor_revolutions").publish()
         self.moving_pub = self.table.getBooleanTopic("climber_moving").publish()
         self.zero_pub = self.table.getBooleanTopic("climber_zeroed").publish()
         self.current_pub = self.table.getDoubleTopic("climber_motor_current").publish() # supply current
+        self.climb_climber = controls.MotionMagicVoltage(0)
+        self.drop_climber = controls.VoltageOut(0)
         self.zero()
 
     def zero(self) -> None: 
@@ -33,27 +35,31 @@ class Climber(commands2.Subsystem):
         self.zeroed = True
 
     def get_motor_revolutions(self) -> float: 
-        return self.leader_motor.get_position().value
+        return self.left_motor.get_position().value
 
     def set_position(self, target) -> None:
         if target > 0:
             for motor in self.motors:
-                motor.set_control(controls.MotionMagicVoltage(target)) 
-        else:
-            for motor in self.motors:
-                motor.set_control(controls.VoltageOut(constants.climber_drop_voltage))
+                motor.set_control(self.climb_climber.with_position(target)) 
         self.moving = True
         target = 0
 
-    def get_motor_position(self):
+    def set_voltage(self, voltage):
         for motor in self.motors:
-            return motor.get_position().value
+                motor.set_control(self.drop_climber.with_output(voltage))
+        self.moving = True
+
+    def get_left_motor_position(self):
+        return self.left_motor.get_position().value
+    
+    def get_right_motor_position(self):
+        return self.right_motor.get_position().value
 
     def update_table(self) -> None:
         self.pos_pub.set(self.get_motor_revolutions())
         self.moving_pub.set(self.moving)
         self.zero_pub.set(self.zeroed)
-        self.current_pub.set(self.leader_motor.get_supply_current().value)
+        self.current_pub.set(self.left_motor.get_supply_current().value)
 
     def periodic(self) -> None:
         self.update_table()
