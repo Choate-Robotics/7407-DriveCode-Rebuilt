@@ -1,3 +1,4 @@
+from typing import Callable
 from subsystems.Intake.Hopper.Intake import Intake
 import commands2
 import constants
@@ -42,8 +43,16 @@ class RunIntake(commands2.Command):
         super().__init__()
         self.subsystem = subsystem
 
+    """
+    i most certainly do not need to do this if statement in initialize and this could be done with an "onlyIf()" during the command scheduler process. 
+    (or so from what I read in the robotpy documentation)
+    We will cross that bridge when we get there tho. 
+    """
     def initialize(self):
-        self.subsystem.intake_fuel()
+        if self.subsystem.intakeIsDeployed:
+            self.subsystem.intake_fuel()
+        else:
+            log.message("Intake not deployed")
 
     def execute(self):
         pass

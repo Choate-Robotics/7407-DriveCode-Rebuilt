@@ -13,4 +13,3 @@ class Deployment(commands2.SequentialCommandGroup):
     this file is just here so u can read my thoughts :)
     """
     def __init__(self, subsystem: Intake, Hopper):
-        subsyste

@@ -7,6 +7,7 @@ import constants
 import ntcore
 from utils import local_logger
 
+
 class Intake(commands2.Subsystem):
     def __init__(self):
         """
@@ -24,6 +25,7 @@ class Intake(commands2.Subsystem):
         self.pivot_motor_zeroed = False
         self.intake_running = False
         self.wrist_moving = False
+        self.intakeIsDeployed = False  
     
 
     def init(self):
@@ -109,8 +111,3 @@ class Intake(commands2.Subsystem):
         self.pivot_currentpub.set(self.get_pivot_motor_current)
         self.intake_runningpub.set(self.intake_running)
         self.horizontalmotor_currentpub(self.get_horizontal_motor_current)
-
-
-
-    
-
