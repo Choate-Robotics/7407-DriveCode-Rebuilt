@@ -11,6 +11,8 @@ hood_threshold = 2.0 # placeholder
 
 hood_gear_ratio = 0 # placeholder
 
+NT_SHOOTER: bool = True
+
 left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
 

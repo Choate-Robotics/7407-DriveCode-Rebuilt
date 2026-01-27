@@ -1,5 +1,6 @@
 import constants
 import math
+import ntcore
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
 
@@ -35,6 +36,14 @@ class Shooter(Subsystem):
         self.right_follower_motor.set_control(controls.Follower(constants.right_lead_id, False))
 
         self.hood_motor.configurator.apply(constants.hood_config)
+
+        self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
+        self.left_velocity_pub = self.table.getDoubleTopic("left velocity").publish()
+        self.right_velocity_pub = self.table.getDoubleTopic("right velocity").publish()
+        self.left_target_velocity_pub = self.table.getDoubleTopic("left target velocity").publish()
+        self.right_target_velocity_pub = self.table.getDoubleTopic("right target velocity").publish()
+        self.hood_angle_pub = self.table.getDoubleTopic("hood angle").publish()
+        self.hood_target_angle_pub = self.table.getDoubleTopic("hood target angle").publish()
 
     def set_left_target_velocity(self, velocity: float):
         """
@@ -145,3 +154,17 @@ class Shooter(Subsystem):
             return True
         else:
             return False
+        
+    def update_table(self):
+        table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
+
+        self.left_velocity_pub.set(self.get_left_velocity())
+        self.right_velocity_pub.set(self.get_right_velocity())
+        self.left_target_velocity_pub.set(self.left_target_velocity)
+        self.right_target_velocity_pub.set(self.right_target_velocity)
+        self.hood_angle_pub.set(self.get_hood_angle())
+        self.hood_target_angle_pub.set(self.hood_target_angle)
+
+    def periodic(self):
+        if constants.NT_SHOOTER:
+            self.update_table
