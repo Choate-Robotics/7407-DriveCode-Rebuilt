@@ -1,9 +1,7 @@
 import constants
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals 
-import math
 import commands2
-import wpimath.units
 import ntcore
 
 #assuming the arms are not connected, but we want them to move with eachother
@@ -26,15 +24,15 @@ class Climber(commands2.Subsystem):
         self.pos_pub = self.table.getDoubleTopic("climber_motor_revolutions").publish()
         self.moving_pub = self.table.getBooleanTopic("climber_moving").publish()
         self.zero_pub = self.table.getBooleanTopic("climber_zeroed").publish()
-        self.current_pub = self.table.getDoubleTopic("climber_motor_current").publish()
+        self.current_pub = self.table.getDoubleTopic("climber_motor_current").publish() # supply current
         self.zero()
 
-    def zero(self) -> None:
+    def zero(self) -> None: 
         for motor in self.motors:
             motor.set_position(0)
         self.zeroed = True
 
-    def get_motor_revolutions(self) -> float:
+    def get_motor_revolutions(self) -> float: 
         return self.leader_motor.get_position().value
 
     def set_position(self, target) -> None:
