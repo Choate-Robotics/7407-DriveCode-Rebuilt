@@ -61,7 +61,7 @@ class RobotContainer:
         self.drivetrain = TunerConstants.create_drivetrain()
 
         self.auto_selection = SendableChooser()
-        self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
+        self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
