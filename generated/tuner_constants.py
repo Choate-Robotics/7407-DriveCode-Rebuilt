@@ -237,6 +237,7 @@ class TunerConstants:
 
         return CommandSwerveDrivetrain(
             cls.drivetrain_constants,
+            75.0,
             [
                 cls.front_left,
                 cls.front_right,
