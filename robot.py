@@ -23,8 +23,6 @@ class MyRobot(wpilib.TimedRobot):
     has an implementation of robotPeriodic which runs the scheduler for you
     """
 
-    autonomousCommand: typing.Optional[commands2.Command] = None
-
     def robotInit(self) -> None:
         """
         This function is run when the robot is first started up and should be used for any
@@ -74,9 +72,7 @@ class MyRobot(wpilib.TimedRobot):
             self.autonomousCommand
         ))
 
-        if self.autonomousCommand:
-            commands2.CommandScheduler.getInstance().schedule(self.autonomousCommand)
-
+        
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
         pass
@@ -93,4 +89,4 @@ class MyRobot(wpilib.TimedRobot):
 
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
-        commands2.CommandScheduler.getInstance().cancelAll()
+        self.scheduler.cancelAll()
