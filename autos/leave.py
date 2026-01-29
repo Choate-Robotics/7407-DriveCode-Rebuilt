@@ -10,13 +10,11 @@ from autos import AutoRoutine
 from commands2 import SequentialCommandGroup, InstantCommand
 
 path_name = "Leave"
-paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(0)]
+paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(1)]
 
 command = SequentialCommandGroup(
-    RobotContainer.drivetrain.apply_request(
-        lambda: requests.FieldCentric()
-        .with_velocity_x(-0.5)
-    ).withTimeout(2.5)
+    AutoBuilder.followPath(paths[0]),
+    RobotContainer.drivetrain.apply_request(lambda: requests.Idle())
 )
 
 auto = AutoRoutine(command, paths[0].getStartingHolonomicPose())

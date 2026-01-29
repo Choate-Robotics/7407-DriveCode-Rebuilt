@@ -4,15 +4,17 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-
 import wpilib
+from wpilib import DriverStation
 import commands2
 import typing
 from ntcore import NetworkTableInstance
+from autos import AutoRoutine
+
 
 from robotcontainer import RobotContainer
 
-from phoenix6 import HootAutoReplay
+from phoenix6 import HootAutoReplay, swerve
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -31,9 +33,8 @@ class MyRobot(wpilib.TimedRobot):
 
         # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         # autonomous chooser on the dashboard.
-        self.container = RobotContainer()
+        self.robot = RobotContainer()
         self.scheduler = commands2.CommandScheduler.getInstance()
-        self
         
 
         self.nt_inst = NetworkTableInstance.getDefault()
@@ -64,7 +65,14 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        self.autonomousCommand = self.container.getAutonomousCommand()
+        self.autonomousCommand: AutoRoutine = self.robot.getAutonomousCommand()
+
+        starting_pose = self.autonomousCommand.blue_start_pose if DriverStation.getAlliance() == DriverStation.Alliance.kBlue else self.autonomousCommand.red_start_pose
+        self.robot.drivetrain.reset_pose(starting_pose)
+        self.scheduler.schedule(commands2.SequentialCommandGroup(
+            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(starting_pose.rotation())),
+            self.autonomousCommand
+        ))
 
         if self.autonomousCommand:
             commands2.CommandScheduler.getInstance().schedule(self.autonomousCommand)
@@ -73,13 +81,11 @@ class MyRobot(wpilib.TimedRobot):
         """This function is called periodically during autonomous"""
         pass
 
+    def autonomousExit(self):
+        self.scheduler.cancelAll()
+
     def teleopInit(self) -> None:
-        # This makes sure that the autonomous stops running when
-        # teleop starts running. If you want the autonomous to
-        # continue until interrupted by another command, remove
-        # this line or comment it out.
-        if self.autonomousCommand:
-            commands2.CommandScheduler.getInstance().cancel(self.autonomousCommand)
+        pass
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""

@@ -1,5 +1,5 @@
 {
- "name":"leave",
+ "name":"configs",
  "version":2,
  "type":"Swerve",
  "variables":{
