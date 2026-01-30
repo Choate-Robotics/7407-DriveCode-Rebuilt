@@ -65,6 +65,8 @@ class AutoUnjamming(commands2.Command):
         self.addRequirements(self.subsystem)
         self.debouncer = Debouncer(constants.debouncer_time, Debouncer.DebounceType.kRising)
 
+        self.counter: int = 0
+
     def initialize(self) -> None:
         pass
     
@@ -72,12 +74,15 @@ class AutoUnjamming(commands2.Command):
         if self.debouncer.calculate(
             self.get_tower_motor_velocity() < constants.motor_velocity_threshold 
             and self.get_tower_motor_current() > constants.motor_current_threshold
+            and self.counter >= constants.counter_threshold 
         ):
             self.subsystem.run_indexer_reverse()
             self.subsystem.run_tower_reverse()
+            self.counter = 0
         else:
             self.subsystem.run_indexer()
-            self.subsystem.run_tower() 
+            self.subsystem.run_tower()
+            self.counter += 1 
     
     def isFinished(self) -> None:
         return False

@@ -106,15 +106,15 @@ class Indexer(Subsystem):
 
     def get_indexer_motor_velocity(self) -> float:
         """
-        gets indexer motor velocity (Volts)
+        gets indexer motor velocity (rotations per second)
         """
-        return self.indexer_motor.get_rotor_velocity().Volts
+        return self.indexer_motor.get_rotor_velocity().value
     
     def get_tower_motor_velocity(self) -> float:
         """
-        gets tower motor velocity (Volts)
+        gets tower motor velocity (rotations per second)
         """
-        return self.tower_motor.get_rotor_velocity().Volts
+        return self.tower_motor.get_rotor_velocity().value
 
     def update_table(self) -> None:
         """

@@ -23,3 +23,5 @@ tower_config = configs.TalonFXConfiguation().with_motor_output(
 motor_velocity_threshold = 0.3 #TODO: placeholder
 motor_current_threshold = 0.4 #TODO: placeholder
 debouncer_time = 1 #TODO: placeholder, in seconds
+
+counter_threshold = 5 #number of runtime loops (of 20 ms)
