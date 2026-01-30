@@ -15,9 +15,10 @@ NOTE: All constants are defined relative to the field coordinate system, and fro
 perspective of the blue alliance station
 """
 
-from wpimath.geometry import Translation2d, Translation3d
+from wpimath.geometry import Translation2d, Translation3d, Pose2d, Rotation2d
 from wpimath.units import inchesToMeters
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
+import math
 
 
 # Load the AprilTag layout (equivalent to AprilTagLayoutType.OFFICIAL.getLayout())
@@ -30,6 +31,11 @@ APRILTAG_WIDTH = inchesToMeters(6.5)
 # Field dimensions
 FIELD_LENGTH = _layout.getFieldLength()
 FIELD_WIDTH = _layout.getFieldWidth()
+
+def get_red_pose(blue_pose: Pose2d) -> Pose2d:
+    return blue_pose.rotateAround(
+            Translation2d(LinesVertical.CENTER, LinesHorizontal.CENTER),
+            Rotation2d(math.pi))
 
 class Hub:
     """Hub related constants"""

@@ -2,21 +2,17 @@ from pathplannerlib.path import PathPlannerPath
 from pathplannerlib.auto import AutoBuilder
 
 from phoenix6.swerve import requests
-
-from robotcontainer import RobotContainer
-
 from autos import AutoRoutine
+from robotcontainer import RobotContainer
 
 from commands2 import SequentialCommandGroup, InstantCommand
 
 path_name = "Leave"
-paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(0)]
+paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(1)]
 
-command = SequentialCommandGroup(
-    RobotContainer.drivetrain.apply_request(
-        lambda: requests.FieldCentric()
-        .with_velocity_x(-0.5)
-    ).withTimeout(2.5)
-)
-
-auto = AutoRoutine(command, paths[0].getStartingHolonomicPose())
+def auto(robot_container: RobotContainer) -> AutoRoutine:
+    command = SequentialCommandGroup(
+        AutoBuilder.followPath(paths[0]),
+        robot_container.drivetrain.apply_request(lambda: requests.Idle()),
+    )
+    return AutoRoutine(command, paths[0].getStartingHolonomicPose())

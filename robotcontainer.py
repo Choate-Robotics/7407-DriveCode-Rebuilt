@@ -4,8 +4,6 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import commands2
-from commands2 import cmd
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -13,11 +11,12 @@ from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 
 from phoenix6 import swerve
-from wpilib import DriverStation
+from wpilib import DriverStation, SendableChooser, SmartDashboard
 from wpimath.geometry import Rotation2d
 from wpimath.units import rotationsToRadians
 
 import math
+import autos
 
 
 def curve(x, d, c=1):
@@ -59,6 +58,11 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
 
+        self.auto_selection = SendableChooser()
+        self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
+
+        SmartDashboard.putData("Auto", self.auto_selection)
+
         # Configure the button bindings
         self.configureButtonBindings()
 
@@ -87,7 +91,7 @@ class RobotContainer:
                 )
             )
         )
-
+ 
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
         idle = swerve.requests.Idle()
@@ -128,29 +132,10 @@ class RobotContainer:
             lambda state: self._logger.telemeterize(state)
         )
 
-    def getAutonomousCommand(self) -> commands2.Command:
+    def getAutonomousCommand(self) -> autos.AutoRoutine:
         """
         Use this to pass the autonomous command to the main {@link Robot} class.
 
         :returns: the command to run in autonomous
         """
-        # Simple drive forward auton
-        idle = swerve.requests.Idle()
-        return cmd.sequence(
-            # Reset our field centric heading to match the robot
-            # facing away from our alliance station wall (0 deg).
-            self.drivetrain.runOnce(
-                lambda: self.drivetrain.seed_field_centric(Rotation2d.fromDegrees(0))
-            ),
-            # Then slowly drive forward (away from us) for 5 seconds.
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(0.5)
-                    .with_velocity_y(0)
-                    .with_rotational_rate(0)
-                )
-            )
-            .withTimeout(5.0),
-            # Finally idle for the rest of auton
-            self.drivetrain.apply_request(lambda: idle)
-        )
+        return self.auto_selection.getSelected()
