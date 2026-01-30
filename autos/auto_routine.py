@@ -1,10 +1,7 @@
 from commands2 import Command
 from wpimath.geometry import Pose2d
 
-import math
-from utils.field_constants import LinesVertical, LinesHorizontal, get_red_pose
-from wpimath.geometry import Rotation2d, Translation2d
-
+from utils.field_constants import get_red_pose
 class AutoRoutine:
     def __init__(self, command: Command, start_pose: Pose2d):
         self.command = command

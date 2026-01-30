@@ -7,14 +7,10 @@
 import wpilib
 from wpilib import DriverStation
 import commands2
-import typing
 from ntcore import NetworkTableInstance
 from autos import AutoRoutine
 
-
 from robotcontainer import RobotContainer
-
-from phoenix6 import HootAutoReplay, swerve
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -69,9 +65,8 @@ class MyRobot(wpilib.TimedRobot):
         self.robot.drivetrain.reset_pose(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
             commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(starting_pose.rotation())),
-            self.autonomousCommand
+            self.autonomousCommand.command,
         ))
-
         
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""

@@ -237,7 +237,7 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
             self.get_pose,
             self.reset_pose,
             self.get_speeds,
-            lambda speeds, feedforwards: self.set_control(swerve.requests.ApplyRobotSpeeds.with_speeds(speeds).with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons).with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)),
+            lambda speeds, feedforwards: self.set_control(swerve.requests.ApplyRobotSpeeds().with_speeds(speeds).with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons).with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)),
             PPHolonomicDriveController(
                 PIDConstants(5, 0, 0),
                 PIDConstants(5, 0, 0)

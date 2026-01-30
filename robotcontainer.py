@@ -4,8 +4,6 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import commands2
-from commands2 import cmd
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 

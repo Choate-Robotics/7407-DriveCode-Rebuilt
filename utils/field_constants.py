@@ -35,7 +35,7 @@ FIELD_WIDTH = _layout.getFieldWidth()
 def get_red_pose(blue_pose: Pose2d) -> Pose2d:
     return blue_pose.rotateAround(
             Translation2d(LinesVertical.CENTER, LinesHorizontal.CENTER),
-            Rotation2d(math.pi/2))
+            Rotation2d(math.pi))
 
 class Hub:
     """Hub related constants"""
