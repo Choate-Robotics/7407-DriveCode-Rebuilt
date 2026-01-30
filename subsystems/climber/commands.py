@@ -1,4 +1,4 @@
-from commands2 import SequentialCommandGroup
+import commands2
 import constants
 import constants
 from subsystems.climber.climber import Climber
@@ -7,45 +7,60 @@ from utils import local_logger
 logger = local_logger.LocalLogger("ClimberCommands")
 
 
-class DeployClimbL1(SequentialCommandGroup):
+class DeployClimbL1(commands2.Command):
+    """
+    deploy climber to L1 position
+    """
 
     def __init__(self, subsystem: Climber):
+        super().__init__()
+        self.addRequirements(self.subsystem)
         self.subsystem = subsystem
 
     def initialize(self):
-        self.subsystem.set_position(constants.climber_L1)
+        self.subsystem.set_position(constants.L1_pos)
 
     def execute(self):
         pass
 
     def isFinished(self):
-        return self.subsystem.get_left_motor_position() >= constants.climber_L1 and self.subsystem.get_right_motor_position() >= constants.climber_L1
+        return self.subsystem.get_left_motor_position() >= constants.L1_pos and self.subsystem.get_right_motor_position() >= constants.L1_pos
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False
 
 
-class DeployClimbL3(SequentialCommandGroup):
+class DeployClimbL3(commands2.Command):
+    """
+    deploy climber to L3 position
+    """
 
     def __init__(self, subsystem: Climber):
+        super().__init__()
+        self.addRequirements(self.subsystem)
         self.subsystem = subsystem
 
     def initialize(self):
-        self.subsystem.set_position(constants.climber_L3)
+        self.subsystem.set_position(constants.L3_pos)
 
     def execute(self):
         pass
 
     def isFinished(self):
-        return self.subsystem.get_left_motor_position() >= constants.climber_L3 and self.subsystem.get_right_motor_position() >= constants.climber_L3
+        return self.subsystem.get_left_motor_position() >= constants.L3_pos and self.subsystem.get_right_motor_position() >= constants.L3_pos
 
     def end(self, interrupted: bool):
             self.subsystem.moving = False
 
 
-class Climb(SequentialCommandGroup):
+class Climb(commands2.Command):
+    """
+    lower climber to climb robot
+    """
 
     def __init__(self, subsystem: Climber):
+        super().__init__()
+        self.addRequirements(self.subsystem)
         self.subsystem = subsystem
 
     def initialize(self):
@@ -55,7 +70,7 @@ class Climb(SequentialCommandGroup):
         pass
 
     def isFinished(self):
-        return self.subsystem.get_left_motor_position() <= constants.climber_lower_bound and self.subsystem.get_right_motor_position() <= constants.climber_lower_bound
+        return self.subsystem.is_at_position(constants.climber_lower_bound)
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False

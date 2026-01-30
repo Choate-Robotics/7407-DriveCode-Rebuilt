@@ -10,16 +10,10 @@ class Climber(commands2.Subsystem):
         super().__init__()
         self.moving = False
         self.zeroed = True
-        self.left_motor = hardware.TalonFX(constants.leader_motor_id)
-        self.right_motor = hardware.TalonFX(constants.follower_motor_id)
+        self.left_motor = hardware.TalonFX(constants.left_motor_id)
+        self.right_motor = hardware.TalonFX(constants.right_motor_id)
         self.motors = [self.right_motor, self.left_motor]
         self.left_motor_out = controls.VoltageOut(0)
-        self.right_motor_out = controls.VoltageOut(0)
-
-
-    def init(self) -> None:
-        self.left_motor.configurator.apply(constants.climber_motor_configs)
-        self.right_motor.configurator.apply(constants.climber_motor_configs)
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("climber")
         self.pos_pub = self.table.getDoubleTopic("climber_motor_revolutions").publish()
         self.moving_pub = self.table.getBooleanTopic("climber_moving").publish()
@@ -27,15 +21,17 @@ class Climber(commands2.Subsystem):
         self.current_pub = self.table.getDoubleTopic("climber_motor_current").publish() # supply current
         self.climb_climber = controls.MotionMagicVoltage(0)
         self.drop_climber = controls.VoltageOut(0)
+
+
+    def init(self) -> None:
+        self.left_motor.configurator.apply(constants.climber_motor_configs)
+        self.right_motor.configurator.apply(constants.climber_motor_configs)
         self.zero()
 
     def zero(self) -> None: 
         for motor in self.motors:
             motor.set_position(0)
         self.zeroed = True
-
-    def get_motor_revolutions(self) -> float: 
-        return self.left_motor.get_position().value
 
     def set_position(self, target) -> None:
         if target > 0:
@@ -54,9 +50,12 @@ class Climber(commands2.Subsystem):
     
     def get_right_motor_position(self):
         return self.right_motor.get_position().value
+    
+    def is_at_position(self, position) -> bool:
+        return (self.get_left_motor_position() >= position) and (self.get_right_motor_position() >= position)
 
     def update_table(self) -> None:
-        self.pos_pub.set(self.get_motor_revolutions())
+        self.pos_pub.set(self.get_left_motor_position())
         self.moving_pub.set(self.moving)
         self.zero_pub.set(self.zeroed)
         self.current_pub.set(self.left_motor.get_supply_current().value)
