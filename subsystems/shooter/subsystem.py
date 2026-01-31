@@ -1,6 +1,8 @@
 import constants
 import math
 import ntcore
+from utils import shooter_targeting
+from wpimath.geometry import Pose2d
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
 
@@ -155,6 +157,18 @@ class Shooter(Subsystem):
             return True
         else:
             return False
+        
+    def target_stationary(self, robot_pose: Pose2d):
+        """
+        gets the target hood angle and flywheel velocity shooting when stationary
+        
+        :param robot_pose: robot's pose on the field
+        """
+        hood_deg, rps = shooter_targeting.shot_setpoints_from_pose(robot_pose)
+
+        self.set_hood_angle(math.radians(hood_deg))
+        self.set_left_target_velocity(rps)
+        self.set_right_target_velocity(rps)
         
     def update_table(self):
         table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")

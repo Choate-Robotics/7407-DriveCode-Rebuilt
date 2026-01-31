@@ -1,4 +1,6 @@
 from phoenix6 import hardware, configs, signals
+from wpimath.geometry import Translation2d
+import numpy as np
 
 left_lead_id = 58 # placeholder
 left_follower_id = 59 # placeholder
@@ -53,3 +55,20 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_sensor_to_mechanism_ratio(0) # placeholder
     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.ROTOR_SENSOR)
 )
+
+shooter_offset = Translation2d(1, 1) # placeholder
+max_hood_angle = 75 # placeholder
+
+# robot distance to hub, hood angle, and RPS
+SHOT_TABLE = np.array([
+    [1.5, 22.0, 50],
+    [2.0, 25.0, 55],
+    [3.0, 30.0, 60],
+    [4.0, 36.0, 65],
+    [5.5, 43.0, 70],
+    [6.5, 49.0, 75],
+], dtype=float)
+
+DIST_M = SHOT_TABLE[:, 0]
+HOOD_DEG = SHOT_TABLE[:, 1]
+RPM = SHOT_TABLE[:, 2]
