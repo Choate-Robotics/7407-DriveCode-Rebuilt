@@ -8,7 +8,9 @@ import commands2
 from commands2 import cmd
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
-
+from subsystems.Intake.commands import run_intake, reverse_intake, deploy_intake
+from subsystems.Intake.Intake import Intake
+from subsystems.Intake.constants import deploy_angle
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 
@@ -51,8 +53,10 @@ class RobotContainer:
         self._logger = Telemetry(self._max_speed)
 
         self._joystick = CommandXboxController(0)
+        self._joystickoperator = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
+        self.intake = Intake()
 
         # Configure the button bindings
         self.configureButtonBindings()
@@ -98,6 +102,17 @@ class RobotContainer:
                 )
             )
         )
+        self._joystickoperator.rightTrigger().whileTrue(
+            run_intake(self.intake)
+        )
+
+        self._joystickoperator.leftTrigger().whileTrue(
+            reverse_intake(self.intake)
+        )
+        self._joystickoperator.leftBumper().whileTrue(
+            deploy_intake(self.intake, deploy_angle)
+        )
+        
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.

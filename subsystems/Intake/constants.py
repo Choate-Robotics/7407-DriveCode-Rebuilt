@@ -1,11 +1,15 @@
 from unittest import signals
 from phoenix6 import StatusSignal, controls, configs, hardware, signals 
+from phoenix6.signals import FeedbackSensorSourceValue
+from phoenix6.hardware import TalonFX
+from phoenix6.configs import TalonFXConfiguration
 
 horizontal_motor_id = 25 #placeholder
 pivot_motor_id = 24 #placeholder
-intake_cancoder_id = 26 #placeholder
-intake_angle_threshold = 2.0 
-intake_fuel_speed = 0.0 
+cancoder_id = 26 #placeholder
+angle_threshold = 2.0 
+fuel_speed = 0.0 
+deploy_angle = 45 #placeholder
 
 horizontal_motor_configs = (
     configs.TalonFXConfiguration()
