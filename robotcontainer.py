@@ -11,9 +11,9 @@ from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
-import subsystems.climber.commands
+from subsystems.climber.commands import DeployClimbL1, Retract
 from subsystems.climber.climber import Climber
-from subsystems.climber.constants import climber_drop_voltage
+from subsystems.climber.constants import climber_retract_voltage
 
 from phoenix6 import swerve
 from wpilib import DriverStation
@@ -53,8 +53,8 @@ class RobotContainer:
 
         self._logger = Telemetry(self._max_speed)
 
-        self._joystick = CommandXboxController(0)
-        self._jostick2 = CommandXboxController(1)
+        self.driver_controller = CommandXboxController(0)
+        self.operator_controller = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.climber = Climber()
@@ -76,24 +76,24 @@ class RobotContainer:
             self.drivetrain.apply_request(
                 lambda: (
                     self._drive.with_velocity_x(
-                        -self._joystick.getLeftY() * self._max_speed
+                        -self.driver_controller.getLeftY() * self._max_speed
                     )  # Drive forward with negative Y (forward)
                     .with_velocity_y(
-                        -self._joystick.getRightX() * self._max_speed
+                        -self.driver_controller.getRightX() * self._max_speed
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        -self._joystick.getLeftX() * self._max_angular_rate
+                        -self.driver_controller.getLeftX() * self._max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
                 )
             )
         )
 
-        self.climber.setDefaultCommand(
-            self.climber.apply_request(
-                lambda: (
-                    self.climber.set_voltage(0)
-                )
-            )
+        self.operator_controller.start().onTrue(
+            DeployClimbL1(self.climber)
+        )
+
+        self.operator_controller.back().whileTrue(
+            Retract(self.climber)
         )
 
         # Idle while the robot is disabled. This ensures the configured
@@ -103,11 +103,11 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
-        self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self._joystick.b().whileTrue(
+        self.driver_controller.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
+        self.driver_controller.b().whileTrue(
             self.drivetrain.apply_request(
                 lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
+                    Rotation2d(-self.driver_controller.getLeftY(), -self.driver_controller.getLeftX())
                 )
             )
         )
@@ -115,21 +115,21 @@ class RobotContainer:
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
-        (self._joystick.back() & self._joystick.y()).whileTrue(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
-        )
-        (self._joystick.back() & self._joystick.x()).whileTrue(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
-        )
-        (self._joystick.start() & self._joystick.y()).whileTrue(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
-        )
-        (self._joystick.start() & self._joystick.x()).whileTrue(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
-        )
+        # (self._joystick.back() & self._joystick.y()).whileTrue(
+        #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
+        # )
+        # (self._joystick.back() & self._joystick.x()).whileTrue(
+        #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
+        # )
+        # (self._joystick.start() & self._joystick.y()).whileTrue(
+        #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
+        # )
+        # (self._joystick.start() & self._joystick.x()).whileTrue(
+        #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
+        # )
 
         # reset the field-centric heading on left bumper press
-        self._joystick.leftBumper().onTrue(
+        self.driver_controller.leftBumper().onTrue(
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 

@@ -6,7 +6,7 @@ right_motor_id = 27 #placeholder
 
 # other constants
 climber_gear_ratio = 2 #placeholder
-climber_drop_voltage = 2 #placeholder
+climber_retract_voltage = 2 #placeholder
 climber_deploy_speed = 2 #placeholder
 climber_lower_bound = 0 #placeholder
 L1_pos = 10 #placeholder
