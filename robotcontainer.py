@@ -11,6 +11,9 @@ from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
+import subsystems.climber.commands
+from subsystems.climber.climber import Climber
+from subsystems.climber.constants import climber_drop_voltage
 
 from phoenix6 import swerve
 from wpilib import DriverStation
@@ -51,9 +54,11 @@ class RobotContainer:
         self._logger = Telemetry(self._max_speed)
 
         self._joystick = CommandXboxController(0)
+        self._jostick2 = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
-
+        self.climber = Climber()
+        
         # Configure the button bindings
         self.configureButtonBindings()
 
@@ -83,6 +88,14 @@ class RobotContainer:
             )
         )
 
+        self.climber.setDefaultCommand(
+            self.climber.apply_request(
+                lambda: (
+                    self.climber.set_voltage(0)
+                )
+            )
+        )
+
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
         idle = swerve.requests.Idle()
@@ -98,6 +111,7 @@ class RobotContainer:
                 )
             )
         )
+
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
