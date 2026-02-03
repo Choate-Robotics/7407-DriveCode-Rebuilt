@@ -11,7 +11,7 @@ from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
-from subsystems import Climber, DeployClimbL1, Retract
+from subsystems import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation

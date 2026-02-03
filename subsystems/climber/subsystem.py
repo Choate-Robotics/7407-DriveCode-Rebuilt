@@ -19,7 +19,10 @@ class Climber(commands2.Subsystem):
         set_voltage method -> sets the voltage for the climber motors
 
         get_left_motor_position and get_right_motor_position methods -> returns the current positions of the left and right motors respectively
-
+        
+    The climber publishes its motor current, if it is zeroed, if it is moving, and the revolutions of the left motor to NetworkTables.
+    
+    The motors for the climber use motion magic control for ascending and voltage control for descending. (defaulted to volage out)
     """
 
     def __init__(self) -> None:
@@ -48,16 +51,16 @@ class Climber(commands2.Subsystem):
 
     def set_position(self, target) -> None:
         self.moving = True
-        if target >= constants.climber_lower_bound and target <= constants.climber_upper_bound: #prevents from out of bounds
+        if target >= constants.climber_lower_bound and target <= constants.climber_upper_bound:
             for motor in self.motors:
                 motor.set_control(self.climb_climber.with_position(target))
-        else: #this will default the target value to the nearest bound 
+        else:
             if target < constants.climber_lower_bound:
                 target = constants.climber_lower_bound
             elif target > constants.climber_upper_bound:
                 target = constants.climber_upper_bound
             
-            for motor in self.motors: #sets position to the nearest bound
+            for motor in self.motors:
                 motor.set_control(self.climb_climber.with_position(target))
         target = 0
 
@@ -84,7 +87,7 @@ class Climber(commands2.Subsystem):
         self.pos_pub = self.table.getDoubleTopic("climber_motor_revolutions").publish()
         self.moving_pub = self.table.getBooleanTopic("climber_moving").publish()
         self.zero_pub = self.table.getBooleanTopic("climber_zeroed").publish()
-        self.current_pub = self.table.getDoubleTopic("climber_motor_current").publish() # supply current
+        self.current_pub = self.table.getDoubleTopic("climber_motor_current").publish()
 
     def update_table(self) -> None:
         self.pos_pub.set(self.get_left_motor_position())
