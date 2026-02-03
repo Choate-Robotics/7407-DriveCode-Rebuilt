@@ -88,10 +88,11 @@ class RobotContainer:
             )
         )
 
+        # deploys climber to L1 position when start is pressed
         self.operator_controller.start().onTrue(
             DeployClimbL1(self.climber)
         )
-
+        # retracts climber while back is held
         self.operator_controller.back().whileTrue(
             Retract(self.climber)
         )
@@ -115,16 +116,16 @@ class RobotContainer:
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
-        # (self._joystick.back() & self._joystick.y()).whileTrue(
+        # (self.driver_controller.back() & self.driver_controller.y()).whileTrue(
         #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
         # )
-        # (self._joystick.back() & self._joystick.x()).whileTrue(
+        # (self.driver_controller.back() & self.driver_controller.x()).whileTrue(
         #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
         # )
-        # (self._joystick.start() & self._joystick.y()).whileTrue(
+        # (self.driver_controller.start() & self.driver_controller.y()).whileTrue(
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
         # )
-        # (self._joystick.start() & self._joystick.x()).whileTrue(
+        # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
 
