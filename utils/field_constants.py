@@ -43,6 +43,11 @@ def get_allinace_pose(pose: Pose2d) -> Pose2d:
         return pose
     else:
         return get_red_pose(pose)
+    
+def get_alliance_less_than(value: float, value_to_compare_to: float):
+    if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+        return value < value_to_compare_to
+    return value > value_to_compare_to
 
 class Hub:
     """Hub related constants"""
