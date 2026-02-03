@@ -9,6 +9,7 @@ climber_gear_ratio = 2 #placeholder
 climber_retract_voltage = 2 #placeholder
 climber_deploy_speed = 2 #placeholder
 climber_lower_bound = 0 #placeholder
+climber_upper_bound = 30 #placeholder
 L1_pos = 10 #placeholder
 L3_pos = 20 #placeholder
 

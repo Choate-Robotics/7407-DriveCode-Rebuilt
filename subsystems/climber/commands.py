@@ -14,8 +14,9 @@ class DeployClimbL1(commands2.Command):
 
     def __init__(self, subsystem: Climber):
         super().__init__()
-        self.addRequirements(self.subsystem)
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+        
 
     def initialize(self):
         self.subsystem.set_position(constants.L1_pos)
@@ -38,8 +39,9 @@ class Retract(commands2.Command):
 
     def __init__(self, subsystem: Climber):
         super().__init__()
-        self.addRequirements(self.subsystem)
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+        
 
     def initialize(self):
         self.subsystem.set_voltage(constants.climber_retract_voltage)
@@ -48,7 +50,8 @@ class Retract(commands2.Command):
         pass
 
     def isFinished(self):
-        return self.subsystem.is_at_position(constants.climber_lower_bound)
+        return self.subsystem.is_left_position(constants.climber_lower_bound) and self.subsystem.is_right_position(constants.climber_lower_bound)
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False
+        self.subsystem.set_voltage(0)
