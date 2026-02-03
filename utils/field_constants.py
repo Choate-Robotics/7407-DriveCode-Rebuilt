@@ -19,6 +19,7 @@ from wpimath.geometry import Translation2d, Translation3d, Pose2d, Rotation2d
 from wpimath.units import inchesToMeters
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 import math
+from wpilib import DriverStation
 
 
 # Load the AprilTag layout (equivalent to AprilTagLayoutType.OFFICIAL.getLayout())
@@ -36,6 +37,12 @@ def get_red_pose(blue_pose: Pose2d) -> Pose2d:
     return blue_pose.rotateAround(
             Translation2d(LinesVertical.CENTER, LinesHorizontal.CENTER),
             Rotation2d(math.pi))
+
+def get_allinace_pose(pose: Pose2d) -> Pose2d:
+    if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+        return pose
+    else:
+        return get_red_pose(pose)
 
 class Hub:
     """Hub related constants"""
