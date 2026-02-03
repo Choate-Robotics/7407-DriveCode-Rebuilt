@@ -1,6 +1,7 @@
 from commands2 import Command, Subsystem
 from commands2.sysid import SysIdRoutine
 import math
+from utils.math_utils import bounded_angle_diff
 from phoenix6 import SignalLogger, swerve, units, utils
 from typing import Callable, overload
 from wpilib import DriverStation, Notifier, RobotController
@@ -14,6 +15,7 @@ from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
 from pathplannerlib.config import RobotConfig, PIDConstants
 from wpilib import DriverStation
+import robot_constants
 
 
 class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
@@ -255,6 +257,19 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
     
     def should_flip_path(self) -> bool:
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+    
+    def is_facing_angle(self, angle: units.radian) -> bool:
+        """
+        Returns whether the drivetrain is facing the specified angle within a small tolerance.
+
+        :param angle: The angle to check against in radians.
+        :type angle: units.radian
+        :returns: Whether the drivetrain is facing the specified angle.
+        :rtype: bool
+        """
+        self.current_yaw = self.get_pose().rotation().radians()
+        self.tolerance = robot_constants.drive_at_angle_tolerance  # 0.05 radian tolerance (~2.86 degrees)
+        return abs(bounded_angle_diff(self.current_yaw, self)) <= self.tolerance
 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]

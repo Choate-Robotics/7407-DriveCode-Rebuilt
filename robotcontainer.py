@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-
+import commands2
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -17,6 +17,9 @@ from wpimath.units import rotationsToRadians
 
 import math
 import autos
+import utils.field_constants as field_constants
+from utils import shooter_utils
+import robot_constants
 
 
 def curve(x, d, c=1):
@@ -51,6 +54,11 @@ class RobotContainer:
         )
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
+        self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+            robot_constants.aiming_pid_p,
+            robot_constants.aiming_pid_i,
+            robot_constants.aiming_pid_d
+        )
 
         self._logger = Telemetry(self._max_speed)
 
@@ -91,7 +99,73 @@ class RobotContainer:
                 )
             )
         )
- 
+
+        # shooting masterpiece
+        self._joystick.rightTrigger().whileTrue(
+            commands2.ConditionalCommand(
+                # hub shooting
+                commands2.ConditionalCommand(
+                    self.drivetrain.apply_request(lambda: self._brake),
+                    self.drivetrain.apply_request(
+                        lambda: (
+                            self._aim_at
+                            .with_velocity_x(
+                                curve(-self._joystick.getLeftY(), 0.1) * self._max_speed
+                            )
+                            .with_velocity_y(
+                                curve(-self._joystick.getLeftX(), 0.1, 2) * self._max_speed
+                            )
+                            .target_direction(
+                                shooter_utils.angle_aim_to_target(
+                                    self.drivetrain.get_pose(),
+                                    field_constants.Hub.INNER_CENTER_POINT,
+                                )
+                            )
+                        )
+                    ),
+                    self.drivetrain.is_facing_angle(
+                        shooter_utils.angle_aim_to_target(
+                            self.drivetrain.get_pose(),
+                            field_constants.Hub.INNER_CENTER_POINT,
+                        )
+                    ),
+                ),
+
+                # passing
+                commands2.ConditionalCommand(
+                    self.drivetrain.apply_request(lambda: self._brake),
+                    self.drivetrain.apply_request(
+                        lambda: (
+                            self._aim_at
+                            .with_velocity_x(
+                                curve(-self._joystick.getLeftY(), 0.1) * self._max_speed
+                            )
+                            .with_velocity_y(
+                                curve(-self._joystick.getLeftX(), 0.1, 2) * self._max_speed
+                            )
+                            .target_direction(
+                                shooter_utils.angle_aim_to_target(
+                                    self.drivetrain.get_pose(),
+                                    field_constants.LinesVertical.ALLIANCE_ZONE,
+                                )
+                            )
+                        )
+                    ),
+                    self.drivetrain.is_facing_angle(
+                        shooter_utils.angle_aim_to_target(
+                            self.drivetrain.get_pose(),
+                            field_constants.LinesVertical.ALLIANCE_ZONE,
+                        )
+                    ),
+                ),
+
+                field_constants.get_alliance_less_than(
+                    self.drivetrain.get_pose().x(),
+                    field_constants.LinesVertical.ALLIANCE_ZONE,
+                ),
+            )
+        )
+
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
         idle = swerve.requests.Idle()
