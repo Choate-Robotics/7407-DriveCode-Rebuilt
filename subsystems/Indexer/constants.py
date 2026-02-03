@@ -1,4 +1,4 @@
-from phoenix6 import configs
+from phoenix6 import configs, signals
 
 #motor configs
 indexer_motor_id = 30 #TODO: placeholder
