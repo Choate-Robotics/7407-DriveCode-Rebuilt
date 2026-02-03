@@ -4,8 +4,23 @@ from phoenix6 import StatusSignal, controls, configs, hardware, signals
 import commands2
 import ntcore
 
-#assuming the arms are not connected, but we want them to move with eachother
 class Climber(commands2.Subsystem):
+    """
+    Climber Class
+
+    Has two motors that move the climber up and down which can move independently, but normally they would be moved together.
+
+    Methods:
+        Zero method -> sets the current position as the zero
+
+        set_position method ->
+
+        set_voltage method
+
+        get_left_motor_position and get_right_motor_position methods -> returns the current positions of the left and right motors respectively
+
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.moving = False
@@ -21,7 +36,7 @@ class Climber(commands2.Subsystem):
 
         self.left_motor.configurator.apply(constants.climber_motor_configs)
         self.right_motor.configurator.apply(constants.climber_motor_configs)
-        
+
         self.setup_table()
         self.zero()
 

@@ -1,7 +1,7 @@
 import commands2
 import constants
 import constants
-from subsystems.climber.climber import Climber
+from subsystems.climber.subsystem import Climber
 from utils import local_logger
 
 logger = local_logger.LocalLogger("ClimberCommands")
