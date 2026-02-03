@@ -45,5 +45,11 @@ pivot_motor_configs = (
                 .with_k_v(0)
                 .with_k_a(0)
                 .with_gravity_type(signals.GravityTypeValue.ARM_COSINE)
-            )
+            ).with_software_limit_switch(
+                configs.SoftwareLimitSwitchConfigs()
+                .with_reverse_soft_limit_enable(True)
+                .with_reverse_soft_limit_threshold(0.0) #placeholder
+                .with_forward_soft_limit_enable(True)
+                .with_forward_soft_limit_threshold(0.8) #placeholder
+            ) 
         )

@@ -9,6 +9,7 @@ from wpilib import DriverStation
 import commands2
 from ntcore import NetworkTableInstance
 from autos import AutoRoutine
+from subsystems import Intake
 
 from robotcontainer import RobotContainer
 
@@ -35,6 +36,8 @@ class MyRobot(wpilib.TimedRobot):
         self.time_table = self.nt_inst.getTable("Timing")
         self.time_pub = self.time_table.getDoubleTopic("Loop time").publish()
         self.time = 0
+        self.robot.intake.set_pivot(0.0)
+
 
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics

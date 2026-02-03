@@ -50,15 +50,6 @@ class Intake(commands2.Subsystem):
     def get_horizontal_motor_current(self):
         return self.horizontal_motor.get_supply_current()
     
-    """
-    def zero_pivot(self):
-        self.pivot_angle = (
-            (self.encoder.get_absolute_position().value))
-        pos = self.pivot_angle
-        self.pivot_motor.set_position(pos)
-        self.pivot_motor_zeroed = True
-    """ # not sure what to do with this -> https://github.com/Choate-Robotics/7407-DriveCode-Rebuilt/pull/2#discussion_r2722981005
-
     def get_pivot_angle(self):
         return (self.pivot_motor.get_position().value)
        
