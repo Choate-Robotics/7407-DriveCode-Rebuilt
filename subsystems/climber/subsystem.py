@@ -25,6 +25,8 @@ class Climber(commands2.Subsystem):
     The motors for the climber use motion magic control for ascending and voltage control for descending. (defaulted to volage out)
     """
 
+    
+
     def __init__(self) -> None:
         super().__init__()
         self.moving = False

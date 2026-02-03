@@ -6,7 +6,6 @@ from utils import local_logger
 
 logger = local_logger.LocalLogger("ClimberCommands")
 
-
 class DeployClimbL1(commands2.Command):
     """
     deploy climber to L1 position.
@@ -30,7 +29,6 @@ class DeployClimbL1(commands2.Command):
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False
-
 
 
 class Retract(commands2.Command):
