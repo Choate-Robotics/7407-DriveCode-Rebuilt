@@ -1,9 +1,10 @@
-import commands2.Command 
+import commands2
 
 import constants
 from subsystem import Indexer
 from utils import LocalLogger
-from wpilib.filter import Debouncer
+from wpilib import Debouncer
+from subsystems import Indexer
 
 
 log = LocalLogger("Indexer command")

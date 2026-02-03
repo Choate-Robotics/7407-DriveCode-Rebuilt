@@ -1,7 +1,7 @@
 
 import constants
-from commands2.Subsystem import Subsystem
-from phoenix6 import hardware, controls
+from commands2 import Subsystem
+from phoenix6 import hardware, controls, TalonFX
 import ntcore
 
 class Indexer(Subsystem):
@@ -18,7 +18,6 @@ class Indexer(Subsystem):
         self.indexer_running: bool = False
         self.indexer_reversed: bool = False
 
-    def init(self):
         self.indexer_motor.configurator.apply(self.indexer_config)
         self.tower_motor.configurator.apply(self.tower_config)
 
