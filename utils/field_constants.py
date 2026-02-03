@@ -33,16 +33,19 @@ APRILTAG_WIDTH = inchesToMeters(6.5)
 FIELD_LENGTH = _layout.getFieldLength()
 FIELD_WIDTH = _layout.getFieldWidth()
 
-def get_red_pose(blue_pose: Pose2d) -> Pose2d:
-    return blue_pose.rotateAround(
+def get_red(blue_value: Pose2d | Translation2d | Translation3d | float):
+    if type(blue_value) == Pose2d | type(blue_value) == Translation2d | type(blue_value) == Translation3d:
+        return blue_value.rotateAround(
             Translation2d(LinesVertical.CENTER, LinesHorizontal.CENTER),
             Rotation2d(math.pi))
-
-def get_allinace_pose(pose: Pose2d) -> Pose2d:
-    if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
-        return pose
     else:
-        return get_red_pose(pose)
+        return FIELD_LENGTH - blue_value
+
+def get_alliance(value: Pose2d | Translation2d | Translation3d | float) -> Pose2d:
+    if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+        return value
+    else:
+        return get_red(value)
     
 def get_alliance_less_than(value: float, value_to_compare_to: float):
     if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
