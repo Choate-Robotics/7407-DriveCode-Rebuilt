@@ -10,6 +10,7 @@ logger = local_logger.LocalLogger("ClimberCommands")
 class DeployClimbL1(commands2.Command):
     """
     deploy climber to L1 position
+    uses set_position method from Climber subsystem
     """
 
     def __init__(self, subsystem: Climber):
@@ -35,6 +36,7 @@ class DeployClimbL1(commands2.Command):
 class Retract(commands2.Command):
     """
     lower climber to climb robot
+    uses set_voltage method from Climber subsystem
     """
 
     def __init__(self, subsystem: Climber):

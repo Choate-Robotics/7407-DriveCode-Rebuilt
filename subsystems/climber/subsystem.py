@@ -13,9 +13,10 @@ class Climber(commands2.Subsystem):
     Methods:
         Zero method -> sets the current position as the zero
 
-        set_position method ->
+        set_position method -> sets the target position for the climber motors and moves them to said position. 
+                               If that position is out of bounds, it will set to the nearest bound.
 
-        set_voltage method
+        set_voltage method -> sets the voltage for the climber motors
 
         get_left_motor_position and get_right_motor_position methods -> returns the current positions of the left and right motors respectively
 
