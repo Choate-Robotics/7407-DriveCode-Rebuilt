@@ -10,6 +10,7 @@ cancoder_id = 26 #placeholder
 angle_threshold = 2.0 
 fuel_speed = 0.0 
 deploy_angle = 45 #placeholder
+initial_angle = 0 #placeholder
 
 horizontal_motor_configs = (
     configs.TalonFXConfiguration()

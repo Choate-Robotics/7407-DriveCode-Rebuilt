@@ -1,13 +1,17 @@
-from Intake import Intake
-import commands
+from subsystem import Intake
+import subsystems.intake.command as command
 import commands2
+import constants
 from enum import Enum
 from utils import local_logger
 
 log = local_logger.LocalLogger("intake")
 
-class deploy_intake(commands2.Command):
-    def __init__(self, subsystem: Intake, angle):
+class SetPivot(commands2.Command):
+    """
+    Setpivot to specificed angle 
+    """
+    def __init__(self, subsystem: Intake, angle: float):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
@@ -29,7 +33,10 @@ class deploy_intake(commands2.Command):
         else:
             log.message("intake pivot interrupted")
 
-class run_intake(commands2.Command):
+class RunIntake(commands2.Command):
+    """
+    Run intake
+    """
     def __init__(self, subsystem: Intake):
         super().__init__()
         self.subsystem = subsystem
@@ -45,7 +52,10 @@ class run_intake(commands2.Command):
     def end(self, interrupted: bool):
         self.subsystem.stop_intake() 
 
-class reverse_intake(commands2.Command):
+class ReverseIntake(commands2.Command):
+    """
+    Reverse intake
+    """
     def __init__(self, subsystem: Intake):
         super().__init__()
         self.subsystem = subsystem
@@ -60,3 +70,16 @@ class reverse_intake(commands2.Command):
     
     def end(self, interrupted: bool):
         self.subsystem.stop_intake() 
+
+
+class DeployIntake(commands2.SequentialCommandGroup):
+    """
+    Deploy intake by setting pivot to specificed angle and running intake
+    """
+    def __init__(self, subsystem: Intake):
+        super().__init__(
+            SetPivot(subsystem, constants.deploy_angle),
+            RunIntake(subsystem)
+        )
+        self.subystem = subsystem
+        self.addRequirements(subsystem)

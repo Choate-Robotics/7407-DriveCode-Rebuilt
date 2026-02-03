@@ -15,14 +15,13 @@ class Intake(commands2.Subsystem):
 
         self.pivot_motor = hardware.TalonFX(constants.pivot_motor_id)
         self.horizontal_motor_out = controls.DutyCycleOut(0)
-        self.pivot_request = controls.MotionMagicDutyCycle(0.0)
+        self.pivot_request = controls.MotionMagicVoltage(0.0)
         self.target_angle = 0.0
     
         self.pivot_motor_zeroed = False
         self.intake_running = False
         self.pivot_running = False
 
-    def init(self):
         self.horizontal_motor.configurator.apply(constants.horizontal_motor_configs)
         self.pivot_motor.configurator.apply(constants.pivot_motor_configs)
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Intake")
@@ -32,7 +31,6 @@ class Intake(commands2.Subsystem):
         self.pivot_currentpub = self.table.getDoubleTopic("pivot current").publish()
         self.horizontal_motor_currentpub = self.table.getDoubleTopic("horizontal motor current").publish()
         self.intake_runningpub = self.table.getBooleanTopic("intake running").publish()
-        
 
     def intake_fuel(self):
         self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(constants.fuel_speed))
@@ -44,6 +42,7 @@ class Intake(commands2.Subsystem):
 
     def stop_intake(self):
         self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(0.0))
+        self.intake_running = False
 
     def get_pivot_motor_current(self):
         return self.pivot_motor.get_supply_current()
