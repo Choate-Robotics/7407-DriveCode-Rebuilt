@@ -72,3 +72,18 @@ SHOT_TABLE = np.array([
 DIST_M = SHOT_TABLE[:, 0]
 HOOD_DEG = SHOT_TABLE[:, 1]
 RPM = SHOT_TABLE[:, 2]
+
+# robot distance to pass, hood angle, and RPS
+PASS_TABLE = np.array([
+    [1.5, 22.0, 50],
+    [2.0, 25.0, 55],
+    [3.0, 30.0, 60],
+    [4.0, 36.0, 65],
+    [5.5, 43.0, 70],
+    [6.5, 49.0, 75],
+], dtype=float)
+
+
+PASS_DIST_M = SHOT_TABLE[:, 0]
+PASS_HOOD_DEG = SHOT_TABLE[:, 1]
+PASS_RPM = SHOT_TABLE[:, 2]

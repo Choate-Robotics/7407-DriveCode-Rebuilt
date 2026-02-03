@@ -1,6 +1,7 @@
 import commands2
-from subsystem import Shooter
-from phoenix6.units import rotations_per_second, radian
+from shooter import Shooter
+from wpimath.geometry import Pose2d
+from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 
 class SetShooter(commands2.Command):
     """
@@ -8,23 +9,18 @@ class SetShooter(commands2.Command):
     never ends
     
     Args:
-            velocity (rotations per second): intended left flywheel velocity in rotations per second
-            angle (radians): intended hood angle in radians
+            pose: robot Pose2d
     """
 
-    def __init__(self, subsystem: Shooter, velocity: rotations_per_second, angle: radian):
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, pose: Pose2d):
         super().__init__()
         self.addRequirements(Shooter)
 
         self.subsystem = subsystem
-        self.velocity = velocity
-        self.angle = angle
-
+        self.pose = pose
 
     def initialize(self):
-        self.subsystem.set_left_target_velocity(self.velocity)
-        self.subsystem.set_right_target_velocity(self.velocity)
-        self.subsystem.set_hood_angle(self.angle)
+        self.subsystem.target_stationary(CommandSwerveDrivetrain.get_pose())
 
     def execute(self):
         pass
@@ -45,19 +41,15 @@ class SetShooterAuto(commands2.Command):
             angle (radians): intended hood angle in radians
     """
 
-    def __init__(self, subsystem: Shooter, velocity, angle):
+    def __init__(self, subsystem: Shooter, pose: Pose2d):
         super().__init__()
         self.addRequirements(Shooter)
 
         self.subsystem = subsystem
-        self.velocity = velocity
-        self.angle = angle
-
+        self.pose = pose
 
     def initialize(self):
-        self.subsystem.set_left_target_velocity(self.velocity)
-        self.subsystem.set_right_target_velocity(self.velocity)
-        self.subsystem.set_hood_angle(self.angle)
+        self.subsystem.target_stationary(Pose2d)
 
     def execute(self):
         pass

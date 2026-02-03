@@ -4,11 +4,13 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
+import commands2
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
+from subsystems import Shooter, SetShooter
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
@@ -17,7 +19,6 @@ from wpimath.units import rotationsToRadians
 
 import math
 import autos
-
 
 def curve(x, d, c=1):
     if abs(x) < d:
@@ -55,8 +56,10 @@ class RobotContainer:
         self._logger = Telemetry(self._max_speed)
 
         self._joystick = CommandXboxController(0)
+        self._joystick2 = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
+        self.shooter = Shooter()
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
