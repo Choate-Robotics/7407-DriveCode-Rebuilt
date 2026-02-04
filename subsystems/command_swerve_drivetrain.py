@@ -269,7 +269,7 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         """
         self.current_yaw = self.get_pose().rotation().radians()
         self.tolerance = robot_constants.drive_at_angle_tolerance  # 0.05 radian tolerance (~2.86 degrees)
-        return abs(bounded_angle_diff(self.current_yaw, self)) <= self.tolerance
+        return abs(bounded_angle_diff(self.current_yaw, angle)) <= self.tolerance
 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]

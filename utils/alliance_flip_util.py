@@ -6,7 +6,7 @@ import math
 ### Credit to Team 6328 Mechanical Advantage
 
 def should_flip():
-    return DriverStation.getAlliance() == DriverStation.Alliance().kRed
+    return DriverStation.getAlliance() == DriverStation.Alliance.kRed
 
 def get_x(x: float) -> float:
     return FIELD_LENGTH - x if should_flip() else x
