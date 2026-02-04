@@ -32,7 +32,7 @@ motor_velocity_threshold = 0.3 #TODO: placeholder
 motor_current_threshold = 0.4 #TODO: placeholder
 debouncer_time = 1 #TODO: placeholder, in seconds
 
-counter_threshold = 5 #number of runtime loops (of 20 ms)
+unjamming_time = 5 #number of runtime loops (of 20 ms)
 
 #oi
 trigger_threshold = 3 #TODO: placeholder

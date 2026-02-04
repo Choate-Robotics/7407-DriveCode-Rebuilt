@@ -2,12 +2,9 @@ import commands2
 
 import constants
 from subsystem import Indexer
-from utils import LocalLogger
-from wpilib import Debouncer
+from wpimath.filter import Debouncer
 from subsystems import Indexer
 
-
-log = LocalLogger("Indexer command")
 
 class RunIndexer(commands2.Command):
     """
@@ -29,8 +26,8 @@ class RunIndexer(commands2.Command):
         return False
 
     def end(self, interrupted) -> None:
-        self.stop_indexer_motor()
-        self.stop_tower_motor()
+        self.subsystem.stop_indexer_motor()
+        self.subsystem.stop_tower_motor()
 
 class RunIndexerReversed(commands2.Command):
     """
@@ -52,8 +49,8 @@ class RunIndexerReversed(commands2.Command):
         return False
 
     def end(self, interrupted) -> None:
-        self.stop_indexer_motor()
-        self.stop_tower_motor()
+        self.subsystem.stop_indexer_motor()
+        self.subsystem.stop_tower_motor()
 
 class AutoUnjamming(commands2.Command):
     """
@@ -73,21 +70,21 @@ class AutoUnjamming(commands2.Command):
     
     def execute(self) -> None:
         if self.debouncer.calculate(
-            self.get_tower_motor_velocity() < constants.motor_velocity_threshold 
-            and self.get_tower_motor_current() > constants.motor_current_threshold
-            and self.counter >= constants.counter_threshold 
+            self.subsystem.get_tower_motor_velocity() < constants.motor_velocity_threshold 
+            and self.subsystem.get_tower_motor_current() > constants.motor_current_threshold
         ):
+            self.counter = constants.unjamming_time
+        if self.counter > 0:
             self.subsystem.run_indexer_reverse()
             self.subsystem.run_tower_reverse()
-            self.counter = 0
         else:
             self.subsystem.run_indexer()
             self.subsystem.run_tower()
-            self.counter += 1 
+        self.counter -= 1
     
     def isFinished(self) -> None:
         return False
 
     def end(self, interrupted) -> None:
-        self.stop_indexer_motor()
-        self.stop_tower_motor()
+        self.subsystem.stop_indexer_motor()
+        self.subsystem.stop_tower_motor()
