@@ -7,16 +7,24 @@ tower_motor_id = 31 #TODO: placeholder
 indexer_speed = 0 #TODO: placeholder
 tower_speed = 0 #TODO: placeholder
 
-indexer_config = configs.TalonFXConfiguation().with_motor_output(
+indexer_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
     .with_neutral_mode(signals.NeutralModeValue.BRAKE)
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 )
 
-tower_config = configs.TalonFXConfiguation().with_motor_output(
+tower_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
     .with_neutral_mode(signals.NeutralModeValue.BRAKE)
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
+).with_slot0(
+    configs.Slot0Configs()
+    .with_k_p(0) # placeholder
+    .with_k_i(0) # placeholder
+    .with_k_d(0) # placeholder
+    .with_k_s(0) # placeholder
+    .with_k_v(0) # placeholder
+    .with_k_a(0) # placeholder
 )
 
 #debouncer thresholds

@@ -10,7 +10,8 @@ class Indexer(Subsystem):
         super().__init__()
         self.indexer_motor: TalonFX = hardware.TalonFX(constants.indexer_motor_id)
         self.tower_motor: TalonFX = hardware.TalonFX(constants.tower_motor_id)
-        self.control = controls.DutyCycleOut(0)
+        self.control_duty_cycle = controls.DutyCycleOut(0)
+        self.control_velocity = controls.VelocityTorqueCurrentFOC(0)
 
         self.indexer_config = constants.indexer_config
         self.tower_config = constants.tower_config
@@ -23,6 +24,7 @@ class Indexer(Subsystem):
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("indexer")
         self.indexer_running_pub = self.table.getBooleanTopic("indexer running").publish()
+        self.indexer_reversed_pub = self.table.getBooleanTopic("indexer reversed").publish()
         self.tower_motor_current_pub = self.table.getDoubleTopic("tower motor current").publish()
         self.indexer_motor_current_pub = self.table.getDoubleTopic("indexer motor current").publish()
         self.tower_motor_velocity_pub = self.table.getDoubleTopic("tower motor velocity").publish()
@@ -33,7 +35,7 @@ class Indexer(Subsystem):
         Runs the indexer motor
         """
         self.indexer_motor.set_control(
-            self.control.with_output(constants.indexer_speed)
+            self.control_duty_cycle.with_output(constants.indexer_speed)
         )
 
         self.indexer_running = True
@@ -44,7 +46,7 @@ class Indexer(Subsystem):
         Runs the tower motor
         """
         self.tower_motor.set_control(
-            self.control.with_output(constants.tower_speed)
+            self.control_velocity.with_velocity(constants.tower_speed)
         )
 
         self.indexer_running = True
@@ -55,7 +57,7 @@ class Indexer(Subsystem):
         Runs the indexer motor in reverse
         """
         self.indexer_motor.set_control(
-            self.control.with_output(-constants.indexer_speed)
+            self.control_duty_cycle.with_output(-constants.indexer_speed)
         )
 
         self.indexer_running = True
@@ -66,7 +68,7 @@ class Indexer(Subsystem):
         Runs the tower motor in reverse
         """
         self.tower_motor.set_control(
-            self.control.with_output(-constants.tower_speed)
+            self.control_velocity.with_velocity(-constants.tower_speed)
         )
         
         self.indexer_running = True
@@ -77,7 +79,7 @@ class Indexer(Subsystem):
         Stops the indexer motor
         """
         self.indexer_motor.set_control(
-            self.control.with_output(0)
+            self.control_duty_cycle.with_output(0)
         )
         self.indexer_running = False
     
@@ -86,7 +88,7 @@ class Indexer(Subsystem):
         Stops the tower motor
         """
         self.tower_motor.set_control(
-            self.control.with_output(0)
+            self.control_velocity.with_velocity(0)
         )
         self.indexer_running = False
     
