@@ -2,7 +2,6 @@ from wpilib import AddressableLED, LEDPattern, Color
 import ntcore
 import constants
 from commands2 import Subsystem
-from math import 
 
 class LEDs(Subsystem):
 
