@@ -4,8 +4,6 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import commands2
-from commands2 import cmd
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -14,10 +12,22 @@ from telemetry import Telemetry
 from subsystems import *
 
 from phoenix6 import swerve
-from wpilib import DriverStation
+from wpilib import DriverStation, SendableChooser, SmartDashboard
 from wpimath.geometry import Rotation2d
 from wpimath.units import rotationsToRadians
 
+import math
+import autos
+
+from subsystems import *
+
+
+def curve(x, d, c=1):
+    if abs(x) < d:
+        return 0
+    elif x < 0:
+        return -1 * math.pow((-1 * (x + d) / (1 - d)), c)
+    return math.pow(((x - d) / (1 - d)), c)
 
 class RobotContainer:
     """
@@ -32,16 +42,12 @@ class RobotContainer:
             1.0 * TunerConstants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed
         self._max_angular_rate = rotationsToRadians(
-            0.75
+            1.5
         )  # 3/4 of a rotation per second max angular velocity
 
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.1)
-            .with_rotational_deadband(
-                self._max_angular_rate * 0.1
-            )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
             )  # Use open-loop control for drive motors
@@ -57,6 +63,12 @@ class RobotContainer:
         self.drivetrain = TunerConstants.create_drivetrain()
         self.climber = Climber()
         
+
+        self.auto_selection = SendableChooser()
+        self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
+
+        SmartDashboard.putData("Auto", self.auto_selection)
+
         # Configure the button bindings
         self.configureButtonBindings()
 
@@ -74,13 +86,13 @@ class RobotContainer:
             self.drivetrain.apply_request(
                 lambda: (
                     self._drive.with_velocity_x(
-                        -self.driver_controller.getLeftY() * self._max_speed
+                        curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
                     )  # Drive forward with negative Y (forward)
                     .with_velocity_y(
-                        -self.driver_controller.getRightX() * self._max_speed
+                        curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        -self.driver_controller.getLeftX() * self._max_angular_rate
+                        -self.driver_controller.getRightX() * self._max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
                 )
             )
@@ -102,14 +114,7 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
-        self.driver_controller.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self.driver_controller.b().whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(-self.driver_controller.getLeftY(), -self.driver_controller.getLeftX())
-                )
-            )
-        )
+        self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
 
 
         # Run SysId routines when holding back/start and X/Y.
@@ -127,8 +132,7 @@ class RobotContainer:
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
 
-        # reset the field-centric heading on left bumper press
-        self.driver_controller.leftBumper().onTrue(
+        Trigger(self.driver_controller.getHID().getPOV() == 180).onTrue(
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
@@ -136,29 +140,10 @@ class RobotContainer:
             lambda state: self._logger.telemeterize(state)
         )
 
-    def getAutonomousCommand(self) -> commands2.Command:
+    def getAutonomousCommand(self) -> autos.AutoRoutine:
         """
         Use this to pass the autonomous command to the main {@link Robot} class.
 
         :returns: the command to run in autonomous
         """
-        # Simple drive forward auton
-        idle = swerve.requests.Idle()
-        return cmd.sequence(
-            # Reset our field centric heading to match the robot
-            # facing away from our alliance station wall (0 deg).
-            self.drivetrain.runOnce(
-                lambda: self.drivetrain.seed_field_centric(Rotation2d.fromDegrees(0))
-            ),
-            # Then slowly drive forward (away from us) for 5 seconds.
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(0.5)
-                    .with_velocity_y(0)
-                    .with_rotational_rate(0)
-                )
-            )
-            .withTimeout(5.0),
-            # Finally idle for the rest of auton
-            self.drivetrain.apply_request(lambda: idle)
-        )
+        return self.auto_selection.getSelected()

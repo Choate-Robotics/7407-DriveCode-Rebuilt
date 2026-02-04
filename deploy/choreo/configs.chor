@@ -1,0 +1,84 @@
+{
+ "name":"configs",
+ "version":2,
+ "type":"Swerve",
+ "variables":{
+  "expressions":{},
+  "poses":{}
+ },
+ "config":{
+  "frontLeft":{
+   "x":{
+    "exp":"9.125 in",
+    "val":0.231775
+   },
+   "y":{
+    "exp":"9.875 in",
+    "val":0.25082499999999996
+   }
+  },
+  "backLeft":{
+   "x":{
+    "exp":"-9.125 in",
+    "val":-0.231775
+   },
+   "y":{
+    "exp":"9.875 in",
+    "val":0.25082499999999996
+   }
+  },
+  "mass":{
+   "exp":"150 lbs",
+   "val":68.0388555
+  },
+  "inertia":{
+   "exp":"6 kg m ^ 2",
+   "val":6.0
+  },
+  "gearing":{
+   "exp":"5.902777777777778",
+   "val":5.902777777777778
+  },
+  "radius":{
+   "exp":"2 in",
+   "val":0.0508
+  },
+  "vmax":{
+   "exp":"5800 RPM",
+   "val":607.3745796940267
+  },
+  "tmax":{
+   "exp":"1.2 N * m",
+   "val":1.2
+  },
+  "cof":{
+   "exp":"1.416",
+   "val":1.416
+  },
+  "bumper":{
+   "front":{
+    "exp":"16 in",
+    "val":0.4064
+   },
+   "side":{
+    "exp":"16 in",
+    "val":0.4064
+   },
+   "back":{
+    "exp":"16 in",
+    "val":0.4064
+   }
+  },
+  "differentialTrackWidth":{
+   "exp":"22 in",
+   "val":0.5588
+  }
+ },
+ "generationFeatures":[],
+ "codegen":{
+  "root":"Users/alexluo/Desktop/GitHub/7407-DriveCode-Rebuilt/deploy",
+  "genVars":true,
+  "genTrajData":true,
+  "useChoreoLib":true
+ }
+}
