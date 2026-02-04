@@ -119,9 +119,10 @@ class Shooter(Subsystem):
         Args:
             angle (radians): intended hood angle in radians
         """
-        self.hood_target_angle = angle
 
-        rotations = self.hood_target_angle / (2 * math.pi) * constants.hood_gear_ratio
+        self.hood_target_angle = max(constants.min_hood_angle, min(angle, constants.max_hood_angle))
+
+        rotations = self.hood_target_angle / (2 * math.pi)
 
         self.hood_motor.set_control(self.motion_magic.with_position(rotations))
 

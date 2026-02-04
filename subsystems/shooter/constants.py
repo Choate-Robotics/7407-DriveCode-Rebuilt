@@ -58,6 +58,7 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
 
 shooter_offset = Translation2d(1, 1) # placeholder
 max_hood_angle = 75 # placeholder
+min_hood_angle = 0 # placeholder
 
 # robot distance to hub, hood angle, and RPS
 SHOT_TABLE = np.array([

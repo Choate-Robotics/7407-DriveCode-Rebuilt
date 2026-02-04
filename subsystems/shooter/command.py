@@ -5,7 +5,7 @@ from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 
 class SetShooter(commands2.Command):
     """
-    set left and right flywheels to specified velocity and set hood to specified angle.
+    uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
     never ends
     
     Args:
@@ -14,7 +14,9 @@ class SetShooter(commands2.Command):
 
     def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, pose: Pose2d):
         super().__init__()
-        self.addRequirements(Shooter)
+        
+
+        self.addRequirements(self.subsystem)
 
         self.subsystem = subsystem
         self.pose = pose
@@ -33,17 +35,18 @@ class SetShooter(commands2.Command):
 
 class SetShooterAuto(commands2.Command):
     """
-    set left and right flywheels to specified velocity and set hood to specified angle.
+    uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
     ends
     
     Args:
-            velocity (rotations per second): intended left flywheel velocity in rotations per second
-            angle (radians): intended hood angle in radians
+            pose: robot Pose2d
     """
 
     def __init__(self, subsystem: Shooter, pose: Pose2d):
         super().__init__()
-        self.addRequirements(Shooter)
+       
+       
+        self.addRequirements(self.subsystem)
 
         self.subsystem = subsystem
         self.pose = pose
@@ -59,6 +62,28 @@ class SetShooterAuto(commands2.Command):
         we expect this command to be interrupted
         """
         return self.subsystem.ready_to_shoot()
+
+    def end(self):
+        pass
+
+class Pass(commands2.Command):
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, pose: Pose2d):
+        super().__init__()
+         
+
+        self.addRequirements(self.subsystem)
+
+        self.subsystem = subsystem
+        self.pose = pose
+
+    def initialize(self):
+        pass
+
+    def execute(self):
+        pass
+
+    def isFinished(self):
+        pass
 
     def end(self):
         pass
