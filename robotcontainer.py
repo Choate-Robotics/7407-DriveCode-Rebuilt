@@ -120,7 +120,7 @@ class RobotContainer:
                             .target_direction(
                                 shooter_utils.angle_aim_to_target(
                                     self.drivetrain.get_pose(),
-                                    field_constants.Hub.INNER_CENTER_POINT,
+                                    alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
                                 )
                             )
                         )
@@ -128,7 +128,7 @@ class RobotContainer:
                     self.drivetrain.is_facing_angle(
                         shooter_utils.angle_aim_to_target(
                             self.drivetrain.get_pose(),
-                            field_constants.Hub.INNER_CENTER_POINT,
+                            alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
                         )
                     ),
                 ),
@@ -148,7 +148,9 @@ class RobotContainer:
                             .target_direction(
                                 shooter_utils.angle_aim_to_target(
                                     self.drivetrain.get_pose(),
-                                    field_constants.LinesVertical.ALLIANCE_ZONE,
+                                    shooter_utils.get_pass_setpoint(
+                                        self.drivetrain.get_pose()
+                                    )
                                 )
                             )
                         )
@@ -156,7 +158,9 @@ class RobotContainer:
                     self.drivetrain.is_facing_angle(
                         shooter_utils.angle_aim_to_target(
                             self.drivetrain.get_pose(),
-                            field_constants.LinesVertical.ALLIANCE_ZONE,
+                            shooter_utils.get_pass_setpoint(
+                                self.drivetrain.get_pose()
+                            )
                         )
                     ),
                 ),
