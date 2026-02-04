@@ -4,8 +4,6 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 
-import commands2
-from commands2 import cmd
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -14,10 +12,22 @@ from telemetry import Telemetry
 from subsystems import *
 
 from phoenix6 import swerve
-from wpilib import DriverStation
+from wpilib import DriverStation, SendableChooser, SmartDashboard
 from wpimath.geometry import Rotation2d
 from wpimath.units import rotationsToRadians
 
+import math
+import autos
+
+from subsystems import *
+
+
+def curve(x, d, c=1):
+    if abs(x) < d:
+        return 0
+    elif x < 0:
+        return -1 * math.pow((-1 * (x + d) / (1 - d)), c)
+    return math.pow(((x - d) / (1 - d)), c)
 
 class RobotContainer:
     """
@@ -32,14 +42,31 @@ class RobotContainer:
             1.0 * TunerConstants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed
         self._max_angular_rate = rotationsToRadians(
-            0.75
+            1.5
         )  # 3/4 of a rotation per second max angular velocity
 
-        self.driver_joystick = CommandXboxController(0)
-        self.operator_joystick = CommandXboxController(1)
+        # Setting up bindings for necessary control of the swerve drive platform
+        self._drive = (
+            swerve.requests.FieldCentric()
+            .with_drive_request_type(
+                swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
+            )  # Use open-loop control for drive motors
+        )
+        self._brake = swerve.requests.SwerveDriveBrake()
+        self._point = swerve.requests.PointWheelsAt()
+
+        self._logger = Telemetry(self._max_speed)
+
+        self.driver_controller = CommandXboxController(0)
+        self.operator_controller = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.indexer = Indexer()
+
+        self.auto_selection = SendableChooser()
+        self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
+
+        SmartDashboard.putData("Auto", self.auto_selection)
 
         # Configure the button bindings
         self.configureButtonBindings()
@@ -50,48 +77,79 @@ class RobotContainer:
         """
 
         # shoots fuel into the hub (passing)
-        self.driver_joystick.rightTrigger().onTrue(
+        self.driver_controller.rightTrigger().onTrue(
             RunIndexer(self.indexer)
         )
 
         # force the indexer to spin
-        self.operator_joystick.a().whileTrue(
+        self.operator_controller.a().whileTrue(
             RunIndexer(self.indexer)
         )
-        self.driver_joystick.a().whileTrue(
+        self.driver_controller.a().whileTrue(
             RunIndexer(self.indexer)
         )
 
         # reverse the indexer
-        self.operator_joystick.y().onTrue(
+        self.operator_controller.y().onTrue(
             RunIndexerReversed(self.indexer)
         )
 
 
+        # Note that X is defined as forward according to WPILib convention,
+        # and Y is defined as to the left according to WPILib convention.
+        self.drivetrain.setDefaultCommand(
+            # Drivetrain will execute this command periodically
+            self.drivetrain.apply_request(
+                lambda: (
+                    self._drive.with_velocity_x(
+                        curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
+                    )  # Drive forward with negative Y (forward)
+                    .with_velocity_y(
+                        curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
+                    )  # Drive left with negative X (left)
+                    .with_rotational_rate(
+                        -self.driver_controller.getRightX() * self._max_angular_rate
+                    )  # Drive counterclockwise with negative X (left)
+                )
+            )
+        )
+ 
+        # Idle while the robot is disabled. This ensures the configured
+        # neutral mode is applied to the drive motors while disabled.
+        idle = swerve.requests.Idle()
+        Trigger(DriverStation.isDisabled).whileTrue(
+            self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
+        )
 
-    def getAutonomousCommand(self) -> commands2.Command:
+        self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
+
+        # Run SysId routines when holding back/start and X/Y.
+        # Note that each routine should be run exactly once in a single log.
+        # (self.driver_controller.back() & self.driver_controller.y()).whileTrue(
+        #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
+        # )
+        # (self.driver_controller.back() & self.driver_controller.x()).whileTrue(
+        #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
+        # )
+        # (self.driver_controller.start() & self.driver_controller.y()).whileTrue(
+        #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
+        # )
+        # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
+        #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
+        # )
+
+        Trigger(self.driver_controller.getHID().getPOV() == 180).onTrue(
+            self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
+        )
+
+        self.drivetrain.register_telemetry(
+            lambda state: self._logger.telemeterize(state)
+        )
+
+    def getAutonomousCommand(self) -> autos.AutoRoutine:
         """
         Use this to pass the autonomous command to the main {@link Robot} class.
 
         :returns: the command to run in autonomous
         """
-        # Simple drive forward auton
-        idle = swerve.requests.Idle()
-        return cmd.sequence(
-            # Reset our field centric heading to match the robot
-            # facing away from our alliance station wall (0 deg).
-            self.drivetrain.runOnce(
-                lambda: self.drivetrain.seed_field_centric(Rotation2d.fromDegrees(0))
-            ),
-            # Then slowly drive forward (away from us) for 5 seconds.
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(0.5)
-                    .with_velocity_y(0)
-                    .with_rotational_rate(0)
-                )
-            )
-            .withTimeout(5.0),
-            # Finally idle for the rest of auton
-            self.drivetrain.apply_request(lambda: idle)
-        )
+        return self.auto_selection.getSelected()
