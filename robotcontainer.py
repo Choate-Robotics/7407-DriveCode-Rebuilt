@@ -82,10 +82,7 @@ class RobotContainer:
         )
 
         # force the indexer to spin
-        self.operator_controller.a().whileTrue(
-            RunIndexer(self.indexer)
-        )
-        self.driver_controller.a().whileTrue(
+        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
             RunIndexer(self.indexer)
         )
 
