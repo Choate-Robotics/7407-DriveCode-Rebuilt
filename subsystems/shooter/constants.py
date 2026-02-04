@@ -1,5 +1,6 @@
 from phoenix6 import hardware, configs, signals
 from wpimath.geometry import Translation2d
+import wpilib
 import numpy as np
 
 left_lead_id = 58 # placeholder
@@ -56,33 +57,38 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.ROTOR_SENSOR)
 )
 
+def load_shooter_table_csv(rel_path: str) -> np.ndarray:
+    """
+    Loads a CSV from the robot deploy directory into a Nx3 float array:
+    [distance_m, hood_deg, rpm]
+    """
+    deploy_dir = wpilib.getDeployDirectory()
+    file_path = deploy_dir / "shooter_tables" / rel_path
+
+    # Load numeric rows, skip header
+    table = np.loadtxt(file_path, delimiter=",", dtype=float)
+
+    # Ensure shape is (N, 3) even if only one row
+    table = np.atleast_2d(table)
+
+    if table.shape[1] != 3:
+        raise ValueError(f"Expected 3 columns (distance_m, hood_deg, rpm), got {table.shape[1]} from {file_path}")
+    
+    return table
+
 shooter_offset = Translation2d(1, 1) # placeholder
 max_hood_angle = 75 # placeholder
 min_hood_angle = 0 # placeholder
 
 # robot distance to hub, hood angle, and RPS
-SHOT_TABLE = np.array([
-    [1.5, 22.0, 50],
-    [2.0, 25.0, 55],
-    [3.0, 30.0, 60],
-    [4.0, 36.0, 65],
-    [5.5, 43.0, 70],
-    [6.5, 49.0, 75],
-], dtype=float)
+SHOT_TABLE = load_shooter_table_csv("shot_table.csv")
 
 DIST_M = SHOT_TABLE[:, 0]
 HOOD_DEG = SHOT_TABLE[:, 1]
 RPM = SHOT_TABLE[:, 2]
 
 # robot distance to pass, hood angle, and RPS
-PASS_TABLE = np.array([
-    [1.5, 22.0, 50],
-    [2.0, 25.0, 55],
-    [3.0, 30.0, 60],
-    [4.0, 36.0, 65],
-    [5.5, 43.0, 70],
-    [6.5, 49.0, 75],
-], dtype=float)
+PASS_TABLE = load_shooter_table_csv("pass_table.csv")
 
 
 PASS_DIST_M = SHOT_TABLE[:, 0]

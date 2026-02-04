@@ -4,7 +4,7 @@ from enum import IntEnum
 from wpilib import DataLogManager, DriverStation, TimedRobot, Timer
 from wpilib.deployinfo import getDeployData
 from wpiutil.log import StringLogEntry
-from config import LOGGING, LOG_FILE_LEVEL, LOG_OUT_LEVEL
+from robot_constants import LOGGING, LOG_FILE_LEVEL, LOG_OUT_LEVEL
 
 
 class BColors:
