@@ -33,6 +33,13 @@ class LEDs(Subsystem):
         self.pattern.applyTo(self.led_buffer)
         self.led.setData(self.led_buffer)
 
+    def set_brightness(self, brightness):
+        """
+        sets LED brightness
+        """
+        self.pattern.atBrightness(brightness)
+        self.update_leds()
+
     def set_solid(self, r: int, g: int, b: int):
         """
         sets LEDs as a solid color
@@ -70,7 +77,28 @@ class LEDs(Subsystem):
     
     def set_scroll(self, r1: int, g1: int, b1: int, r2: int, g2: int, b2: int):
         """
-        sets a scrolling pattern for the LEDs
+        sets a scrolling pattern for the whole LED strips
         """
         self.set_gradient(r1, g1, b1, r2, g2, b2)
-        self.pattern.scrollAtRelativeSpeed(constants.scroll_speed) 
+        self.pattern.scrollAtRelativeSpeed(constants.scroll_speed)
+        self.update_leds()
+
+    def set_blink(self, r1: int, g1: int, b1: int, r2: int, g2: int, b2: int):
+        """
+        set blink pattern for the LEDs
+        """
+        self.set_gradient(r1, g1, b1, r2, g2, b2)
+        self.pattern.blink(constants.blink_time)
+        self.update_leds()
+
+    def set_steps(self):
+        """
+        sets step pattern
+        """
+        pass #TO DO
+     
+    def add_scrolling_segment(self):
+        """
+        adds a scrolling segment to a pre-exisiting pattern 
+        """
+        pass #TO DO
