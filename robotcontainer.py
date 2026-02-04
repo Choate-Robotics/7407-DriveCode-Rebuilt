@@ -10,7 +10,7 @@ from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
-from subsystems import Shooter, SetShooter
+from subsystems import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
@@ -19,6 +19,7 @@ from wpimath.units import rotationsToRadians
 
 import math
 import autos
+
 
 def curve(x, d, c=1):
     if abs(x) < d:
@@ -55,8 +56,8 @@ class RobotContainer:
 
         self._logger = Telemetry(self._max_speed)
 
-        self._joystick = CommandXboxController(0)
-        self._joystick2 = CommandXboxController(1)
+        self.driver_controller = CommandXboxController(0)
+        self.operator_controller = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
@@ -83,13 +84,13 @@ class RobotContainer:
             self.drivetrain.apply_request(
                 lambda: (
                     self._drive.with_velocity_x(
-                        curve(-self._joystick.getLeftY(), 0.1) * self._max_speed
+                        curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
                     )  # Drive forward with negative Y (forward)
                     .with_velocity_y(
-                        curve(-self._joystick.getLeftX(), 0.1, 2) * self._max_speed
+                        curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        -self._joystick.getRightX() * self._max_angular_rate
+                        -self.driver_controller.getRightX() * self._max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
                 )
             )
@@ -102,32 +103,24 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
-        self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self._joystick.b().whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
-                )
-            )
-        )
+        self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
-        (self._joystick.back() & self._joystick.y()).whileTrue(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
-        )
-        (self._joystick.back() & self._joystick.x()).whileTrue(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
-        )
-        (self._joystick.start() & self._joystick.y()).whileTrue(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
-        )
-        (self._joystick.start() & self._joystick.x()).whileTrue(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
-        )
+        # (self.driver_controller.back() & self.driver_controller.y()).whileTrue(
+        #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
+        # )
+        # (self.driver_controller.back() & self.driver_controller.x()).whileTrue(
+        #     self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
+        # )
+        # (self.driver_controller.start() & self.driver_controller.y()).whileTrue(
+        #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
+        # )
+        # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
+        #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
+        # )
 
-        # reset the field-centric heading on left bumper press
-        self._joystick.leftBumper().onTrue(
+        Trigger(self.driver_controller.getHID().getPOV() == 180).onTrue(
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
