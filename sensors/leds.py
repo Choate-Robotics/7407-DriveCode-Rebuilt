@@ -12,7 +12,7 @@ class LEDs(Subsystem):
         self.led.setLength(constants.led_length)
         self.led_buffer = [self.led.LEDData() for i in range(constants.led_length)]
 
-        self.pattern = LEDPattern.solid(Color.kWhite)
+        self.pattern = LEDPattern.solid(Color.kBlack)
 
     def enable_leds(self):
         """
@@ -91,14 +91,20 @@ class LEDs(Subsystem):
         self.pattern.blink(constants.blink_time)
         self.update_leds()
 
-    def set_steps(self):
+    def set_alternate(self, r1: int, g1: int, b1: int, r2: int, g2: int, b2: int)
         """
-        sets step pattern
+        LED strip alternates between two colors
         """
-        pass #TO DO
-     
-    def add_scrolling_segment(self):
-        """
-        adds a scrolling segment to a pre-exisiting pattern 
-        """
-        pass #TO DO
+        self.alternate = []
+        for i in range(constants.led_length):
+            if i % 2 == 0:
+                self.alternate.append(
+                    (i / constants.led_length, Color(r1 / 255, g1 / 255, b1 / 255))
+                )
+            elif i % 2 == 1:
+                self.alternate.append(
+                    (i / constants.led_length, Color(r2 / 255, g2 / 255, b2 / 255))
+                )
+        self.pattern = LEDPattern.steps(self.alternate)
+        self.update_leds()
+    
