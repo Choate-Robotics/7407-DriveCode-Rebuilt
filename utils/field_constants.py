@@ -32,11 +32,6 @@ APRILTAG_WIDTH = inchesToMeters(6.5)
 # Field dimensions
 FIELD_LENGTH = _layout.getFieldLength()
 FIELD_WIDTH = _layout.getFieldWidth()
-    
-def get_alliance_less_than(value: float, value_to_compare_to: float):
-    if DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
-        return value < value_to_compare_to
-    return value > value_to_compare_to
 
 class Hub:
     """Hub related constants"""
