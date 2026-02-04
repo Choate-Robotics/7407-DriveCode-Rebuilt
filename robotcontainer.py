@@ -17,8 +17,7 @@ from wpimath.units import rotationsToRadians
 
 import math
 import autos
-import utils.field_constants as field_constants
-from utils import shooter_utils
+from utils import shooter_utils, alliance_flip_util, field_constants
 import robot_constants
 
 from subsystems import *
@@ -104,7 +103,7 @@ class RobotContainer:
         )
 
         # shooting masterpiece
-        self._joystick.rightTrigger().whileTrue(
+        self.driver_controller.rightTrigger().whileTrue(
             commands2.ConditionalCommand(
                 # hub shooting
                 commands2.ConditionalCommand(
@@ -113,10 +112,10 @@ class RobotContainer:
                         lambda: (
                             self._aim_at
                             .with_velocity_x(
-                                curve(-self._joystick.getLeftY(), 0.1) * self._max_speed
+                                curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
                             )
                             .with_velocity_y(
-                                curve(-self._joystick.getLeftX(), 0.1, 2) * self._max_speed
+                                curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
                             )
                             .target_direction(
                                 shooter_utils.angle_aim_to_target(
@@ -141,10 +140,10 @@ class RobotContainer:
                         lambda: (
                             self._aim_at
                             .with_velocity_x(
-                                curve(-self._joystick.getLeftY(), 0.1) * self._max_speed
+                                curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
                             )
                             .with_velocity_y(
-                                curve(-self._joystick.getLeftX(), 0.1, 2) * self._max_speed
+                                curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
                             )
                             .target_direction(
                                 shooter_utils.angle_aim_to_target(
@@ -161,11 +160,7 @@ class RobotContainer:
                         )
                     ),
                 ),
-
-                field_constants.get_alliance_less_than(
-                    self.drivetrain.get_pose().x(),
-                    field_constants.LinesVertical.ALLIANCE_ZONE,
-                ),
+                alliance_flip_util.get_x(self.drivetrain.get_pose().x()) < field_constants.LinesVertical.ALLIANCE_ZONE
             )
         )
 
