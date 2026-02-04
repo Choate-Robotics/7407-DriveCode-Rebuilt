@@ -3,7 +3,7 @@ from wpimath.controller import PIDController
 from wpimath.geometry import Translation2d
 
 #heading pid tolerance ALL PLACEHOLDERS
-aiming_pid_p = 0
+aiming_pid_p = 10
 aiming_pid_i = 0
 aiming_pid_d = 0
 

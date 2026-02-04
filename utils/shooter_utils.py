@@ -33,7 +33,7 @@ def get_pass_setpoint(robot_pose: Pose2d) -> Translation2d:
     else:
         # from upper quadrant
         if alliance_flip_util.get_y(robot_pose.Y()) > (field_constants.LinesHorizontal.CENTER + robot_constants.pass_offset):
-            return alliance_flip_util.get_alliance(field_constants.LinesHorizontal.CENTER + robot_constants.pass_target_2)
+            return alliance_flip_util.get_alliance(Translation2d(robot_constants.pass_target_2.X(), field_constants.LinesHorizontal.CENTER + robot_constants.pass_target_2.Y()))
         # from middle-upper quadrant
         else:
-            return alliance_flip_util.get_alliance(field_constants.LinesHorizontal.CENTER + robot_constants.pass_target_1)
+            return alliance_flip_util.get_alliance(Translation2d(robot_constants.pass_target_1.X(), field_constants.LinesHorizontal.CENTER + robot_constants.pass_target_1.Y()))
