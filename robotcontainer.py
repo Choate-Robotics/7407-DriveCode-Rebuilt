@@ -38,7 +38,7 @@ class RobotContainer:
         self.driver_joystick = CommandXboxController(0)
         self.operator_joystick = CommandXboxController(1)
 
-        self.indexer = TunerConstants.create_indexer()
+        self.drivetrain = TunerConstants.create_drivetrain()
         self.indexer = Indexer()
 
         # Configure the button bindings
