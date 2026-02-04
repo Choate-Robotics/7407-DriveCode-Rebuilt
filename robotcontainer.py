@@ -164,7 +164,7 @@ class RobotContainer:
                         )
                     ),
                 ),
-                alliance_flip_util.get_x(self.drivetrain.get_pose().x()) < field_constants.LinesVertical.ALLIANCE_ZONE
+                alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE
             )
         )
 
@@ -192,7 +192,7 @@ class RobotContainer:
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
 
-        Trigger(self.driver_controller.getHID().getPOV() == 180).onTrue(
+        Trigger(lambda: self.driver_controller.getHID().getPOV() == 180).onTrue(
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
