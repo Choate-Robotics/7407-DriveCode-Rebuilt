@@ -81,5 +81,3 @@ class DeployIntake(commands2.SequentialCommandGroup):
             SetPivot(subsystem, constants.deploy_angle),
             RunIntake(subsystem)
         )
-        self.subystem = subsystem
-        self.addRequirements(subsystem)

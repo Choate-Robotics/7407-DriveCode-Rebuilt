@@ -10,7 +10,7 @@ from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
-from subsystems import Intake, ReverseIntake, RunIntake, SetPivot, DeployIntake, constants
+from subsystems import *
 
 
 from phoenix6 import swerve
