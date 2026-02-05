@@ -3,7 +3,6 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-import commands2
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -12,25 +11,12 @@ from telemetry import Telemetry
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
-from wpimath.geometry import Rotation2d
-from wpimath.units import rotationsToRadians
 
-import math
 import autos
-from utils import shooter_utils, alliance_flip_util, field_constants
-import robot_constants
+from utils import math_utils
 
 from subsystems import *
-
 from typing import Callable
-
-
-def curve(x, d, c=1):
-    if abs(x) < d:
-        return 0
-    elif x < 0:
-        return -1 * math.pow((-1 * (x + d) / (1 - d)), c)
-    return math.pow(((x - d) / (1 - d)), c)
 
 class RobotContainer:
     """
@@ -41,12 +27,6 @@ class RobotContainer:
     """
 
     def __init__(self) -> None:
-        self._max_speed = (
-            1.0 * TunerConstants.speed_at_12_volts
-        )  # speed_at_12_volts desired top speed
-        self._max_angular_rate = rotationsToRadians(
-            1.5
-        )  # 3/4 of a rotation per second max angular velocity
 
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
@@ -57,13 +37,8 @@ class RobotContainer:
         )
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
-        self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            robot_constants.aiming_pid_p,
-            robot_constants.aiming_pid_i,
-            robot_constants.aiming_pid_d
-        )
 
-        self._logger = Telemetry(self._max_speed)
+        self._logger = Telemetry(max_speed)
 
         self.driver_controller = CommandXboxController(0)
         self.operator_controller = CommandXboxController(1)
@@ -92,13 +67,13 @@ class RobotContainer:
             self.drivetrain.apply_request(
                 lambda: (
                     self._drive.with_velocity_x(
-                        curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
+                        math_utils.curve(-self.driver_controller.getLeftY(), 0.1) * max_speed
                     )  # Drive forward with negative Y (forward)
                     .with_velocity_y(
-                        curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
+                        math_utils.curve(-self.driver_controller.getLeftX(), 0.1, 2) * max_speed
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        -self.driver_controller.getRightX() * self._max_angular_rate
+                        -self.driver_controller.getRightX() * max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
                 )
             )
@@ -106,66 +81,7 @@ class RobotContainer:
 
 
         self.driver_controller.rightTrigger().whileTrue(
-            commands2.ConditionalCommand(
-                # hub shooting
-                commands2.ConditionalCommand(
-                    self.drivetrain.apply_request(lambda: self._brake),
-                    self.drivetrain.apply_request(
-                        lambda: (
-                            self._aim_at
-                            .with_velocity_x(
-                                curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
-                            )
-                            .with_velocity_y(
-                                curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
-                            )
-                            .with_target_direction(
-                                Rotation2d().fromDegrees(math.degrees(shooter_utils.angle_aim_to_target(
-                                    self.drivetrain.get_pose(),
-                                    alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
-                                ))
-                            ))
-                        )
-                    ),
-                    lambda: self.drivetrain.is_facing_angle(
-                        shooter_utils.angle_aim_to_target(
-                            self.drivetrain.get_pose(),
-                            alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
-                        )
-                    ),
-                ),
-
-                # passing
-                commands2.ConditionalCommand(
-                    self.drivetrain.apply_request(lambda: self._brake),
-                    self.drivetrain.apply_request(
-                        lambda: (
-                            self._aim_at
-                            .with_velocity_x(
-                                curve(-self.driver_controller.getLeftY(), 0.1) * self._max_speed
-                            )
-                            .with_velocity_y(
-                                curve(-self.driver_controller.getLeftX(), 0.1, 2) * self._max_speed
-                            )
-                            .with_target_direction(
-                                Rotation2d().fromDegrees(math.degrees(shooter_utils.angle_aim_to_target(
-                                    self.drivetrain.get_pose(),
-                                    alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
-                                ))
-                            ))
-                        )
-                    ),
-                    lambda: self.drivetrain.is_facing_angle(
-                        shooter_utils.angle_aim_to_target(
-                            self.drivetrain.get_pose(),
-                            shooter_utils.get_pass_setpoint(
-                                self.drivetrain.get_pose()
-                            )
-                        )
-                    ),
-                ),
-                lambda: alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE
-            )
+            AimDrivetrain(self.drivetrain, self.driver_controller)
         )
 
         # Idle while the robot is disabled. This ensures the configured
