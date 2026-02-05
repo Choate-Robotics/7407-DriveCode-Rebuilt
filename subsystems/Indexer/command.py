@@ -1,6 +1,6 @@
 import commands2
 
-import constants
+from .constants import *
 from subsystem import Indexer
 from wpimath.filter import Debouncer
 from subsystems import Indexer
@@ -61,7 +61,7 @@ class AutoUnjamming(commands2.Command):
         super().__init__()
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
-        self.debouncer = Debouncer(constants.debouncer_time, Debouncer.DebounceType.kRising)
+        self.debouncer = Debouncer(debouncer_time, Debouncer.DebounceType.kRising)
 
         self.counter: int = 0
 
@@ -70,10 +70,10 @@ class AutoUnjamming(commands2.Command):
     
     def execute(self) -> None:
         if self.debouncer.calculate(
-            self.subsystem.get_tower_motor_velocity() < constants.motor_velocity_threshold 
-            and self.subsystem.get_tower_motor_current() > constants.motor_current_threshold
+            self.subsystem.get_tower_motor_velocity() < motor_velocity_threshold 
+            and self.subsystem.get_tower_motor_current() > motor_current_threshold
         ):
-            self.counter = constants.unjamming_time
+            self.counter = unjamming_time
         if self.counter > 0:
             self.subsystem.run_indexer_reverse()
             self.subsystem.run_tower_reverse()

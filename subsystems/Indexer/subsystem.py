@@ -1,20 +1,20 @@
 
-import constants
+from .constants import *
 from commands2 import Subsystem
-from phoenix6 import hardware, controls, TalonFX
+from phoenix6 import hardware, controls
 import ntcore
 
 class Indexer(Subsystem):
 
     def __init__(self):
         super().__init__()
-        self.indexer_motor: TalonFX = hardware.TalonFX(constants.indexer_motor_id)
-        self.tower_motor: TalonFX = hardware.TalonFX(constants.tower_motor_id)
+        self.indexer_motor: hardware.TalonFX = hardware.TalonFX(indexer_motor_id)
+        self.tower_motor: hardware.TalonFX = hardware.TalonFX(tower_motor_id)
         self.control_duty_cycle = controls.DutyCycleOut(0)
         self.control_velocity = controls.VelocityTorqueCurrentFOC(0)
 
-        self.indexer_config = constants.indexer_config
-        self.tower_config = constants.tower_config
+        self.indexer_config = indexer_config
+        self.tower_config = tower_config
 
         self.indexer_running: bool = False
         self.indexer_reversed: bool = False
@@ -35,7 +35,7 @@ class Indexer(Subsystem):
         Runs the indexer motor
         """
         self.indexer_motor.set_control(
-            self.control_duty_cycle.with_output(constants.indexer_speed)
+            self.control_duty_cycle.with_output(indexer_speed)
         )
 
         self.indexer_running = True
@@ -46,7 +46,7 @@ class Indexer(Subsystem):
         Runs the tower motor
         """
         self.tower_motor.set_control(
-            self.control_velocity.with_velocity(constants.tower_speed)
+            self.control_velocity.with_velocity(tower_speed)
         )
 
         self.indexer_running = True
@@ -57,7 +57,7 @@ class Indexer(Subsystem):
         Runs the indexer motor in reverse
         """
         self.indexer_motor.set_control(
-            self.control_duty_cycle.with_output(-constants.indexer_speed)
+            self.control_duty_cycle.with_output(-indexer_speed)
         )
 
         self.indexer_running = True
@@ -68,7 +68,7 @@ class Indexer(Subsystem):
         Runs the tower motor in reverse
         """
         self.tower_motor.set_control(
-            self.control_velocity.with_velocity(-constants.tower_speed)
+            self.control_velocity.with_velocity(-tower_speed)
         )
         
         self.indexer_running = True
