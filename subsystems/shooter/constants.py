@@ -14,6 +14,8 @@ hood_threshold = 2.0 # placeholder
 
 hood_gear_ratio = 0 # placeholder
 
+idle_velocity = 0 # placeholder
+
 NT_SHOOTER: bool = True
 
 left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
@@ -77,7 +79,7 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     return table
 
 shooter_offset = Translation2d(1, 1) # placeholder
-max_hood_angle = 75 # placeholder
+max_hood_angle = 43 # placeholder
 min_hood_angle = 0 # placeholder
 
 # robot distance to hub, hood angle, and RPS
@@ -89,7 +91,6 @@ RPM = SHOT_TABLE[:, 2]
 
 # robot distance to pass, hood angle, and RPS
 PASS_TABLE = load_shooter_table_csv("pass_table.csv")
-
 
 PASS_DIST_M = SHOT_TABLE[:, 0]
 PASS_HOOD_DEG = SHOT_TABLE[:, 1]

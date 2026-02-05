@@ -1,9 +1,12 @@
 import commands2
 from shooter import Shooter
 from wpimath.geometry import Pose2d
+from subsystems.drivetrain.command import CommandSwerveDrivetrain
+from utils import alliance_flip_util, field_constants
 from robotcontainer import RobotContainer
+import constants
 
-class SetShooter(commands2.Command):
+class AimShooter(commands2.Command):
     """
     uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
     never ends
@@ -12,28 +15,33 @@ class SetShooter(commands2.Command):
             pose: robot Pose2d
     """
 
-    def __init__(self, subsystem: Shooter, drivetrain: RobotContainer.drivetrain, pose: Pose2d):
-        super().__init__()
-        
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController):
+        super().__init__()     
 
         self.addRequirements(self.subsystem)
 
         self.subsystem = subsystem
         self.drivetrain = drivetrain
-        self.pose = pose
+        self.controller = controller
 
     def initialize(self):
-        self.subsystem.target_stationary(self.drivetrain.get_pose())
+        pass
 
     def execute(self):
-        pass
+        """
+        if you are in passing zone, set shooter to passing setpoints
+        else, set shooter to shooting setpoints
+        """
+        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+            self.subsystem.target_stationary(self.drivetrain.get_pose(), False)
+        else:
+            self.subsystem.target_stationary(self.drivetrain.get_pose(), True)
 
     def isFinished(self):
         return False
 
     def end(self):
         pass
-
 class SetShooterAuto(commands2.Command):
     """
     uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
@@ -67,24 +75,24 @@ class SetShooterAuto(commands2.Command):
     def end(self):
         pass
 
-class Pass(commands2.Command):
-    def __init__(self, subsystem: Shooter, drivetrain: RobotContainer.drivetrain, pose: Pose2d):
-        super().__init__()
-         
+class Idle(commands2.Command):
+    def __init__(self, subsystem: Shooter):
+        super().__init__()   
 
         self.addRequirements(self.subsystem)
 
         self.subsystem = subsystem
-        self.pose = pose
 
     def initialize(self):
-        pass
+        self.subsystem.set_left_target_velocity(constants.idle_velocity)
+        self.subsystem.set_right_target_velocity(constants.idle_velocity)
+        self.subsystem.set_hood_angle(constants.min_hood_angle)
 
     def execute(self):
         pass
 
     def isFinished(self):
-        pass
+        return False
 
     def end(self):
         pass
