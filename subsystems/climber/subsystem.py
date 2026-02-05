@@ -22,7 +22,7 @@ class Climber(commands2.Subsystem):
         
     The climber publishes its motor current, if it is zeroed, if it is moving, and the revolutions of the left motor to NetworkTables.
     
-    The motor for the climber uses motion magic control for ascending and voltage control for descending. (defaulted to volage out)
+    The motor for the climber uses motion magic control for ascending and voltage control for descending. (defaulted to voltage out)
     """
 
     
