@@ -16,7 +16,7 @@ perspective of the blue alliance station
 """
 
 from wpimath.geometry import Translation2d, Translation3d, Pose2d, Rotation2d
-from wpimath.units import inchesToMeters
+from wpimath.units import inchesToMeters, meters
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 import math
 from wpilib import DriverStation
@@ -32,6 +32,12 @@ APRILTAG_WIDTH = inchesToMeters(6.5)
 # Field dimensions
 FIELD_LENGTH = _layout.getFieldLength()
 FIELD_WIDTH = _layout.getFieldWidth()
+
+# passing setpoints
+pass_target_1: Translation2d = Translation2d(2.0, 1.0) #placeholder values
+pass_target_2: Translation2d = Translation2d(5.0, 2.0) #placeholder values
+
+pass_offset: meters = 2 #placeholder values
 
 class Hub:
     """Hub related constants"""
