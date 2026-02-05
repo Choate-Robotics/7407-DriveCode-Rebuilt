@@ -22,6 +22,8 @@ import robot_constants
 
 from subsystems import *
 
+from typing import Callable
+
 
 def curve(x, d, c=1):
     if abs(x) < d:
@@ -69,7 +71,7 @@ class RobotContainer:
         self.drivetrain = TunerConstants.create_drivetrain()
 
         self.auto_selection = SendableChooser()
-        self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
+        self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
@@ -198,7 +200,7 @@ class RobotContainer:
             lambda state: self._logger.telemeterize(state)
         )
 
-    def getAutonomousCommand(self) -> autos.AutoRoutine:
+    def getAutonomousCommand(self) -> Callable[[RobotContainer], autos.AutoRoutine]:
         """
         Use this to pass the autonomous command to the main {@link Robot} class.
 

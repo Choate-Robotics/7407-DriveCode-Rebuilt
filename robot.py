@@ -63,7 +63,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        auto: AutoRoutine = self.robot.getAutonomousCommand()
+        auto: AutoRoutine = self.robot.getAutonomousCommand()(self.robot)
         starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
