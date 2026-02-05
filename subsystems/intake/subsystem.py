@@ -11,14 +11,15 @@ class Intake(commands2.Subsystem):
     def __init__(self):
         super().__init__()
         # self.encoder: CANcoder = CANcoder()
+
         self.horizontal_motor = hardware.TalonFX(constants.horizontal_motor_id)
 
         self.pivot_motor = hardware.TalonFX(constants.pivot_motor_id)
         self.horizontal_motor_out = controls.DutyCycleOut(0)
         self.pivot_request = controls.MotionMagicVoltage(0.0)
-        self.target_angle = 0.0
-    
-        self.pivot_motor_zeroed = False
+        self.target_angle = 0.0    
+
+        self.pivot_motor.set_position(0.0)
         self.intake_running = False
         self.pivot_running = False
 
@@ -33,39 +34,77 @@ class Intake(commands2.Subsystem):
         self.intake_runningpub = self.table.getBooleanTopic("intake running").publish()
 
     def intake_fuel(self):
+        """
+        run intake
+        """
         self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(constants.fuel_speed))
         self.intake_running = True
 
     def reverse_intake(self):
+        """
+        reverse intake
+        """
         self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(-constants.fuel_speed))
         self.intake_running = True
 
     def stop_intake(self):
+        """
+        stop intake
+        """
         self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(0.0))
         self.intake_running = False
 
     def get_pivot_motor_current(self):
+        """
+        get SUPPLY current of pivot motor
+        """
         return self.pivot_motor.get_supply_current()
     
     def get_horizontal_motor_current(self):
+        """
+        get SUPPLY current of horizontal motor
+        """
         return self.horizontal_motor.get_supply_current()
     
     def get_pivot_angle(self):
+        """
+        get rotations of pivot motor
+        """
         return (self.pivot_motor.get_position().value)
        
     def stop_pivot(self):
+        """
+        stop pivot motor
+        """
         self.pivot_request = controls.MotionMagicDutyCycle(0.0)
         self.pivot_motor.set_control(self.pivot_request)
         
+    def set_pivot_out(self, output:float):
+        """
+        set pivot motor voltage
+        """
+        self.output = output
+        self.pivot_request = controls.VoltageOut(self.output)
+        self.pivot_motor.set_control(self.pivot_request)
+    
     def is_at_angle(self, angle: float):
+        """
+        checks at angle 
+        """
         return abs(self.get_pivot_angle() - angle) < constants.angle_threshold
 
     def set_pivot(self, angle: float):
+        """
+        set pivot motor angle
+        """
         self.target_angle = angle
-        self.pivot_request = self.pivot_request = controls.MotionMagicDutyCycle(self.target_angle)
+        self.pivot_request = controls.MotionMagicVoltage(angle)
         self.pivot_motor.set_control(self.pivot_request)
     
     def update_table(self):
+        """
+        update network tables
+        """
         self.anglepub.set(self.get_pivot_angle())
         self.targetpub.set(self.target_angle)
         self.pivot_currentpub.set(self.get_pivot_motor_current().value)

@@ -11,6 +11,7 @@ angle_threshold = 2.0
 fuel_speed = 0.0 
 deploy_angle = 45 #placeholder
 initial_angle = 0 #placeholder
+voltage_out = 3 #placeholder, is this found experimentally?
 
 horizontal_motor_configs = (
     configs.TalonFXConfiguration()
@@ -48,8 +49,8 @@ pivot_motor_configs = (
             ).with_software_limit_switch(
                 configs.SoftwareLimitSwitchConfigs()
                 .with_reverse_soft_limit_enable(True)
-                .with_reverse_soft_limit_threshold(0.0) #placeholder
+                .with_reverse_soft_limit_threshold(0.1) #placeholder
                 .with_forward_soft_limit_enable(True)
-                .with_forward_soft_limit_threshold(0.8) #placeholder
+                .with_forward_soft_limit_threshold(0.2) #placeholder
             ) 
         )

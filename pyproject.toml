@@ -33,5 +33,4 @@ requires = [
     "robotpy-pathplannerlib",
     # "robotpy-playingwithfusion",
     # "robotpy-rev",
-    "photonlibpy",
 ]
