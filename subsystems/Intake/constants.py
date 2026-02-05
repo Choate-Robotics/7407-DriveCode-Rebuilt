@@ -7,11 +7,11 @@ from phoenix6.configs import TalonFXConfiguration
 horizontal_motor_id = 25 #placeholder
 pivot_motor_id = 24 #placeholder
 cancoder_id = 26 #placeholder
-angle_threshold = 2.0 
-fuel_speed = 0.0 
+angle_threshold = 2 #placeholder 
+fuel_speed = 0.0  #placeholder
 deploy_angle = 45 #placeholder
 initial_angle = 0 #placeholder
-voltage_out = 3 #placeholder, is this found experimentally?
+voltage_out = 3 #placeholder
 
 horizontal_motor_configs = (
     configs.TalonFXConfiguration()
@@ -52,5 +52,9 @@ pivot_motor_configs = (
                 .with_reverse_soft_limit_threshold(0.1) #placeholder
                 .with_forward_soft_limit_enable(True)
                 .with_forward_soft_limit_threshold(0.2) #placeholder
-            ) 
+            ).with_current_limits(
+                configs.CurrentLimitsConfigs()
+                .with_stator_current_limit(0.4) #placeholder found experimentally
+            )
+
         )

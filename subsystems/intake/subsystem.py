@@ -27,11 +27,12 @@ class Intake(commands2.Subsystem):
         self.pivot_motor.configurator.apply(constants.pivot_motor_configs)
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Intake")
         self.anglepub = self.table.getDoubleTopic("pivot angle").publish()
-        self.zeroedpub = self.table.getBooleanTopic("pivot zeroed").publish()
+        # self.zeroedpub = self.table.getBooleanTopic("pivot zeroed").publish()
         self.targetpub = self.table.getDoubleTopic("target angle").publish()
-        self.pivot_currentpub = self.table.getDoubleTopic("pivot current").publish()
+        self.pivot_supply_currentpub = self.table.getDoubleTopic("pivot supply current").publish()
         self.horizontal_motor_currentpub = self.table.getDoubleTopic("horizontal motor current").publish()
         self.intake_runningpub = self.table.getBooleanTopic("intake running").publish()
+        self.pivot_stator_currentpub = self.table.getDoubleTopic("pivot stator current").publish()
 
     def intake_fuel(self):
         """
@@ -54,13 +55,19 @@ class Intake(commands2.Subsystem):
         self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(0.0))
         self.intake_running = False
 
-    def get_pivot_motor_current(self):
+    def get_pivot_motor_supply_current(self):
         """
         get SUPPLY current of pivot motor
         """
         return self.pivot_motor.get_supply_current()
     
-    def get_horizontal_motor_current(self):
+    def get_pivot_motor_stator_current(self):
+        """
+        get STATOR current of pivot motor
+        """
+        return self.pivot_motor.get_stator_current()
+    
+    def get_horizontal_motor_supply_current(self):
         """
         get SUPPLY current of horizontal motor
         """
@@ -107,6 +114,7 @@ class Intake(commands2.Subsystem):
         """
         self.anglepub.set(self.get_pivot_angle())
         self.targetpub.set(self.target_angle)
-        self.pivot_currentpub.set(self.get_pivot_motor_current().value)
+        self.pivot_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
         self.intake_runningpub.set(self.intake_running)
-        self.horizontal_motor_currentpub.set(self.get_horizontal_motor_current().value)
+        self.horizontal_motor_currentpub.set(self.get_horizontal_motor_supply_current().value)
+        self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
