@@ -11,6 +11,7 @@ from ntcore import NetworkTableInstance
 from autos import AutoRoutine
 
 from robotcontainer import RobotContainer
+from utils.alliance_flip_util import get_alliance
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -62,13 +63,12 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        self.autonomousCommand: AutoRoutine = self.robot.getAutonomousCommand()
-
-        starting_pose = self.autonomousCommand.blue_start_pose if DriverStation.getAlliance() == DriverStation.Alliance.kBlue else self.autonomousCommand.red_start_pose
+        auto: AutoRoutine = self.robot.getAutonomousCommand()
+        starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
             commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(starting_pose.rotation())),
-            self.autonomousCommand.command,
+            auto.command,
         ))
         
     def autonomousPeriodic(self) -> None:
