@@ -25,8 +25,8 @@ class DeployClimbL1(commands2.Command):
         pass
 
     def isFinished(self):
-        return self.subsystem.get_left_motor_position() >= constants.L1_pos and self.subsystem.get_right_motor_position() >= constants.L1_pos
-
+        return self.subsystem.get_motor_position() >= constants.L1_pos
+    
     def end(self, interrupted: bool):
         self.subsystem.moving = False
 
@@ -50,7 +50,7 @@ class Retract(commands2.Command):
         pass
 
     def isFinished(self):
-        return self.subsystem.is_left_position(constants.climber_lower_bound) and self.subsystem.is_right_position(constants.climber_lower_bound)
+        return self.subsystem.is_motor_position(constants.climber_lower_bound)
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False
