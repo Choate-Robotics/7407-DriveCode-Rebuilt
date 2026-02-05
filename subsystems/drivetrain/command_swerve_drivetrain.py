@@ -29,9 +29,9 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
 
     _SIM_LOOP_PERIOD: units.second = 0.004  # 4 ms
 
-    _BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(180)
+    _BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(0)
     """Blue alliance sees forward as 0 degrees (toward red alliance wall)"""
-    _RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(0)
+    _RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(180)
     """Red alliance sees forward as 180 degrees (toward blue alliance wall)"""
 
     @overload
