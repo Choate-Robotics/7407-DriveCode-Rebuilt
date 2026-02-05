@@ -8,6 +8,7 @@ from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
+from subsystems import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
@@ -44,6 +45,7 @@ class RobotContainer:
         self.operator_controller = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
+        self.indexer = Indexer()
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
@@ -55,10 +57,24 @@ class RobotContainer:
 
     def configureButtonBindings(self) -> None:
         """
-        Use this method to define your button->command mappings. Buttons can be created by
-        instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
-        and then passing it to a JoystickButton.
+        button-command mappings for the indexer subsystem
         """
+
+        # shoots fuel into the hub (passing)
+        self.driver_controller.rightTrigger().onTrue(
+            RunIndexer(self.indexer)
+        )
+
+        # force the indexer to spin
+        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+            RunIndexer(self.indexer)
+        )
+
+        # reverse the indexer
+        self.operator_controller.y().onTrue(
+            RunIndexerReversed(self.indexer)
+        )
+
 
         # Note that X is defined as forward according to WPILib convention,
         # and Y is defined as to the left according to WPILib convention.
