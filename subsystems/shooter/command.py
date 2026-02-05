@@ -1,7 +1,7 @@
 import commands2
 from shooter import Shooter
 from wpimath.geometry import Pose2d
-from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
+from robotcontainer import RobotContainer
 
 class SetShooter(commands2.Command):
     """
@@ -12,17 +12,18 @@ class SetShooter(commands2.Command):
             pose: robot Pose2d
     """
 
-    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, pose: Pose2d):
+    def __init__(self, subsystem: Shooter, drivetrain: RobotContainer.drivetrain, pose: Pose2d):
         super().__init__()
         
 
         self.addRequirements(self.subsystem)
 
         self.subsystem = subsystem
+        self.drivetrain = drivetrain
         self.pose = pose
 
     def initialize(self):
-        self.subsystem.target_stationary(CommandSwerveDrivetrain.get_pose())
+        self.subsystem.target_stationary(self.drivetrain.get_pose())
 
     def execute(self):
         pass
@@ -67,7 +68,7 @@ class SetShooterAuto(commands2.Command):
         pass
 
 class Pass(commands2.Command):
-    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, pose: Pose2d):
+    def __init__(self, subsystem: Shooter, drivetrain: RobotContainer.drivetrain, pose: Pose2d):
         super().__init__()
          
 
