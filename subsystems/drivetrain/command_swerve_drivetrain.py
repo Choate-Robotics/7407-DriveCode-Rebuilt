@@ -15,7 +15,7 @@ from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
 from pathplannerlib.config import RobotConfig, PIDConstants
 from wpilib import DriverStation
-import constants
+from .constants import *
 
 
 class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
@@ -29,9 +29,9 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
 
     _SIM_LOOP_PERIOD: units.second = 0.004  # 4 ms
 
-    _BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(0)
+    _BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(180)
     """Blue alliance sees forward as 0 degrees (toward red alliance wall)"""
-    _RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(180)
+    _RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(0)
     """Red alliance sees forward as 180 degrees (toward blue alliance wall)"""
 
     @overload
@@ -268,7 +268,7 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         :rtype: bool
         """
         self.current_yaw = self.get_pose().rotation().radians()
-        self.tolerance = constants.drive_at_angle_tolerance  # 0.05 radian tolerance (~2.86 degrees)
+        self.tolerance = drive_at_angle_tolerance  # 0.05 radian tolerance (~2.86 degrees)
         return abs(bounded_angle_diff(self.current_yaw, angle)) <= self.tolerance
 
     def apply_request(

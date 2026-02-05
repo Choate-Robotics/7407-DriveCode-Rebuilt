@@ -1,6 +1,5 @@
 from wpimath.geometry import Pose2d, Pose3d, Translation2d, Translation3d, Rotation2d
 from utils import alliance_flip_util, field_constants
-from subsystems import *
 import math
 
 def angle_aim_to_target(robot_pose: Pose2d, target: Pose2d | Pose3d | Translation2d | Translation3d) -> Rotation2d:
@@ -25,15 +24,15 @@ def get_pass_setpoint(robot_pose: Pose2d) -> Translation2d:
 
     if alliance_flip_util.get_y(robot_pose.Y()) < (field_constants.LinesHorizontal.CENTER):
         # from lowest quadrant
-        if alliance_flip_util.get_y(robot_pose.Y()) < (field_constants.LinesHorizontal.CENTER - pass_offset):
-            return alliance_flip_util.get_alliance(pass_target_2)
+        if alliance_flip_util.get_y(robot_pose.Y()) < (field_constants.LinesHorizontal.CENTER - field_constants.pass_offset):
+            return alliance_flip_util.get_alliance(field_constants.pass_target_2)
         # from middle-lower quadrant
         else:
-            return alliance_flip_util.get_alliance(pass_target_1)
+            return alliance_flip_util.get_alliance(field_constants.pass_target_1)
     else:
         # from upper quadrant
-        if alliance_flip_util.get_y(robot_pose.Y()) > (field_constants.LinesHorizontal.CENTER + pass_offset):
-            return alliance_flip_util.get_alliance(Translation2d(pass_target_2.X(), field_constants.LinesHorizontal.CENTER + pass_target_2.Y()))
+        if alliance_flip_util.get_y(robot_pose.Y()) > (field_constants.LinesHorizontal.CENTER + field_constants.pass_offset):
+            return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_2.X(), field_constants.LinesHorizontal.CENTER + field_constants.pass_target_2.Y()))
         # from middle-upper quadrant
         else:
-            return alliance_flip_util.get_alliance(Translation2d(pass_target_1.X(), field_constants.LinesHorizontal.CENTER + pass_target_1.Y()))
+            return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_1.X(), field_constants.LinesHorizontal.CENTER + field_constants.pass_target_1.Y()))

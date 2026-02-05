@@ -1,8 +1,8 @@
 import commands2
-import constants
+from .constants import *
 import math
 
-from command_swerve_drivetrain import CommandSwerveDrivetrain
+from .command_swerve_drivetrain import CommandSwerveDrivetrain
 from phoenix6 import swerve
 from utils import alliance_flip_util, field_constants, math_utils, shooter_utils
 
@@ -14,9 +14,9 @@ class AimDrivetrain(commands2.Command):
         self.controller = controller
         self._brake = swerve.requests.SwerveDriveBrake()
         self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            constants.aiming_pid_p,
-            constants.aiming_pid_i,
-            constants.aiming_pid_d
+            aiming_pid_p,
+            aiming_pid_i,
+            aiming_pid_d
         )
 
         self.addRequirements(self.drivetrain)
@@ -45,15 +45,15 @@ class AimDrivetrain(commands2.Command):
                 shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
             )
 
-        self.v_x = math_utils.curve(-self.controller.getLeftY(), constants.deadband) * constants.max_speed
-        self.v_y = math_utils.curve(-self.controller.getLeftX(), constants.deadband, constants.curve) * constants.max_speed
+        self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
+        self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
 
-        if self.drivetrain.is_facing_angle(self.target_angle) and self.cmd_speed == 0:
-            self.drivetrain.set_control(lambda: self._brake)
+        if self.drivetrain.is_facing_angle(self.target_angle.radians()) and self.cmd_speed == 0:
+            self.drivetrain.set_control(self._brake)
 
-        elif self.cmd_speed > 0 or not self.drivetrain.is_facing_angle(self.target_angle):
+        elif self.cmd_speed > 0 or not self.drivetrain.is_facing_angle(self.target_angle.radians()):
             self.drivetrain.set_control(
                 self._aim_at.with_target_direction(self.target_angle)
                 .with_velocity_x(self.v_x)
@@ -63,5 +63,5 @@ class AimDrivetrain(commands2.Command):
     def isFinished(self) -> bool:
         return False
     
-    def end(self):
+    def end(self, interrupted: bool) -> None:
         pass
