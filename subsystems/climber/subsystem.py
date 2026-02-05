@@ -15,10 +15,15 @@ class Climber(commands2.Subsystem):
 
         set_position method -> sets the target position for the climber motors and moves them to said position. 
                                If that position is out of bounds, it will set to the nearest bound.
+                                    Takes in target position as an argument
 
         set_voltage method -> sets the voltage for the climber motors
+                                    Takes in voltage as an argument
 
-        get_motor_position -> returns the current positions of the left and right motors respectively
+        get_motor_position -> returns the current positions of the motor
+        
+        is_motor_position -> returns true if the motor has reached the target position
+                                    Takes in target position as an argument
         
     The climber publishes its motor current, if it is zeroed, if it is moving, and the revolutions of the left motor to NetworkTables.
     
