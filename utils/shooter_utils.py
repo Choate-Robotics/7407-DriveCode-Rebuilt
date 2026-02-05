@@ -49,7 +49,7 @@ def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     - measures distance to hub center
     - interpolates hood and rpm from DIST_M tables
     """
-    hub2d: Translation2d = Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y)
+    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
 
     shooter_origin_field: Translation2d = (
         robot_pose.translation() + shooter_offset.rotateBy(robot_pose.rotation())
@@ -70,7 +70,7 @@ def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     - computes shooter-to-target distance using shooter_offset rotated by robot heading
     - interpolates hood and rpm from PASS_* tables
     """
-    pass_setpoint: Translation2d = get_pass_setpoint(robot_pose)
+    pass_setpoint: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
 
     shooter_origin_field: Translation2d = (
         robot_pose.translation() + shooter_offset.rotateBy(robot_pose.rotation())
