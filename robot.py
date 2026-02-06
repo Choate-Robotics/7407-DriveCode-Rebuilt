@@ -67,7 +67,7 @@ class MyRobot(wpilib.TimedRobot):
         starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
-            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(starting_pose.rotation())),
+            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))),
             auto.command,
         ))
         

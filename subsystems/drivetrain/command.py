@@ -34,16 +34,16 @@ class AimDrivetrain(commands2.Command):
         6. Else: drive at angle
         """
         if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
-            self.target_angle = shooter_utils.angle_aim_to_target(
+            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
                 self.drivetrain.get_pose(),
                 alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
-            )
+            ))
 
         else:
-            self.target_angle = shooter_utils.angle_aim_to_target(
+            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
                 self.drivetrain.get_pose(),
                 shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
-            )
+            ))
 
         self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
         self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed

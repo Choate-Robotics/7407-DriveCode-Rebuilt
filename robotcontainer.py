@@ -47,6 +47,9 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
+        self.climber = Climber()
+        
+        self.indexer = Indexer()
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
@@ -55,9 +58,7 @@ class RobotContainer:
         
     def configureButtonBindings(self) -> None:
         """
-        Use this method to define your button->command mappings. Buttons can be created by
-        instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
-        and then passing it to a JoystickButton.
+        button-command mappings for the indexer subsystem
         """
 
         # Note that X is defined as forward according to WPILib convention,
@@ -94,7 +95,38 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
+        # X mode
         self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
+
+        # Rezero drivetrain
+        Trigger(lambda: self.driver_controller.getHID().getPOV() == 180).onTrue(
+            self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
+        )
+
+        # Aim drivetrain and shooter
+        self.driver_controller.rightTrigger().whileTrue(
+            AimDrivetrain(self.drivetrain, self.driver_controller)
+        )
+
+        # force the indexer to spin
+        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+            RunIndexer(self.indexer)
+        )
+
+        # reverse the indexer
+        self.operator_controller.y().onTrue(
+            RunIndexerReversed(self.indexer)
+        )
+
+        # deploy climb
+        self.operator_controller.start().onTrue(
+            DeployClimbL1(self.climber)
+        )
+        
+        # climb
+        self.operator_controller.back().whileTrue(
+            Retract(self.climber)
+        )
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
@@ -110,10 +142,6 @@ class RobotContainer:
         # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
-
-        Trigger(lambda: self.driver_controller.getHID().getPOV() == 180).onTrue(
-            self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
-        )
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
