@@ -62,22 +62,6 @@ class RobotContainer:
         button-command mappings for the indexer subsystem
         """
 
-        # shoots fuel into the hub (passing)
-        self.driver_controller.rightTrigger().onTrue(
-            RunIndexer(self.indexer)
-        )
-
-        # force the indexer to spin
-        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-            RunIndexer(self.indexer)
-        )
-
-        # reverse the indexer
-        self.operator_controller.y().onTrue(
-            RunIndexerReversed(self.indexer)
-        )
-
-
         # Note that X is defined as forward according to WPILib convention,
         # and Y is defined as to the left according to WPILib convention.
         self.drivetrain.setDefaultCommand(
@@ -97,22 +81,6 @@ class RobotContainer:
             )
         )
 
-        # deploys climber to L1 position when start is pressed
-        self.operator_controller.start().onTrue(
-            DeployClimbL1(self.climber)
-        )
-        # retracts climber while back is held
-        self.operator_controller.back().whileTrue(
-            Retract(self.climber)
-
-
-        self.driver_controller.rightTrigger().whileTrue(
-            AimDrivetrain(self.drivetrain, self.driver_controller)
-        
-        self.driver_controller.rightTrigger().whileTrue(
-            AimDrivetrain(self.drivetrain, self.driver_controller)
-        )
-
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
         idle = swerve.requests.Idle()
@@ -120,8 +88,38 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
+        # X mode
         self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
 
+        # Rezero drivetrain
+        Trigger(lambda: self.driver_controller.getHID().getPOV() == 180).onTrue(
+            self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
+        )
+
+        # Aim drivetrain and shooter
+        self.driver_controller.rightTrigger().whileTrue(
+            AimDrivetrain(self.drivetrain, self.driver_controller)
+        )
+
+        # force the indexer to spin
+        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+            RunIndexer(self.indexer)
+        )
+
+        # reverse the indexer
+        self.operator_controller.y().onTrue(
+            RunIndexerReversed(self.indexer)
+        )
+
+        # deploy climb
+        self.operator_controller.start().onTrue(
+            DeployClimbL1(self.climber)
+        )
+        
+        # climb
+        self.operator_controller.back().whileTrue(
+            Retract(self.climber)
+        )
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
@@ -137,10 +135,6 @@ class RobotContainer:
         # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
-
-        Trigger(lambda: self.driver_controller.getHID().getPOV() == 180).onTrue(
-            self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
-        )
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)

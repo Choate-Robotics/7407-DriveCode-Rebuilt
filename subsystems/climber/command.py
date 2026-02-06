@@ -1,7 +1,6 @@
 import commands2
-import constants
-import constants
-from subsystems.climber.subsystem import Climber
+from .constants import *
+from .subsystem import Climber
 from utils import local_logger
 
 logger = local_logger.LocalLogger("ClimberCommands")
@@ -19,13 +18,13 @@ class DeployClimbL1(commands2.Command):
         self.addRequirements(self.subsystem)
 
     def initialize(self):
-        self.subsystem.set_position(constants.L1_pos)
+        self.subsystem.set_position(L1_pos)
 
     def execute(self):
         pass
 
     def isFinished(self):
-        return self.subsystem.get_motor_position() >= constants.L1_pos
+        return self.subsystem.get_motor_position() >= L1_pos
     
     def end(self, interrupted: bool):
         self.subsystem.moving = False
@@ -44,13 +43,13 @@ class Retract(commands2.Command):
         self.addRequirements(self.subsystem)   
 
     def initialize(self):
-        self.subsystem.set_voltage(constants.climber_retract_voltage)
+        self.subsystem.set_voltage(climber_retract_voltage)
 
     def execute(self):
         pass
 
     def isFinished(self):
-        return self.subsystem.is_motor_position(constants.climber_lower_bound)
+        return self.subsystem.is_motor_position(climber_lower_bound)
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False

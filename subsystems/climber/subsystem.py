@@ -1,4 +1,4 @@
-import constants
+from .constants import *
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals 
 import commands2
@@ -37,13 +37,13 @@ class Climber(commands2.Subsystem):
         self.moving = False
         self.zeroed = True
 
-        self.motor = hardware.TalonFX(constants.left_motor_id)
+        self.motor = hardware.TalonFX(left_motor_id)
 
         self.motor_out = controls.VoltageOut(0)
         self.climb_climber = controls.MotionMagicVoltage(0)
         self.drop_climber = controls.VoltageOut(0)
 
-        self.motor.configurator.apply(constants.climber_motor_configs)
+        self.motor.configurator.apply(climber_motor_configs)
 
         self.setup_table()
         self.zero()
@@ -54,13 +54,13 @@ class Climber(commands2.Subsystem):
 
     def set_position(self, target) -> None:
         self.moving = True
-        if target >= constants.climber_lower_bound and target <= constants.climber_upper_bound:
+        if target >= climber_lower_bound and target <= climber_upper_bound:
             self.motor.set_control(self.climb_climber.with_position(target))
         else:
-            if target < constants.climber_lower_bound:
-                target = constants.climber_lower_bound
-            elif target > constants.climber_upper_bound:
-                target = constants.climber_upper_bound
+            if target < climber_lower_bound:
+                target = climber_lower_bound
+            elif target > climber_upper_bound:
+                target = climber_upper_bound
             self.motor.set_control(self.climb_climber.with_position(target))
         target = 0
 
