@@ -1,4 +1,4 @@
-import constants
+from .constants import *
 import math
 import ntcore
 from utils import shooter_utils
@@ -9,35 +9,34 @@ from phoenix6 import hardware, controls, configs, signals
 class Shooter(Subsystem):
     def __init__(self):
         super().__init__()
-        self.left_leader_motor = hardware.TalonFX(constants.left_lead_id)
-        self.left_follower_motor = hardware.TalonFX(constants.left_follower_id)
+        self.left_leader_motor = hardware.TalonFX(left_lead_id)
+        self.left_follower_motor = hardware.TalonFX(left_follower_id)
 
-        self.right_leader_motor = hardware.TalonFX(constants.right_lead_id)
-        self.right_follower_motor = hardware.TalonFX(constants.right_follow_id)
+        self.right_leader_motor = hardware.TalonFX(right_lead_id)
+        self.right_follower_motor = hardware.TalonFX(right_follow_id)
 
         self.velocity_torque_current = controls.VelocityTorqueCurrentFOC(0)
 
-        self.hood_motor = hardware.TalonFX(constants.hood_id)
+        self.hood_motor = hardware.TalonFX(hood_id)
         self.motion_magic = controls.MotionMagicVoltage(0)
 
         self.left_target_velocity = 0
         self.right_target_velocity = 0 
         self.hood_target_angle = 0
     
-    def init(self):
-        self.left_leader_motor.configurator.apply(constants.flywheel_config.with_motor_output(
+        self.left_leader_motor.configurator.apply(flywheel_config.with_motor_output(
             configs.MotorOutputConfigs()
-            .with_inverted(constants.left_direction)
+            .with_inverted(left_direction)
         ))
-        self.left_follower_motor.set_control(controls.Follower(constants.left_lead_id, False))
+        self.left_follower_motor.set_control(controls.Follower(left_lead_id, False))
 
-        self.right_leader_motor.configurator.apply(constants.flywheel_config.with_motor_output(
+        self.right_leader_motor.configurator.apply(flywheel_config.with_motor_output(
             configs.MotorOutputConfigs()
-            .with_inverted(constants.right_direction)
+            .with_inverted(right_direction)
         ))
-        self.right_follower_motor.set_control(controls.Follower(constants.right_lead_id, False))
+        self.right_follower_motor.set_control(controls.Follower(right_lead_id, False))
 
-        self.hood_motor.configurator.apply(constants.hood_config)
+        self.hood_motor.configurator.apply(hood_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
         self.left_velocity_pub = self.table.getDoubleTopic("left velocity").publish()
@@ -98,7 +97,7 @@ class Shooter(Subsystem):
         Returns:
             boolean: whether or not the left flywheel is at the velocity (true it is and false it isn't)
         """
-        return abs(self.get_left_velocity() - velocity) < constants.flywheel_threshold
+        return abs(self.get_left_velocity() - velocity) < flywheel_threshold
     
     def right_is_at_velocity(self, velocity: float):
         """
@@ -110,7 +109,7 @@ class Shooter(Subsystem):
         Returns:
             boolean: whether or not the right flywheel is at the velocity (true it is and false it isn't)
         """
-        return abs(self.get_right_velocity() - velocity) < constants.flywheel_threshold
+        return abs(self.get_right_velocity() - velocity) < flywheel_threshold
     
     def set_hood_angle(self, angle: float):
         """
@@ -120,7 +119,7 @@ class Shooter(Subsystem):
             angle (radians): intended hood angle in radians
         """
 
-        self.hood_target_angle = max(constants.min_hood_angle, min(angle, constants.max_hood_angle))
+        self.hood_target_angle = max(min_hood_angle, min(angle, max_hood_angle))
 
         rotations = self.hood_target_angle / (2 * math.pi)
 
@@ -145,7 +144,7 @@ class Shooter(Subsystem):
         Returns:
             boolean: whether or not the hood is at the angle (true it is and false it isn't)
         """
-        return abs(self.get_hood_angle() - angle) < constants.hood_threshold
+        return abs(self.get_hood_angle() - angle) < hood_threshold
     
     def ready_to_shoot(self):
         """
@@ -186,5 +185,5 @@ class Shooter(Subsystem):
         self.shooter_ready_pub.set(self.ready_to_shoot())
 
     def periodic(self):
-        if constants.NT_SHOOTER:
+        if NT_SHOOTER:
             self.update_table

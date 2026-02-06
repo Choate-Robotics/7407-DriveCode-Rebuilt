@@ -1,10 +1,9 @@
 import commands2
-from shooter import Shooter
+from .subsystem import Shooter
 from wpimath.geometry import Pose2d
-from subsystems.drivetrain.command import CommandSwerveDrivetrain
+from subsystems import CommandSwerveDrivetrain
 from utils import alliance_flip_util, field_constants
-from robotcontainer import RobotContainer
-import constants
+from .constants import *
 
 class AimShooter(commands2.Command):
     """
@@ -84,9 +83,9 @@ class Idle(commands2.Command):
         self.subsystem = subsystem
 
     def initialize(self):
-        self.subsystem.set_left_target_velocity(constants.idle_velocity)
-        self.subsystem.set_right_target_velocity(constants.idle_velocity)
-        self.subsystem.set_hood_angle(constants.min_hood_angle)
+        self.subsystem.set_left_target_velocity(idle_velocity)
+        self.subsystem.set_right_target_velocity(idle_velocity)
+        self.subsystem.set_hood_angle(min_hood_angle)
 
     def execute(self):
         pass
