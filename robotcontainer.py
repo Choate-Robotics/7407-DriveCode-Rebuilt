@@ -52,10 +52,7 @@ class RobotContainer:
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
 
         SmartDashboard.putData("Auto", self.auto_selection)
-
-        # Configure the button bindings
-        self.configureButtonBindings()
-
+        
     def configureButtonBindings(self) -> None:
         """
         Use this method to define your button->command mappings. Buttons can be created by
