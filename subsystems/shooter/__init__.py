@@ -1,2 +1,2 @@
-from subsystem import Shooter
-from command import AimShooter, SetShooterAuto
+from .subsystem import Shooter
+from .command import AimShooter, SetShooterAuto, SetShooterIdle

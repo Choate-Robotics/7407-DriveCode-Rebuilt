@@ -3,11 +3,11 @@ from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
 
-left_lead_id = 58 # placeholder
-left_follower_id = 59 # placeholder
-right_lead_id = 60 # placeholder
-right_follow_id = 61 # placeholder
-hood_id = 62 # placeholder
+left_lead_id: int = 58 # placeholder
+left_follower_id: int = 59 # placeholder
+right_lead_id: int = 60 # placeholder
+right_follow_id: int = 61 # placeholder
+hood_id: int = 62 # placeholder
 
 flywheel_threshold = 2.0 # placeholder
 hood_threshold = 2.0 # placeholder
@@ -65,7 +65,7 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     [distance_m, hood_deg, rpm]
     """
     deploy_dir = wpilib.getDeployDirectory()
-    file_path = deploy_dir / "shooter_tables" / rel_path
+    file_path = deploy_dir + "/shooter_tables/" + rel_path
 
     # Load numeric rows, skip header
     table = np.loadtxt(file_path, delimiter=",", dtype=float)

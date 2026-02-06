@@ -1,7 +1,7 @@
 import commands2
 from .subsystem import Shooter
 from wpimath.geometry import Pose2d
-from subsystems import CommandSwerveDrivetrain
+from subsystems.drivetrain.command_swerve_drivetrain import CommandSwerveDrivetrain
 from utils import alliance_flip_util, field_constants
 from .constants import *
 
@@ -17,9 +17,8 @@ class AimShooter(commands2.Command):
     def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain):
         super().__init__()     
 
-        self.addRequirements(self.subsystem)
-
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
         self.drivetrain = drivetrain
 
     def initialize(self):
@@ -38,7 +37,7 @@ class AimShooter(commands2.Command):
     def isFinished(self):
         return False
 
-    def end(self):
+    def end(self, interrupted):
         pass
 class SetShooterAuto(commands2.Command):
     """
@@ -53,9 +52,8 @@ class SetShooterAuto(commands2.Command):
         super().__init__()
        
        
-        self.addRequirements(self.subsystem)
-
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
         self.pose = pose
 
     def initialize(self):
@@ -70,16 +68,15 @@ class SetShooterAuto(commands2.Command):
         """
         return self.subsystem.ready_to_shoot()
 
-    def end(self):
+    def end(self, interrupted):
         pass
 
-class Idle(commands2.Command):
+class SetShooterIdle(commands2.Command):
     def __init__(self, subsystem: Shooter):
         super().__init__()   
 
-        self.addRequirements(self.subsystem)
-
         self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
 
     def initialize(self):
         self.subsystem.set_left_target_velocity(idle_velocity)
@@ -92,5 +89,5 @@ class Idle(commands2.Command):
     def isFinished(self):
         return False
 
-    def end(self):
+    def end(self, interrupted):
         pass

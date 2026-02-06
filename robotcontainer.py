@@ -48,7 +48,6 @@ class RobotContainer:
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
         self.climber = Climber()
-        
         self.indexer = Indexer()
 
         self.auto_selection = SendableChooser()
@@ -80,12 +79,8 @@ class RobotContainer:
             )
         )
 
-
-        self.driver_controller.rightTrigger().whileTrue(
-            ParallelCommandGroup(
-                AimDrivetrain(self.drivetrain, self.driver_controller),
-                AimShooter(self.shooter, self.drivetrain)
-            )
+        self.shooter.setDefaultCommand(
+            SetShooterIdle(self.shooter)
         )
 
         # Idle while the robot is disabled. This ensures the configured
@@ -105,7 +100,10 @@ class RobotContainer:
 
         # Aim drivetrain and shooter
         self.driver_controller.rightTrigger().whileTrue(
-            AimDrivetrain(self.drivetrain, self.driver_controller)
+            ParallelCommandGroup(
+                AimDrivetrain(self.drivetrain, self.driver_controller),
+                AimShooter(self.shooter, self.drivetrain)
+            )
         )
 
         # force the indexer to spin

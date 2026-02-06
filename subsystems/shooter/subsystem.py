@@ -28,13 +28,13 @@ class Shooter(Subsystem):
             configs.MotorOutputConfigs()
             .with_inverted(left_direction)
         ))
-        self.left_follower_motor.set_control(controls.Follower(left_lead_id, False))
+        self.left_follower_motor.set_control(controls.Follower(left_lead_id, signals.MotorAlignmentValue.ALIGNED))
 
         self.right_leader_motor.configurator.apply(flywheel_config.with_motor_output(
             configs.MotorOutputConfigs()
             .with_inverted(right_direction)
         ))
-        self.right_follower_motor.set_control(controls.Follower(right_lead_id, False))
+        self.right_follower_motor.set_control(controls.Follower(right_lead_id, signals.MotorAlignmentValue.ALIGNED))
 
         self.hood_motor.configurator.apply(hood_config)
 
