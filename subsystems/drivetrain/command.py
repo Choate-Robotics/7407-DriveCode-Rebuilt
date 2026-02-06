@@ -65,3 +65,29 @@ class AimDrivetrain(commands2.Command):
     
     def end(self, interrupted: bool) -> None:
         pass
+
+
+class SnakeMode(commands2.Command):
+    def __init__(self, subsystem: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController):
+        super().__init__()
+
+        self.drivetrain = subsystem
+        self.controller = controller
+        self._brake = swerve.requests.SwerveDriveBrake()
+        self.addRequirements(self.drivetrain)
+
+    def initialize(self):
+        pass
+
+    def execute(self):
+        direction = self.controller.getLeftX()
+        speed = self.controller.getLeftY()
+        magnitude = math.hypot(direction, speed)
+        angle = math.atan2(speed, direction )
+       
+        
+    def isFinished(self) -> bool:
+        return False
+    
+    def end(self, interrupted: bool) -> None:
+        pass
