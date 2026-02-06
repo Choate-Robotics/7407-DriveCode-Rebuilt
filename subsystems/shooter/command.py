@@ -14,14 +14,13 @@ class AimShooter(commands2.Command):
             pose: robot Pose2d
     """
 
-    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController):
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain):
         super().__init__()     
 
         self.addRequirements(self.subsystem)
 
         self.subsystem = subsystem
         self.drivetrain = drivetrain
-        self.controller = controller
 
     def initialize(self):
         pass
@@ -60,7 +59,7 @@ class SetShooterAuto(commands2.Command):
         self.pose = pose
 
     def initialize(self):
-        self.subsystem.target_stationary(Pose2d)
+        self.subsystem.target_stationary(Pose2d, False)
 
     def execute(self):
         pass

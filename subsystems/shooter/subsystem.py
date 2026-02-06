@@ -167,7 +167,7 @@ class Shooter(Subsystem):
         if passing:
             hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
         else:
-            hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
+            hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 
         self.set_hood_angle(math.radians(hood_deg))
         self.set_left_target_velocity(rps)
