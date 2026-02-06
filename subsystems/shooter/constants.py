@@ -62,7 +62,7 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
 def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     """
     Loads a CSV from the robot deploy directory into a Nx3 float array:
-    [distance_m, hood_deg, rpm]
+    [distance_m, hood_deg, rps]
     """
     deploy_dir = wpilib.getDeployDirectory()
     file_path = deploy_dir + "/shooter_tables/" + rel_path
@@ -74,7 +74,7 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     table = np.atleast_2d(table)
 
     if table.shape[1] != 3:
-        raise ValueError(f"Expected 3 columns (distance_m, hood_deg, rpm), got {table.shape[1]} from {file_path}")
+        raise ValueError(f"Expected 3 columns (distance_m, hood_deg, rps), got {table.shape[1]} from {file_path}")
     
     return table
 
@@ -87,11 +87,11 @@ SHOT_TABLE = load_shooter_table_csv("shot_table.csv")
 
 DIST_M = SHOT_TABLE[:, 0]
 HOOD_DEG = SHOT_TABLE[:, 1]
-RPM = SHOT_TABLE[:, 2]
+RPS = SHOT_TABLE[:, 2]
 
 # robot distance to pass, hood angle, and RPS
 PASS_TABLE = load_shooter_table_csv("pass_table.csv")
 
 PASS_DIST_M = SHOT_TABLE[:, 0]
 PASS_HOOD_DEG = SHOT_TABLE[:, 1]
-PASS_RPM = SHOT_TABLE[:, 2]
+PASS_RPS = SHOT_TABLE[:, 2]

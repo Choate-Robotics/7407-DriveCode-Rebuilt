@@ -2,7 +2,7 @@ from wpimath.geometry import Pose2d, Pose3d, Translation2d, Translation3d, Rotat
 from utils import alliance_flip_util, field_constants
 import math
 
-from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPM, shooter_offset, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPM
+from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, shooter_offset, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS
 from utils.field_constants import Hub
 import numpy as np
 
@@ -44,10 +44,10 @@ def get_pass_setpoint(robot_pose: Pose2d) -> Translation2d:
 #shooting        
 def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     """
-    Computes shot (hood_deg, rpm) from robot pose:
+    Computes shot (hood_deg, rps) from robot pose:
     - computes shooter exit point in field coords (robot translation + rotated shooter_offset)
     - measures distance to hub center
-    - interpolates hood and rpm from DIST_M tables
+    - interpolates hood and rps from DIST_M tables
     """
     hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
 
@@ -58,17 +58,17 @@ def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     distance_m: float = shooter_origin_field.distance(hub2d)
 
     hood_deg: float = float(np.interp(distance_m, DIST_M, HOOD_DEG))
-    rpm: float = float(np.interp(distance_m, DIST_M, RPM))
+    rps: float = float(np.interp(distance_m, DIST_M, RPS))
 
-    return hood_deg, rpm
+    return hood_deg, rps
 
 #passing
 def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     """
-    Computes pass (hood_deg, rpm) based on robot pose:
+    Computes pass (hood_deg, rps) based on robot pose:
     - chooses the correct pass target (via get_pass_setpoint)
     - computes shooter-to-target distance using shooter_offset rotated by robot heading
-    - interpolates hood and rpm from PASS_* tables
+    - interpolates hood and rps from PASS_* tables
     """
     pass_setpoint: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
 
@@ -79,6 +79,6 @@ def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     distance_m: float = shooter_origin_field.distance(pass_setpoint)
 
     hood_deg: float = float(np.interp(distance_m, PASS_DIST_M, PASS_HOOD_DEG))
-    rpm: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPM))
+    rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
 
-    return hood_deg, rpm
+    return hood_deg, rps
