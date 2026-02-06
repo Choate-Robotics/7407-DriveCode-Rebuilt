@@ -3,6 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
+from commands2 import ParallelCommandGroup
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -83,7 +84,10 @@ class RobotContainer:
 
 
         self.driver_controller.rightTrigger().whileTrue(
-            AimDrivetrain(self.drivetrain, self.driver_controller)
+            ParallelCommandGroup(
+                AimDrivetrain(self.drivetrain, self.driver_controller),
+                AimShooter(self.shooter, self.drivetrain)
+            )
         )
 
         # Idle while the robot is disabled. This ensures the configured
