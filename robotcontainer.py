@@ -6,6 +6,7 @@
 from commands2 import ParallelCommandGroup
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
+
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from subsystems import *
@@ -32,10 +33,6 @@ class RobotContainer:
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.1)
-            .with_rotational_deadband(
-                self._max_angular_rate * 0.1
-            )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
             )  # Use open-loop control for drive motors
@@ -52,6 +49,7 @@ class RobotContainer:
         self.shooter = Shooter()
         self.climber = Climber()
         self.indexer = Indexer()
+        self.intake = Intake()
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
@@ -93,25 +91,6 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
-        self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self._joystick.b().whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
-                )
-            )
-        )
-        self._joystickoperator.rightTrigger().whileTrue(
-            DeployIntake(self.intake)
-        )
-
-        self._joystickoperator.leftTrigger().whileTrue(
-            ReverseIntake(self.intake).onlyIf(lambda: self.intake.is_at_angle(constants.deploy_angle))
-        )
-
-        self._joystickoperator.leftBumper().onTrue(
-            SetPivot(self.intake, constants.initial_angle)
-        )
         # X mode
         self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
 
@@ -136,6 +115,21 @@ class RobotContainer:
         # reverse the indexer
         self.operator_controller.y().onTrue(
             RunIndexerReversed(self.indexer)
+        )
+        
+        # deploy and run intake
+        self.operator_controller.rightTrigger().whileTrue(
+            DeployIntake(self.intake)
+        )
+
+        # run intake in reverse
+        self.operator_controller.leftTrigger().whileTrue(
+            ReverseIntake(self.intake).onlyIf(lambda: self.intake.is_at_angle(intake_deploy_angle))
+        )
+
+        # retract intake
+        self.operator_controller.leftBumper().onTrue(
+            SetPivot(self.intake, intake_initial_angle)
         )
 
         # deploy climb
@@ -173,23 +167,4 @@ class RobotContainer:
 
         :returns: the command to run in autonomous
         """
-        # Simple drive forward auton
-        idle = swerve.requests.Idle()
-        return cmd.sequence(
-            # Reset our field centric heading to match the robot
-            # facing away from our alliance station wall (0 deg).
-            self.drivetrain.runOnce(
-                lambda: self.drivetrain.seed_field_centric(Rotation2d.fromDegrees(0))
-            ),
-            # Then slowly drive forward (away from us) for 5 seconds.
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(0.5)
-                    .with_velocity_y(0)
-                    .with_rotational_rate(0)
-                )
-            )
-            .withTimeout(5.0),
-            # Finally idle for the rest of auton
-            self.drivetrain.apply_request(lambda: idle)
-        )
+        return self.auto_selection.getSelected()

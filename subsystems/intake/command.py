@@ -1,7 +1,6 @@
-from subsystem import Intake
-import subsystems.intake.command as command
+from .subsystem import Intake
 import commands2
-import constants
+from .constants import *
 from enum import Enum
 from utils import local_logger
 
@@ -105,7 +104,7 @@ class DeployIntake(commands2.SequentialCommandGroup):
     """
     def __init__(self, subsystem: Intake):
         super().__init__(
-            SetPivot(subsystem, constants.deploy_angle),
+            SetPivot(subsystem, intake_deploy_angle),
             RunIntake(subsystem)
         )
 
@@ -115,6 +114,6 @@ class DeployIntakeOut(commands2.SequentialCommandGroup):
     """
     def __init__(self, subsystem: Intake):
         super().__init__(
-            SetPivotOut(subsystem, constants.voltage_out,constants.deploy_angle),
+            SetPivotOut(subsystem, voltage_out, intake_deploy_angle),
             RunIntake(subsystem)
             )

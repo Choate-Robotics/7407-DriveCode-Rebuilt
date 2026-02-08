@@ -9,8 +9,8 @@ pivot_motor_id = 24 #placeholder
 cancoder_id = 26 #placeholder
 angle_threshold = 2 #placeholder 
 fuel_speed = 0.0  #placeholder
-deploy_angle = 45 #placeholder
-initial_angle = 0 #placeholder
+intake_deploy_angle = 45 #placeholder
+intake_initial_angle = 0 #placeholder
 voltage_out = 3 #placeholder
 
 horizontal_motor_configs = (

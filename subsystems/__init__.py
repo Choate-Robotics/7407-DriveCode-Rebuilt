@@ -1,4 +1,4 @@
-from intake import *
+from .intake import *
 from .shooter import *
 from .climber import *
 from .indexer import *
