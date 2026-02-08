@@ -3,6 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
+from commands2 import ParallelCommandGroup
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -45,18 +46,15 @@ class RobotContainer:
         self.operator_controller = CommandXboxController(1)
 
         self.drivetrain = TunerConstants.create_drivetrain()
+        self.shooter = Shooter()
         self.climber = Climber()
-        
         self.indexer = Indexer()
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
 
         SmartDashboard.putData("Auto", self.auto_selection)
-
-        # Configure the button bindings
-        self.configureButtonBindings()
-
+        
     def configureButtonBindings(self) -> None:
         """
         button-command mappings for the indexer subsystem
@@ -81,6 +79,10 @@ class RobotContainer:
             )
         )
 
+        self.shooter.setDefaultCommand(
+            SetShooterIdle(self.shooter)
+        )
+
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
         idle = swerve.requests.Idle()
@@ -98,7 +100,10 @@ class RobotContainer:
 
         # Aim drivetrain and shooter
         self.driver_controller.rightTrigger().whileTrue(
-            AimDrivetrain(self.drivetrain, self.driver_controller)
+            ParallelCommandGroup(
+                AimDrivetrain(self.drivetrain, self.driver_controller),
+                AimShooter(self.shooter, self.drivetrain)
+            )
         )
 
         # force the indexer to spin
