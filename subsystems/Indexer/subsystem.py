@@ -125,7 +125,7 @@ class Indexer(Subsystem):
 
         self.indexer_running_pub.set(self.indexer_running)
         self.indexer_reversed_pub.set(self.indexer_reversed)
-        self.tower_motor_current_pub.set(self.get_tower_motor_current)
-        self.indexer_motor_current_pub.set(self.get_indexer_motor_current)
-        self.indexer_motor_velocity_pub.set(self.get_indexer_motor_velocity)
-        self.tower_motor_velocity_pub.set(self.get_tower_motor_velocity)
+        self.tower_motor_current_pub.set(self.get_tower_motor_current())
+        self.indexer_motor_current_pub.set(self.get_indexer_motor_current())
+        self.indexer_motor_velocity_pub.set(self.get_indexer_motor_velocity())
+        self.tower_motor_velocity_pub.set(self.get_tower_motor_velocity())

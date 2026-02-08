@@ -80,7 +80,7 @@ class MyRobot(wpilib.TimedRobot):
         self.scheduler.cancelAll()
 
     def teleopInit(self) -> None:
-        pass
+        self.robot.configureButtonBindings()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
