@@ -2,8 +2,7 @@ from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals 
 import math
 import commands2
-import constants
-# from units.SI import radians
+from .constants import *
 import ntcore
 
 
@@ -12,9 +11,9 @@ class Intake(commands2.Subsystem):
         super().__init__()
         # self.encoder: CANcoder = CANcoder()
 
-        self.horizontal_motor = hardware.TalonFX(constants.horizontal_motor_id)
+        self.horizontal_motor = hardware.TalonFX(horizontal_motor_id)
 
-        self.pivot_motor = hardware.TalonFX(constants.pivot_motor_id)
+        self.pivot_motor = hardware.TalonFX(pivot_motor_id)
         self.horizontal_motor_out = controls.DutyCycleOut(0)
         self.pivot_request = controls.MotionMagicVoltage(0.0)
         self.target_angle = 0.0    
@@ -23,8 +22,8 @@ class Intake(commands2.Subsystem):
         self.intake_running = False
         self.pivot_running = False
 
-        self.horizontal_motor.configurator.apply(constants.horizontal_motor_configs)
-        self.pivot_motor.configurator.apply(constants.pivot_motor_configs)
+        self.horizontal_motor.configurator.apply(horizontal_motor_configs)
+        self.pivot_motor.configurator.apply(pivot_motor_configs)
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Intake")
         self.anglepub = self.table.getDoubleTopic("pivot angle").publish()
         # self.zeroedpub = self.table.getBooleanTopic("pivot zeroed").publish()
@@ -38,14 +37,14 @@ class Intake(commands2.Subsystem):
         """
         run intake
         """
-        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(constants.fuel_speed))
+        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(fuel_speed))
         self.intake_running = True
 
     def reverse_intake(self):
         """
         reverse intake
         """
-        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(-constants.fuel_speed))
+        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(-fuel_speed))
         self.intake_running = True
 
     def stop_intake(self):
@@ -98,7 +97,7 @@ class Intake(commands2.Subsystem):
         """
         checks at angle 
         """
-        return abs(self.get_pivot_angle() - angle) < constants.angle_threshold
+        return abs(self.get_pivot_angle() - angle) < angle_threshold
 
     def set_pivot(self, angle: float):
         """
