@@ -84,8 +84,11 @@ class SnakeMode(commands2.Command):
         speed = self.controller.getLeftY()
         magnitude = math.hypot(direction, speed)
         angle = math.atan2(speed, direction )
-       
-        
+    """
+    driving logic: I think I'd need the CAN ID's of the back to swerve pods to apply a constant direction. 
+    The turning is going to be tricky as I think we want it to mirror how a car drives, but to do that we need something called Ackerman Steering
+    The outside wheel turns less than the inside wheel. Idk how to find the ratio between the angle of the two tires       
+    """
     def isFinished(self) -> bool:
         return False
     
