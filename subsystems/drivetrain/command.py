@@ -18,6 +18,7 @@ class AimDrivetrain(commands2.Command):
             aiming_pid_i,
             aiming_pid_d
         )
+        self._snake = swerve.requests.()
 
         self.addRequirements(self.drivetrain)
 
@@ -70,27 +71,25 @@ class AimDrivetrain(commands2.Command):
 class SnakeMode(commands2.Command):
     def __init__(self, subsystem: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController):
         super().__init__()
-
         self.drivetrain = subsystem
         self.controller = controller
+        self._drive = swerve.requests.RobotCentric()
         self._brake = swerve.requests.SwerveDriveBrake()
         self.addRequirements(self.drivetrain)
 
-    def initialize(self):
-        pass
-
     def execute(self):
-        direction = self.controller.getLeftX()
-        speed = self.controller.getLeftY()
-        magnitude = math.hypot(direction, speed)
-        angle = math.atan2(speed, direction )
-    """
-    driving logic: I think I'd need the CAN ID's of the back to swerve pods to apply a constant direction. 
-    The turning is going to be tricky as I think we want it to mirror how a car drives, but to do that we need something called Ackerman Steering
-    The outside wheel turns less than the inside wheel. Idk how to find the ratio between the angle of the two tires       
-    """
-    def isFinished(self) -> bool:
-        return False
-    
-    def end(self, interrupted: bool) -> None:
+        throttle = math_utils.curve(-self.controller.getLeftY(), deadband)
+        steering = math_utils.curve(self.controller.getLeftX(), deadband)
+
+        if abs(throttle) < 0.05 and abs(steering) < 0.05:
+            self.drivetrain.set_control(self._brake)
+            
+        self.drivetrain.set_control(
+            self._drive
+                .with_velocity_x(throttle * max_speed)
+                .with_velocity_y(0.0)
+                .with_rotational_rate(steering * max_angular_rate)
+        )
+
+    def isFinished(self, interrupted: bool) -> None:
         pass
