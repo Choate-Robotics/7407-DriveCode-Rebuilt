@@ -49,16 +49,19 @@ class AimDrivetrain(commands2.Command):
         self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
+        self.is_facing_angle = self.drivetrain.is_facing_angle(self.target_angle.radians())
 
-        if self.drivetrain.is_facing_angle(self.target_angle.radians()) and self.cmd_speed == 0:
+        if self.is_facing_angle and self.cmd_speed == 0:
             self.drivetrain.set_control(self._brake)
 
-        elif self.cmd_speed > 0 or not self.drivetrain.is_facing_angle(self.target_angle.radians()):
+        else:
             self.drivetrain.set_control(
                 self._aim_at.with_target_direction(self.target_angle)
                 .with_velocity_x(self.v_x)
                 .with_velocity_y(self.v_y)
             )
+
+        self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
         
     def isFinished(self) -> bool:
         return False

@@ -153,10 +153,7 @@ class Shooter(Subsystem):
         Returns:
             boolean: whether or not the system is ready to shoot (true it is and false it isn't)
         """
-        if self.left_is_at_velocity(self.left_target_velocity) == True and self.right_is_at_velocity(self.right_target_velocity) and self.hood_is_at_angle(self.hood_target_angle) == True:
-            return True
-        else:
-            return False
+        return self.left_is_at_velocity(self.left_target_velocity) == True and self.right_is_at_velocity(self.right_target_velocity) and self.hood_is_at_angle(self.hood_target_angle) == True
         
     def target_stationary(self, robot_pose: Pose2d, passing: bool):
         """

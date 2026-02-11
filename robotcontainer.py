@@ -107,6 +107,10 @@ class RobotContainer:
             )
         )
 
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+            RunIndexer(self.indexer)
+        )
+
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
             RunIndexer(self.indexer)

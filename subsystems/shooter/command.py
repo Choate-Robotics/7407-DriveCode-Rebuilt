@@ -39,6 +39,7 @@ class AimShooter(commands2.Command):
 
     def end(self, interrupted):
         pass
+    
 class SetShooterAuto(commands2.Command):
     """
     uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
