@@ -92,3 +92,35 @@ class SetShooterIdle(commands2.Command):
 
     def end(self, interrupted):
         pass
+
+class SetShooter(commands2.Command):
+    """
+    sets left and right flywheels to specified velocity and set hood to specified angle
+    never ends
+    
+    Args:
+            velocity (rotations per second): desired left and right flywheel velocity
+            angle (radians): desired hood angle
+    """
+
+    def __init__(self, subsytem: Shooter, velocity: float, angle: float):
+        super().__init__()
+
+        self.subsystem = subsytem
+        self.addRequirements(self.subsystem)
+        self.velocity = velocity
+        self.angle = angle
+
+    def initialize(self):
+        self.subsystem.set_left_target_velocity(self.velocity)
+        self.subsystem.set_right_target_velocity(self.velocity)
+        self.subsystem.set_hood_angle(self.angle)
+
+    def execute(self):
+        pass
+
+    def isFinished(self):
+        return False
+
+    def end(self, interrupted):
+        pass
