@@ -65,3 +65,44 @@ class AimDrivetrain(commands2.Command):
     
     def end(self, interrupted: bool) -> None:
         pass
+
+class AimDrivetrainAuto(commands2.Command):
+    def __init__(self, subsystem: CommandSwerveDrivetrain):
+        super().__init__()
+
+        self.drivetrain = subsystem
+        self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+            aiming_pid_p,
+            aiming_pid_i,
+            aiming_pid_d
+        )
+
+        self.addRequirements(self.drivetrain)
+
+    def initialize(self):
+        pass
+
+    def execute(self):
+        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
+                self.drivetrain.get_pose(),
+                alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
+            ))
+
+        else:
+            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
+                self.drivetrain.get_pose(),
+                shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
+            ))
+
+        self.drivetrain.set_control(
+            self._aim_at.with_target_direction(self.target_angle)
+            .with_velocity_x(0)
+            .with_velocity_y(0)
+        )
+        
+    def isFinished(self) -> bool:
+        self.drivetrain.is_facing_angle(self.target_angle)
+    
+    def end(self, interrupted: bool) -> None:
+        pass
