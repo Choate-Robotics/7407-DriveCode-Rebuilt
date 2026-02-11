@@ -49,6 +49,7 @@ class RobotContainer:
         self.shooter = Shooter()
         self.climber = Climber()
         self.indexer = Indexer()
+        self.intake = Intake()
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
@@ -114,6 +115,21 @@ class RobotContainer:
         # reverse the indexer
         self.operator_controller.y().onTrue(
             RunIndexerReversed(self.indexer)
+        )
+        
+        # deploy and run intake
+        self.operator_controller.rightTrigger().whileTrue(
+            DeployIntake(self.intake)
+        )
+
+        # run intake in reverse
+        self.operator_controller.leftTrigger().whileTrue(
+            ReverseIntake(self.intake).onlyIf(lambda: self.intake.is_at_angle(intake_deploy_angle))
+        )
+
+        # retract intake
+        self.operator_controller.leftBumper().onTrue(
+            SetPivot(self.intake, intake_initial_angle)
         )
 
         # deploy climb

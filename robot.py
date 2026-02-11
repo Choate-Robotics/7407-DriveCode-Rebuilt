@@ -9,6 +9,7 @@ from wpilib import DriverStation
 import commands2
 from ntcore import NetworkTableInstance
 from autos import AutoRoutine
+from subsystems import Intake
 
 from robotcontainer import RobotContainer
 from utils.alliance_flip_util import get_alliance
