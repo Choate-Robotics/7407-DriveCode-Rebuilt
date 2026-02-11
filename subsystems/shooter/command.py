@@ -4,6 +4,7 @@ from wpimath.geometry import Pose2d
 from subsystems.drivetrain.command_swerve_drivetrain import CommandSwerveDrivetrain
 from utils import alliance_flip_util, field_constants
 from .constants import *
+from phoenix6 import units
 
 class AimShooter(commands2.Command):
     """
@@ -103,7 +104,7 @@ class SetShooter(commands2.Command):
             angle (radians): desired hood angle
     """
 
-    def __init__(self, subsytem: Shooter, velocity: float, angle: float):
+    def __init__(self, subsytem: Shooter, velocity: units.rotations_per_second, angle: units.radian):
         super().__init__()
 
         self.subsystem = subsytem
