@@ -85,12 +85,12 @@ class Intake(commands2.Subsystem):
         self.pivot_request = controls.MotionMagicDutyCycle(0.0)
         self.pivot_motor.set_control(self.pivot_request)
         
-    def set_pivot_out(self, output:float):
+    def set_pivot_motor_in(self, output:float):
         """
         set pivot motor voltage
         """
         self.output = output
-        self.pivot_request = controls.VoltageOut(self.output)
+        self.pivot_request = controls.VoltageOut(-(self.output))
         self.pivot_motor.set_control(self.pivot_request)
     
     def is_at_angle(self, angle: float):
