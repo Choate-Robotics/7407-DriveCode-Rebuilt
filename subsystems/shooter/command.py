@@ -6,6 +6,8 @@ from utils import alliance_flip_util, field_constants
 from .constants import *
 from phoenix6 import units
 
+from ntcore import NetworkTableInstance
+
 class AimShooter(commands2.Command):
     """
     uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
@@ -104,10 +106,10 @@ class SetShooter(commands2.Command):
             angle (radians): desired hood angle
     """
 
-    def __init__(self, subsytem: Shooter, velocity: units.rotations_per_second, angle: units.radian):
+    def __init__(self, subsystem: Shooter, velocity: units.rotations_per_second, angle: units.radian):
         super().__init__()
 
-        self.subsystem = subsytem
+        self.subsystem = subsystem
         self.addRequirements(self.subsystem)
         self.velocity = velocity
         self.angle = angle
@@ -116,6 +118,34 @@ class SetShooter(commands2.Command):
         self.subsystem.set_left_target_velocity(self.velocity)
         self.subsystem.set_right_target_velocity(self.velocity)
         self.subsystem.set_hood_angle(self.angle)
+
+    def execute(self):
+        pass
+
+    def isFinished(self):
+        return False
+
+    def end(self, interrupted):
+        pass
+
+
+class TuneShooter(commands2.Command):
+    def __init__(self, subsystem: Shooter):
+        super().__init__()
+
+        self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+
+        self.nt_inst = NetworkTableInstance.getDefault()
+        self.shot_tuner = self.nt_inst.getTable("Shot Tuner")
+
+        self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(20.0)
+        self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(15.0)
+
+    def initialize(self):
+        self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
+        self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
+        self.subsystem.set_hood_angle(self.hood_angle_sub.get())
 
     def execute(self):
         pass

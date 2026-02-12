@@ -99,12 +99,16 @@ class RobotContainer:
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
-        # Aim drivetrain and shooter
-        self.driver_controller.rightTrigger().whileTrue(
-            ParallelCommandGroup(
-                AimDrivetrain(self.drivetrain, self.driver_controller),
-                AimShooter(self.shooter, self.drivetrain)
-            )
+        # # Aim drivetrain and shooter
+        # self.driver_controller.rightTrigger().whileTrue(
+        #     ParallelCommandGroup(
+        #         AimDrivetrain(self.drivetrain, self.driver_controller),
+        #         AimShooter(self.shooter, self.drivetrain)
+        #     )
+        # )
+
+        self.driver_controller.rightTrigger().onTrue(
+            TuneShooter(self.shooter)
         )
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(

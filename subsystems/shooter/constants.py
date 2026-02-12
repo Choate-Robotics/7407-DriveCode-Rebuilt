@@ -78,7 +78,6 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     
     return table
 
-shooter_offset = Translation2d(1, 1) # placeholder
 max_hood_angle = 43 # placeholder
 min_hood_angle = 0 # placeholder
 
