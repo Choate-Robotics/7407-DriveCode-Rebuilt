@@ -3,13 +3,14 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup
+from commands2 import ParallelCommandGroup, ConditionalCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from subsystems import *
+from robot_constants import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
@@ -99,17 +100,32 @@ class RobotContainer:
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
-        # # Aim drivetrain and shooter
+        # Aim drivetrain and shooter
         # self.driver_controller.rightTrigger().whileTrue(
-        #     ParallelCommandGroup(
-        #         AimDrivetrain(self.drivetrain, self.driver_controller),
-        #         AimShooter(self.shooter, self.drivetrain)
+        #     ConditionalCommand(
+        #         ParallelCommandGroup(
+        #             DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
+        #             SetShooter(self.shooter, self.driver_controller, tower_flywheel_velocity, tower_hood_angle)
+        #         ),
+        #         ConditionalCommand(
+        #             ParallelCommandGroup(
+        #                 DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+        #                 SetShooter(self.shooter, self.driver_controller, hub_flywheel_velocity, hub_hood_angle)
+        #             ),
+        #             ParallelCommandGroup(
+        #                 AimDrivetrain(self.drivetrain, self.driver_controller),
+        #                 AimShooter(self.shooter, self.drivetrain)
+        #             ),
+        #             lambda: self.operator_controller.getHID().getPOV() == 0
+        #         ),
+        #         lambda: self.operator_controller.getHID().getPOV() == 180
         #     )
         # )
 
         self.driver_controller.rightTrigger().onTrue(
             TuneShooter(self.shooter)
         )
+
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
             RunIndexer(self.indexer)
