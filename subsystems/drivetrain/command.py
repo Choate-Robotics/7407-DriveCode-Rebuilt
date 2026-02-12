@@ -18,7 +18,6 @@ class AimDrivetrain(commands2.Command):
             aiming_pid_i,
             aiming_pid_d
         )
-        self._snake = swerve.requests.()
 
         self.addRequirements(self.drivetrain)
 
