@@ -9,6 +9,7 @@ from wpilib import DriverStation
 import commands2
 from ntcore import NetworkTableInstance
 from autos import AutoRoutine
+from sensors import *
 
 
 from robotcontainer import RobotContainer
@@ -30,6 +31,7 @@ class MyRobot(wpilib.TimedRobot):
         # autonomous chooser on the dashboard.
         self.robot = RobotContainer()
         self.scheduler = commands2.CommandScheduler.getInstance()
+        self.photoncam = PhotonCamCustom("hi", ) 
         
 
         self.nt_inst = NetworkTableInstance.getDefault()
@@ -49,6 +51,11 @@ class MyRobot(wpilib.TimedRobot):
         current_time = wpilib.Timer.getFPGATimestamp()
         self.time_pub.set(current_time - self.time)
         self.time = current_time
+        
+        for result in self.photoncam.cam.getAllUnreadResults():
+            camEstPose = self.photoncam.estimator.estimateCoprocMultiTagPose(result)
+            if camEstPose is None:
+                self.photoncam.estimator.estimateCoprocMultiTagPose(result)
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""

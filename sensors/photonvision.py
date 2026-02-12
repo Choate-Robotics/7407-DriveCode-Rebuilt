@@ -3,6 +3,7 @@ import ntcore
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
+from photonvision import Pose
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 from wpimath.geometry import Transform3d, Pose3d, Translation2d
 from wpilib import TimedRobot
@@ -14,10 +15,11 @@ class PhotonCamCustom:
         self.name = name
         self.robot_to_camera = robot_to_camera
         self.estimator = PhotonPoseEstimator(
-            AprilTagFieldLayout.loadField(AprilTagField.k2025ReefscapeAndyMark),
+            AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltAndyMark),
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             self.cam,
             self.robot_to_camera,
+
         )
         self.estimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
         self.table = (
