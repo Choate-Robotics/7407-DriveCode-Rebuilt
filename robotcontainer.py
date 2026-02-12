@@ -53,6 +53,8 @@ class RobotContainer:
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
+        self.auto_selection.addOption("Depot only", autos.depot)
+        self.auto_selection.addOption("Depot and Outpost", autos.outpost_depot)
 
         SmartDashboard.putData("Auto", self.auto_selection)
         
