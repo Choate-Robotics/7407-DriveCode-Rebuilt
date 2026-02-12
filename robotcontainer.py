@@ -95,7 +95,7 @@ class RobotContainer:
         self.driver_controller.x().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
 
         # Rezero drivetrain
-        Trigger(lambda: self.driver_controller.getHID().getPOV() == 180).onTrue(
+        self.driver_controller.povDown().onTrue(
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
