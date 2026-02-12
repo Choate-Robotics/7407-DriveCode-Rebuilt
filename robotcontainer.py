@@ -10,14 +10,14 @@ from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from subsystems import *
+from sensors import *
+import robot_constants
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
 
 import autos
 from utils import math_utils
-
-from subsystems import *
 from typing import Callable
 
 class RobotContainer:
@@ -30,7 +30,7 @@ class RobotContainer:
 
     def __init__(self) -> None:
 
-        # Setting up bindings for necessary control of the swerve drive platform
+        # Initialize drive requests
         self._drive = (
             swerve.requests.FieldCentric()
             .with_drive_request_type(
@@ -42,14 +42,29 @@ class RobotContainer:
 
         self._logger = Telemetry(max_speed)
 
+        # Initialize controllers
+
         self.driver_controller = CommandXboxController(0)
         self.operator_controller = CommandXboxController(1)
+
+        # Initialize subsystems
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
         self.climber = Climber()
         self.indexer = Indexer()
         self.intake = Intake()
+
+        # Initialize odometry
+
+        self.left_cam = PhotonCamCustom(robot_constants.left_cam_name, robot_constants.left_cam_transform)
+        self.right_cam = PhotonCamCustom(robot_constants.right_cam_name, robot_constants.right_cam_transform)
+        self.back_cam = PhotonCamCustom(robot_constants.back_cam_name, robot_constants.back_cam_transform)
+        self.zoom_cam = PhotonCamCustom(robot_constants.zoom_cam_name, robot_constants.zoom_cam_transform)
+
+        self.cam_controller = PhotonController([self.left_cam, self.right_cam, self.back_cam, self.zoom_cam])
+
+        # Initialize auto chooser
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)

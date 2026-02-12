@@ -27,7 +27,7 @@ components = [
 # Other pip packages to install (including vendor packages)
 requires = [
     "phoenix6~=26.1",
-    # "photonlibpy",
+    "photonlibpy",
     # "robotpy-ctre",  # Phoenix 5
     # "robotpy-navx",
     "robotpy-pathplannerlib",
