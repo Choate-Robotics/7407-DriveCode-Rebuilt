@@ -78,16 +78,15 @@ class SnakeMode(commands2.Command):
         self.addRequirements(self.drivetrain)
 
     def execute(self):
-        driving = math_utils.curve(-self.controller.getLeftY(), deadband)
-        strafe = math_utils.curve(self.controller.getLeftX(), deadband)
-        theta = math.degrees(math.atan2(strafe,driving))
+        joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
+        joystick_x = math_utils.curve(self.controller.getLeftX(), deadband)
+        target_angle = math.degrees(math.atan2(joystick_x,joystick_y))
         
         self.drivetrain.set_control(
             self._drive
-                .with_target_direction(Rotation2d.fromDegrees(theta))
-                .with_velocity_x(driving * max_speed)
-                .with_velocity_y(0.0)
-                
+                .with_target_direction(Rotation2d.fromDegrees(target_angle))
+                .with_velocity_x(joystick_y * max_speed)
+                .with_velocity_y(0.0)  
         )
 
     def isFinished(self, interrupted: bool) -> None:
