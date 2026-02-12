@@ -76,7 +76,7 @@
  },
  "generationFeatures":[],
  "codegen":{
-  "root":"Users/alexluo/Desktop/GitHub/7407-DriveCode-Rebuilt/deploy",
+  "root":"",
   "genVars":true,
   "genTrajData":true,
   "useChoreoLib":true
