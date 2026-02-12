@@ -11,8 +11,8 @@ from ntcore import NetworkTableInstance
 from autos import AutoRoutine
 from sensors import *
 
-
 from robotcontainer import RobotContainer
+from utils.alliance_flip_util import get_alliance
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -38,6 +38,9 @@ class MyRobot(wpilib.TimedRobot):
         self.time_table = self.nt_inst.getTable("Timing")
         self.time_pub = self.time_table.getDoubleTopic("Loop time").publish()
         self.time = 0
+
+        if wpilib.RobotBase.isSimulation():
+            DriverStation.silenceJoystickConnectionWarning(True)
 
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -67,13 +70,12 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        self.autonomousCommand: AutoRoutine = self.robot.getAutonomousCommand()
-
-        starting_pose = self.autonomousCommand.blue_start_pose if DriverStation.getAlliance() == DriverStation.Alliance.kBlue else self.autonomousCommand.red_start_pose
+        auto: AutoRoutine = self.robot.getAutonomousCommand()(self.robot)
+        starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
         self.scheduler.schedule(commands2.SequentialCommandGroup(
-            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(starting_pose.rotation())),
-            self.autonomousCommand.command,
+            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))),
+            auto.command,
         ))
         
     def autonomousPeriodic(self) -> None:
@@ -84,7 +86,7 @@ class MyRobot(wpilib.TimedRobot):
         self.scheduler.cancelAll()
 
     def teleopInit(self) -> None:
-        pass
+        self.robot.configureButtonBindings()
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
