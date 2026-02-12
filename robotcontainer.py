@@ -101,6 +101,11 @@ class RobotContainer:
             AimDrivetrain(self.drivetrain, self.driver_controller)
         )
 
+        self.driver_controller.rightBumper().whileTrue(
+            SnakeMode(self.drivetrain, self.driver_controller)
+        )
+
+
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
             RunIndexer(self.indexer)
