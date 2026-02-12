@@ -4,6 +4,8 @@ from .constants import *
 from .command_swerve_drivetrain import CommandSwerveDrivetrain
 from phoenix6 import swerve
 from utils import alliance_flip_util, field_constants, math_utils, shooter_utils
+from wpimath.geometry import Pose2d, Rotation2d
+
 
 
 class AimDrivetrain(commands2.Command):
@@ -72,22 +74,20 @@ class SnakeMode(commands2.Command):
         super().__init__()
         self.drivetrain = subsystem
         self.controller = controller
-        self._drive = swerve.requests.RobotCentric()
-        self._brake = swerve.requests.SwerveDriveBrake()
+        self._drive = swerve.requests.FieldCentricFacingAngle()
         self.addRequirements(self.drivetrain)
 
     def execute(self):
-        throttle = math_utils.curve(-self.controller.getLeftY(), deadband)
-        steering = math_utils.curve(self.controller.getLeftX(), deadband)
-
-        if abs(throttle) < 0.05 and abs(steering) < 0.05:
-            self.drivetrain.set_control(self._brake)
-            
+        driving = math_utils.curve(-self.controller.getLeftY(), deadband)
+        strafe = math_utils.curve(self.controller.getLeftX(), deadband)
+        theta = math.degrees(math.atan2(strafe,driving))
+        
         self.drivetrain.set_control(
             self._drive
-                .with_velocity_x(throttle * max_speed)
+                .with_target_direction(Rotation2d.fromDegrees(theta))
+                .with_velocity_x(driving * max_speed)
                 .with_velocity_y(0.0)
-                .with_rotational_rate(steering * max_angular_rate)
+                
         )
 
     def isFinished(self, interrupted: bool) -> None:
