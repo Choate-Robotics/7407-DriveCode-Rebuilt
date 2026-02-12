@@ -58,6 +58,11 @@ def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
 
     return hood_deg, rps
 
+def shot_distance_from_pose(robot_pose: Pose2d) -> float:
+    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
+
+    return robot_pose.translation().distance(hub2d)
+
 #passing
 def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     """

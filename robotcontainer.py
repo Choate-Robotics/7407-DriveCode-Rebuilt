@@ -123,7 +123,10 @@ class RobotContainer:
         # )
 
         self.driver_controller.rightTrigger().onTrue(
-            TuneShooter(self.shooter)
+            ParallelCommandGroup(
+                TuneShooter(self.shooter, self.drivetrain),
+                AimDrivetrain(self.drivetrain, self.driver_controller)
+            )
         )
 
 

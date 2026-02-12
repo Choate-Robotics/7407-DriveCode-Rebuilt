@@ -2,7 +2,7 @@ import commands2
 from .subsystem import Shooter
 from wpimath.geometry import Pose2d
 from subsystems.drivetrain.command_swerve_drivetrain import CommandSwerveDrivetrain
-from utils import alliance_flip_util, field_constants
+from utils import alliance_flip_util, field_constants, shooter_utils
 from .constants import *
 from phoenix6 import units
 
@@ -130,22 +130,26 @@ class SetShooter(commands2.Command):
 
 
 class TuneShooter(commands2.Command):
-    def __init__(self, subsystem: Shooter):
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain):
         super().__init__()
 
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
+        self.drivetrain = drivetrain
 
         self.nt_inst = NetworkTableInstance.getDefault()
         self.shot_tuner = self.nt_inst.getTable("Shot Tuner")
 
         self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(20.0)
         self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(15.0)
+        self.distance_pub = self.shot_tuner.getDoubleTopic("distance to hub").publish()
 
     def initialize(self):
         self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_hood_angle(self.hood_angle_sub.get())
+
+        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.drivetrain.get_pose()))
 
     def execute(self):
         pass
