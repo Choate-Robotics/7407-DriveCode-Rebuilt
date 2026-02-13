@@ -97,26 +97,12 @@ class SetPivotIn(commands2.Command):
         else:
             log.message("intake pivot interrupted")
 
-
-class DeployIntake(commands2.Command):
+class DeployIntake(SetPivot):
     """
-    Deploy intake by setting pivot to specificed angle and running intake
+    Deploy the intake
     """
-    def __init__(self, subsystem: Intake, angle: float):
-        super().__init__()
-        self.command = SetPivot(subsystem, intake_deploy_angle)
-
-    def initialize(self):
-        self.command.initialize()
-
-    def execute(self):
-        pass
-
-    def isFinished(self) -> bool:
-        return self.command.isFinished()
-    
-    def end(self, interrupted: bool):
-        self.command.end(interrupted)
+    def __init__(self, subsystem: Intake):
+        super().__init__(subsystem, intake_deploy_angle)
 
 
 class DeployIntakeOut(commands2.SequentialCommandGroup):
