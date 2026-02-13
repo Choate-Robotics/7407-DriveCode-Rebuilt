@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup
+from commands2 import ParallelCommandGroup, SequentialCommandGroup
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -119,7 +119,10 @@ class RobotContainer:
         
         # deploy and run intake
         self.operator_controller.rightTrigger().whileTrue(
-            DeployIntake(self.intake)
+            SequentialCommandGroup(
+                DeployIntake(self.intake),
+                RunIntake(self.intake)
+            )
         )
 
         # run intake in reverse
@@ -139,7 +142,7 @@ class RobotContainer:
         
         # climb
         self.operator_controller.back().whileTrue(
-            Retract(self.climber)
+            RetractClimb(self.climber)
         )
 
         # Run SysId routines when holding back/start and X/Y.
