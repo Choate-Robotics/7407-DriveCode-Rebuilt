@@ -1,9 +1,8 @@
 import commands2
 
 from .constants import *
-from subsystem import Indexer
+from .subsystem import Indexer
 from wpimath.filter import Debouncer
-from subsystems import Indexer
 
 
 class RunIndexer(commands2.Command):
