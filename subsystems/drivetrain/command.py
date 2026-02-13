@@ -77,6 +77,9 @@ class SnakeMode(commands2.Command):
         self._drive = swerve.requests.FieldCentricFacingAngle()
         self.addRequirements(self.drivetrain)
 
+    def initialize(self):
+        pass
+
     def execute(self):
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(self.controller.getLeftX(), deadband)
@@ -89,5 +92,8 @@ class SnakeMode(commands2.Command):
                 .with_velocity_y(0.0)  
         )
 
-    def isFinished(self, interrupted: bool) -> None:
+    def isFinished(self) -> bool:
+        return False
+    
+    def end(self, interrupted: bool) -> None:
         pass
