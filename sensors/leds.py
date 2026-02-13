@@ -1,6 +1,7 @@
 from wpilib import AddressableLED, LEDPattern, Color
 import ntcore
 import constants
+from wpilib import DriverStation
 from commands2 import Subsystem
 
 class LEDs(Subsystem):
@@ -90,7 +91,7 @@ class LEDs(Subsystem):
         self.pattern.blink(constants.blink_time)
         self.update_leds()
 
-    def set_alternate(self, r1: int, g1: int, b1: int, r2: int, g2: int, b2: int)
+    def set_alternate(self, r1: int, g1: int, b1: int, r2: int, g2: int, b2: int):
         """
         LED strip alternates between two colors
         """
@@ -106,4 +107,5 @@ class LEDs(Subsystem):
                 )
         self.pattern = LEDPattern.steps(self.alternate)
         self.update_leds()
+    
     

@@ -79,6 +79,23 @@ class MyRobot(commands2.TimedCommandRobot):
         # this line or comment it out.
         if self.autonomousCommand:
             commands2.CommandScheduler.getInstance().cancel(self.autonomousCommand)
+        
+        data = wpilib.DriverStation.getGameSpecificMessage()
+        if data:
+            match data:
+                case "B":
+            # Blue case code
+            
+                 case "R":
+            # Red case code
+            ...
+                 case _:
+            # This is corrupt data
+            ...
+                    else:
+             # Code for no data received yet
+            ...
+
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
