@@ -56,7 +56,8 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
 ).with_feedback(
     configs.FeedbackConfigs()
     .with_sensor_to_mechanism_ratio(0) # placeholder
-    .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.ROTOR_SENSOR)
+    .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.REMOTE_CANCODER)  
+    .with_feedback_remote_sensor_id(23) 
 )
 
 def load_shooter_table_csv(rel_path: str) -> np.ndarray:

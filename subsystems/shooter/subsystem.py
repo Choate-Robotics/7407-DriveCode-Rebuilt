@@ -35,7 +35,7 @@ class Shooter(Subsystem):
             .with_inverted(right_direction)
         ))
         self.right_follower_motor.set_control(controls.Follower(right_lead_id, signals.MotorAlignmentValue.ALIGNED))
-
+        
         self.hood_motor.configurator.apply(hood_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
