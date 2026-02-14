@@ -83,3 +83,6 @@ class PhotonController:
 
     def get_results(self) -> list[EstimatedRobotPose | None]:
         return [cam.get_result() for cam in self.cams]
+    
+    def get_individual_result(self, index: int):
+        return self.cams[index].get_result()
