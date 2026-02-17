@@ -12,6 +12,7 @@ from autos import AutoRoutine
 
 from robotcontainer import RobotContainer
 from utils.alliance_flip_util import get_alliance
+from sensors import FieldOdometry
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -49,6 +50,7 @@ class MyRobot(wpilib.TimedRobot):
         current_time = wpilib.Timer.getFPGATimestamp()
         self.time_pub.set(current_time - self.time)
         self.time = current_time
+        self.robot.field_odometry.update()
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""

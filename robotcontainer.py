@@ -56,16 +56,14 @@ class RobotContainer:
         self.intake = Intake()
 
         # Initialize odometry
-
         self.left_cam = PhotonCamCustom(robot_constants.left_cam_name, robot_constants.left_cam_transform)
         self.right_cam = PhotonCamCustom(robot_constants.right_cam_name, robot_constants.right_cam_transform)
         self.back_cam = PhotonCamCustom(robot_constants.back_cam_name, robot_constants.back_cam_transform)
         self.zoom_cam = PhotonCamCustom(robot_constants.zoom_cam_name, robot_constants.zoom_cam_transform)
 
-        self.cam_controller = PhotonController([self.left_cam, self.right_cam, self.back_cam, self.zoom_cam])
+        self.field_odometry = FieldOdometry(self.drivetrain, [self.left_cam, self.right_cam, self.back_cam, self.zoom_cam])
 
         # Initialize auto chooser
-
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
 
