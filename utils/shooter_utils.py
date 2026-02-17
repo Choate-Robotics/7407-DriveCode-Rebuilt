@@ -49,9 +49,7 @@ def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     - measures distance to hub center
     - interpolates hood and rps from DIST_M tables
     """
-    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
-
-    distance_m: float = robot_pose.translation().distance(hub2d)
+    distance_m: float = shot_distance_from_pose(robot_pose)
 
     hood_deg: float = float(np.interp(distance_m, DIST_M, HOOD_DEG))
     rps: float = float(np.interp(distance_m, DIST_M, RPS))
