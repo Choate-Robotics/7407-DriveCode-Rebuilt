@@ -10,7 +10,7 @@ from subsystems import *
 from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantCommand, ParallelDeadlineGroup
 
 path_name = "OutpostandDepot"
-paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(11)]
+paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(3)]
 
 def auto(robot_container: RobotContainer) -> AutoRoutine:
     command = SequentialCommandGroup(
