@@ -23,11 +23,14 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         ),
 
         AutoBuilder.followPath(paths[2]),
-        AutoBuilder.followPath(paths[3]), # stop intake on this one?
+        ParallelCommandGroup(
+        AutoBuilder.followPath(paths[3]),
+        SetPivot(robot_container.intake, 90.0)
+        ),
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[4]),
-            SetShooterAuto(robot_container.shooter) # add odometry later
+            SetShooterAuto(robot_container.shooter, robot_container.drivetrain)
         ),
         RunIndexer(robot_container.indexer).withTimeout(robot_constants.auto_shooting_timeout),
         AutoBuilder.followPath(paths[5]),
