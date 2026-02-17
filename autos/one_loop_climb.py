@@ -19,7 +19,18 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[1]),
-            
-        )
+            RunIntake(robot_container.intake)
+        ),
+
+        AutoBuilder.followPath(paths[2]),
+        AutoBuilder.followPath(paths[3]), # stop intake on this one?
+
+        ParallelCommandGroup(
+            AutoBuilder.followPath(paths[4]),
+            SetShooterAuto(robot_container.shooter) # add odometry later
+        ),
+        RunIndexer(robot_container.indexer).withTimeout(robot_constants.auto_shooting_timeout),
+        AutoBuilder.followPath(paths[5]),
+        DeployClimbL1(robot_container.climber)
     )
     return AutoRoutine(command, paths[0].getStartingHolonomicPose())
