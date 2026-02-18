@@ -19,7 +19,6 @@ horizontal_motor_configs = (
         configs.MotorOutputConfigs()
         .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
         .with_neutral_mode(signals.NeutralModeValue.BRAKE)
-                
         )
 )
 
@@ -33,7 +32,7 @@ pivot_motor_configs = (
                 configs.FeedbackConfigs()
                 .with_feedback_remote_sensor_id(pivot_motor_id)
                 .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)
-                .with_sensor_to_mechanism_ratio(5) # placeholder
+                .with_sensor_to_mechanism_ratio(45)
             ).with_motion_magic(
                 configs.MotionMagicConfigs()
                 # .with_motion_magic_cruise_velocity(0) placeholder
