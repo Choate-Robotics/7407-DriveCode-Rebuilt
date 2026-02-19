@@ -76,9 +76,15 @@ class SnakeMode(commands2.Command):
         self.drivetrain = subsystem
         self.controller = controller
         self._drive = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+<<<<<<< Updated upstream
             10,
             0,
             0
+=======
+            aiming_pid_p,
+            aiming_pid_i,
+            aiming_pid_d
+>>>>>>> Stashed changes
         )
         self.addRequirements(self.drivetrain)
 
@@ -87,8 +93,15 @@ class SnakeMode(commands2.Command):
 
     def execute(self):
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
+<<<<<<< Updated upstream
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
         target_angle = math.degrees(math.atan2(joystick_x, joystick_y))
+=======
+        joystick_x = math_utils.curve(self.controller.getLeftX(), deadband)
+        aiming_joystick_y = math_utils.curve(-self.controller.getRightY(), deadband)
+        aiming_joystick_x = math_utils.curve(self.controller.getRightX(), deadband)
+        target_angle = math.degrees(math.atan2(joystick_x,joystick_y))
+>>>>>>> Stashed changes
         
         self.drivetrain.set_control(
             self._drive
@@ -96,7 +109,15 @@ class SnakeMode(commands2.Command):
                 .with_velocity_x(joystick_y * max_speed)
                 .with_velocity_y(joystick_x * max_speed)  
         )
-        if joystick_y <= deadband and joystick_x <= deadband:
+        
+        if aiming_joystick_x != 0 or aiming_joystick_y != 0:
+            aiming_target_angle = math.degrees(math.atan2(aiming_joystick_x, aiming_joystick_y))
+            self.drivetrain.set_control(
+                self._drive
+                    .with_target_direction(Rotation2d.fromDegrees(aiming_target_angle))
+            )
+
+        if joystick_y == 0 and joystick_x == 0:
             self.drivetrain.set_control(swerve.requests.Idle())
 
     def isFinished(self) -> bool:
