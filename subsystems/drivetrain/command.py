@@ -6,6 +6,7 @@ from phoenix6 import swerve
 from utils import alliance_flip_util, field_constants, math_utils, shooter_utils
 from wpimath.geometry import Pose2d, Rotation2d
 
+import ntcore
 
 
 class AimDrivetrain(commands2.Command):
@@ -74,7 +75,11 @@ class SnakeMode(commands2.Command):
         super().__init__()
         self.drivetrain = subsystem
         self.controller = controller
-        self._drive = swerve.requests.FieldCentricFacingAngle()
+        self._drive = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+            10,
+            0,
+            0
+        )
         self.addRequirements(self.drivetrain)
 
     def initialize(self):
@@ -82,14 +87,14 @@ class SnakeMode(commands2.Command):
 
     def execute(self):
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
-        joystick_x = math_utils.curve(self.controller.getLeftX(), deadband)
-        target_angle = math.degrees(math.atan2(joystick_x,joystick_y))
+        joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+        target_angle = math.degrees(math.atan2(joystick_x, joystick_y))
         
         self.drivetrain.set_control(
             self._drive
                 .with_target_direction(Rotation2d.fromDegrees(target_angle))
                 .with_velocity_x(joystick_y * max_speed)
-                .with_velocity_y(0.0)  
+                .with_velocity_y(joystick_x * max_speed)  
         )
 
     def isFinished(self) -> bool:
