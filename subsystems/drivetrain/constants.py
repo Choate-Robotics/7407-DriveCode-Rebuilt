@@ -20,7 +20,7 @@ aiming_pid_d = 0
 
 snake_mode_pid_p = 10
 snake_mode_pid_i = 0
-snake_mode_pid_d = 10
+snake_mode_pid_d = 0
 
 
 drive_at_angle_tolerance: units.radian = 0.05 #placeholder value, ~2.86 degrees

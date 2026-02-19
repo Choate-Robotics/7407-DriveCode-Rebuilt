@@ -75,11 +75,12 @@ class SnakeMode(commands2.Command):
         super().__init__()
         self.drivetrain = subsystem
         self.controller = controller
-        self._drive = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+        self.aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
             snake_mode_pid_p,
             snake_mode_pid_i,
             snake_mode_pid_d
         )
+        self.drive = swerve.requests.FieldCentric()
         self.addRequirements(self.drivetrain)
 
     def initialize(self):
@@ -91,30 +92,30 @@ class SnakeMode(commands2.Command):
         aiming_joystick_x = math_utils.curve(self.controller.getRightX(), deadband)
         target_angle = math.degrees(math.atan2(joystick_x,joystick_y))
         
-        self.drivetrain.set_control(
-            self._drive
-                .with_target_direction(Rotation2d.fromDegrees(target_angle))
-                .with_velocity_x(joystick_y * max_speed)
-                .with_velocity_y(joystick_x * max_speed)  
-        )
+        
         
         if aiming_joystick_x != 0:
             self.drivetrain.apply_request(
                 lambda: (
-                    self._drive.with_velocity_x(
-                        joystick_y * max_speed
-                    )
-                    .with_velocity_y(
+                    self.drive.with_velocity_x(
                         joystick_x * max_speed
                     )
-                    .with_target_direction(
-                        Rotation2d.fromDegrees(-aiming_joystick_x * max_angular_rate)
-                    )
-                )
+                    .with_velocity_y(
+                        joystick_y * max_speed
+                    ).with_rotational_rate(-aiming_joystick_x * max_angular_rate)
+                ) 
             )
 
-        if joystick_y == 0 and joystick_x == 0:
+        elif aiming_joystick_x == 0 and joystick_y == 0 and joystick_x == 0:
             self.drivetrain.set_control(swerve.requests.Idle())
+
+        else: 
+            self.drivetrain.set_control(
+            self.aim_at
+                .with_target_direction(Rotation2d.fromDegrees(target_angle))
+                .with_velocity_x(joystick_y * max_speed)
+                .with_velocity_y(joystick_x * max_speed)  
+        )            
 
     def isFinished(self) -> bool:
         return False
