@@ -18,6 +18,8 @@ class Shooter(Subsystem):
         self.velocity_torque_current = controls.VelocityTorqueCurrentFOC(0)
 
         self.hood_motor = hardware.TalonFX(hood_id)
+        self.hood_cancoder = hardware.CANcoder(hood_cancoder_id)
+
         self.motion_magic = controls.MotionMagicVoltage(0)
 
         self.left_target_velocity = 0

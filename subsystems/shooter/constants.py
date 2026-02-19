@@ -8,6 +8,7 @@ left_follower_id: int = 59 # placeholder
 right_lead_id: int = 60 # placeholder
 right_follow_id: int = 61 # placeholder
 hood_id: int = 62 # placeholder
+hood_cancoder_id: int = 63 #placeholder
 
 flywheel_threshold = 2.0 # placeholder
 hood_threshold = 2.0 # placeholder
@@ -56,9 +57,10 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
 ).with_feedback(
     configs.FeedbackConfigs()
     .with_sensor_to_mechanism_ratio(0) # placeholder
-    .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.REMOTE_CANCODER)  
-    .with_feedback_remote_sensor_id(23) 
-)
+    .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)  
+    .with_feedback_remote_sensor_id(hood_cancoder_id)
+) 
+
 
 def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     """
