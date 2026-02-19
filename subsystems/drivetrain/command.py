@@ -96,6 +96,8 @@ class SnakeMode(commands2.Command):
                 .with_velocity_x(joystick_y * max_speed)
                 .with_velocity_y(joystick_x * max_speed)  
         )
+        if joystick_y <= deadband and joystick_x <= deadband:
+            self.drivetrain.set_control(swerve.requests.Idle())
 
     def isFinished(self) -> bool:
         return False

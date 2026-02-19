@@ -106,10 +106,11 @@ class RobotContainer:
                 AimShooter(self.shooter, self.drivetrain)
             )
         )
+        if self.driver_controller.getRightX() > deadband and self.driver_controller.getRightY() > deadband:
+            self.driver_controller.rightBumper().whileTrue(
+                SnakeMode(self.drivetrain, self.driver_controller)
+            )
 
-        self.driver_controller.rightBumper().whileTrue(
-            SnakeMode(self.drivetrain, self.driver_controller)
-        )
 
 
         # force the indexer to spin
