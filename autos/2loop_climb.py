@@ -16,7 +16,7 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[0]),
-            SetPivot(robot_container.intake, 90)
+            DeployIntake(robot_container.intake),
         ),
 
         ParallelCommandGroup(
@@ -55,17 +55,14 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[9]),
-            RunIndexer(robot_container.indexer)
+        # index deadlinecommand (the one that retracts intake) added once merge occurs
+
         ),
         
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[10]),
             DeployClimbL1(robot_container.climber)
         ),
-
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[11]),
-            Retract(robot_container.climber)
-        ),
+        Retract(robot_container.climber)
     )
     return AutoRoutine(command, paths[0].getStartingHolonomicPose())
