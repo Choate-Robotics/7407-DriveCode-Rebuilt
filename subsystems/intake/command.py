@@ -70,7 +70,6 @@ class ReverseIntake(commands2.Command):
     
     def end(self, interrupted: bool):
         self.subsystem.stop_intake() 
-
 class SetPivotIn(commands2.Command):
     """
     Set pivot motor to specified angle with voltage in

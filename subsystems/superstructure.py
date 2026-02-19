@@ -1,13 +1,12 @@
 import commands2
-from .constants import *
+from subsystems.intake import constants
 from subsystems import indexer, intake
-from intake import SetPivot
-from indexer import RunIndexer
-from wpimath.filter import Debouncer
+from subsystems.intake import SetPivotIn
+from subsystems.indexer import RunIndexer
 
 class Index(commands2.ParallelDeadlineGroup):
-    def __init__(self, indexer: Indexer, intake: Intake):
+    def __init__(self, indexer: indexer.Indexer, intake: intake.Intake):
         super().__init__(
-            SetPivot(intake, intake_initial_angle),
+            SetPivotIn(intake, constants.intake_deploy_angle),
             RunIndexer(indexer)
         )

@@ -97,15 +97,26 @@ class Intake(commands2.Subsystem):
         """
         checks at angle 
         """
-        return abs(self.get_pivot_angle() - angle) < angle_threshold
+        self.angle = self.limit_pivot_angle(angle)
+        return abs(self.get_pivot_angle() - self.angle) < angle_threshold
 
     def set_pivot(self, angle: float):
         """
         set pivot motor angle
         """
-        self.target_angle = angle
+        self.target_angle = self.limit_pivot_angle(angle)
         self.pivot_request = controls.MotionMagicVoltage(angle)
         self.pivot_motor.set_control(self.pivot_request)
+
+    def limit_pivot_angle(self, angle: float):
+        """
+        limit angle request to max pivot motor
+        """
+        if angle >= intake_maximum_angle:
+            return intake_maximum_angle
+        elif angle <= intake_initial_angle:
+            return intake_initial_angle
+        return angle
     
     def update_table(self):
         """
