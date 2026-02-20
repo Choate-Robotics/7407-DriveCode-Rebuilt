@@ -24,10 +24,12 @@ NT_SHOOTER: bool = True
 left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
 
-hood_cancoder_config = configs.CANcoderConfiguration()
-hood_cancoder_config.magnet_sensor.sensor_direction = signals.SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE
-hood_cancoder_config.magnet_sensor.magnet_offset = 0 #placeholder
-hood_cancoder_config.magnet_sensor.absolute_sensor_discontinuity_point = 0 #placeholder
+hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
+    configs.MagnetSensorConfigs()
+    .with_absolute_sensor_discontinuity_point(0) # placeholder
+    .with_magnet_offset(0) # placeholder
+    .with_sensor_direction(signals.SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
+)
 
 flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
