@@ -95,17 +95,17 @@ class SetPivotIn(commands2.Command):
             self.subsystem.pivot_running = False
         else:
             log.message("intake pivot interrupted")
-class DeployIntake(SetPivot):
+class RetractIntake(SetPivot):
     """
     Deploy the intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_deploy_angle)
+        super().__init__(subsystem, intake_retract_rotation)
 
 class DeployIntakeOut(SetPivotIn):
     """
     Deploy intake by setting pivot to specified angle with voltagein
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_deploy_angle)
+        super().__init__(subsystem, intake_deploy_rotation)
 

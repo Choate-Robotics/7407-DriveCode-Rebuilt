@@ -18,7 +18,7 @@ class Intake(commands2.Subsystem):
         self.pivot_request = controls.MotionMagicVoltage(0.0)
         self.target_angle = 0.0    
 
-        self.pivot_motor.set_position(0.0)
+        self.pivot_motor.set_position(intake_deploy_rotation)
         self.intake_running = False
         self.pivot_running = False
 
@@ -112,10 +112,10 @@ class Intake(commands2.Subsystem):
         """
         limit angle request to max pivot motor
         """
-        if angle >= intake_maximum_angle:
-            return intake_maximum_angle
-        elif angle <= intake_initial_angle:
-            return intake_initial_angle
+        if angle >= intake_maximum_rotation:
+            return intake_maximum_rotation
+        elif angle <= intake_retract_rotation:
+            return intake_retract_rotation
         return angle
     
     def update_table(self):
