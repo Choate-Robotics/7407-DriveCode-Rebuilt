@@ -91,7 +91,7 @@ class SnakeMode(commands2.Command):
     def execute(self):
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
-        aiming_joystick_x = math_utils.curve(-self.controller.getRightX(), deadband, )
+        aiming_joystick_x = math_utils.curve(-self.controller.getRightX(), deadband, curve)
         target_angle = math.degrees(math.atan2(joystick_x,joystick_y))
         
         if aiming_joystick_x != 0:

@@ -68,13 +68,13 @@ class RobotContainer:
             self.drivetrain.apply_request(
                 lambda: (
                     self._drive.with_velocity_x(
-                        math_utils.curve(-self.driver_controller.getLeftY(), 0.1) * max_speed
+                        math_utils.curve(-self.driver_controller.getLeftY(), deadband) * max_speed
                     )  # Drive forward with negative Y (forward)
                     .with_velocity_y(
-                        math_utils.curve(-self.driver_controller.getLeftX(), 0.1) * max_speed
+                        math_utils.curve(-self.driver_controller.getLeftX(), deadband) * max_speed
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        math_utils.curve(-self.driver_controller.getRightX(), 0.1, 2) * max_angular_rate
+                        math_utils.curve(-self.driver_controller.getRightX(), deadband, curve) * max_angular_rate
                     )  # Drive counterclockwise with negative X (left)
                 )
             )
