@@ -8,12 +8,13 @@ left_follower_id: int = 59 # placeholder
 right_lead_id: int = 60 # placeholder
 right_follow_id: int = 61 # placeholder
 hood_id: int = 62 # placeholder
-hood_cancoder_id: int = 63 #placeholder
+hood_cancoder_id: int = 57 #placeholder
 
 flywheel_threshold = 2.0 # placeholder
 hood_threshold = 2.0 # placeholder
 
-hood_gear_ratio = 0 # placeholder
+max_hood_angle = 43 # placeholder
+min_hood_angle = 0 # placeholder
 
 idle_velocity = 0 # placeholder
 
@@ -56,7 +57,8 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_g(0) # placeholder
 ).with_feedback(
     configs.FeedbackConfigs()
-    .with_sensor_to_mechanism_ratio(0) # placeholder
+    .with_rotor_to_sensor_ratio(23*1.5)
+    .with_sensor_to_mechanism_ratio(2)
     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)  
     .with_feedback_remote_sensor_id(hood_cancoder_id)
 ) 
@@ -80,9 +82,6 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
         raise ValueError(f"Expected 3 columns (distance_m, hood_deg, rps), got {table.shape[1]} from {file_path}")
     
     return table
-
-max_hood_angle = 43 # placeholder
-min_hood_angle = 0 # placeholder
 
 # robot distance to hub, hood angle, and RPS
 SHOT_TABLE = load_shooter_table_csv("shot_table.csv")
