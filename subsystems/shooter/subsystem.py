@@ -181,7 +181,7 @@ class Shooter(Subsystem):
         self.right_velocity_pub.set(self.get_right_velocity())
         self.left_target_velocity_pub.set(self.left_target_velocity)
         self.right_target_velocity_pub.set(self.right_target_velocity)
-        self.hood_angle_pub.set(self.get_hood_angle())
+        self.hood_angle_pub.set(self.get_hood_angle().value)
         self.hood_target_angle_pub.set(self.hood_target_angle)
         self.shooter_ready_pub.set(self.ready_to_shoot())
 
