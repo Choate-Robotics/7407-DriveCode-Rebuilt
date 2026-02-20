@@ -25,7 +25,9 @@ class Shooter(Subsystem):
         self.left_target_velocity = 0
         self.right_target_velocity = 0 
         self.hood_target_angle = 0
-    
+
+        self.hood_cancoder.configurator.apply(hood_cancoder_config)
+        
         self.left_leader_motor.configurator.apply(flywheel_config.with_motor_output(
             configs.MotorOutputConfigs()
             .with_inverted(left_direction)

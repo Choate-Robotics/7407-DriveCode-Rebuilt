@@ -13,6 +13,7 @@ hood_cancoder_id: int = 57 #placeholder
 flywheel_threshold = 2.0 # placeholder
 hood_threshold = 2.0 # placeholder
 
+hood_gear_ratio = 69 # 69:1
 max_hood_angle = 43 # placeholder
 min_hood_angle = 0 # placeholder
 
@@ -22,6 +23,11 @@ NT_SHOOTER: bool = True
 
 left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
+
+hood_cancoder_config = configs.CANcoderConfiguration()
+hood_cancoder_config.magnet_sensor.sensor_direction = signals.SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE
+hood_cancoder_config.magnet_sensor.magnet_offset = 0 #placeholder
+hood_cancoder_config.magnet_sensor.absolute_sensor_discontinuity_point = 0 #placeholder
 
 flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
