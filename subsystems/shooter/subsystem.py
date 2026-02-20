@@ -136,7 +136,7 @@ class Shooter(Subsystem):
         Returns:
             return_float: current hood position in radians
         """
-        return (self.hood_motor.get_position()) * (2 * math.pi)
+        return self.hood_motor.get_position()
     
     def hood_is_at_angle(self, angle: float):
         """
@@ -148,7 +148,7 @@ class Shooter(Subsystem):
         Returns:
             boolean: whether or not the hood is at the angle (true it is and false it isn't)
         """
-        return abs(self.get_hood_angle() - angle) < hood_threshold
+        return abs(self.get_hood_angle().value - angle) < hood_threshold
     
     def ready_to_shoot(self):
         """
