@@ -4,15 +4,20 @@ from phoenix6.signals import FeedbackSensorSourceValue
 from phoenix6.hardware import TalonFX
 from phoenix6.configs import TalonFXConfiguration
 
+# ids
 horizontal_motor_id = 25 #placeholder
 pivot_motor_id = 24 #placeholder
 cancoder_id = 26 #placeholder
+
+# constants
 angle_threshold = 2 #placeholder 
 fuel_speed = 0.0  #placeholder
-intake_retract_rotation = -0.25
-intake_deploy_rotation = 0 
 voltage_out = 3 #placeholder
-intake_maximum_rotation = -0.3527
+
+# 
+intake_retract_rotation = 0.25
+intake_deploy_rotation = 0 
+intake_maximum_rotation = 0.3527
 
 
 horizontal_motor_configs = (

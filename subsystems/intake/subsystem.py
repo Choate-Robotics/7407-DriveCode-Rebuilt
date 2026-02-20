@@ -18,7 +18,9 @@ class Intake(commands2.Subsystem):
         self.pivot_request = controls.MotionMagicVoltage(0.0)
         self.target_angle = 0.0    
 
+        #initial zero
         self.pivot_motor.set_position(intake_deploy_rotation)
+        
         self.intake_running = False
         self.pivot_running = False
 
