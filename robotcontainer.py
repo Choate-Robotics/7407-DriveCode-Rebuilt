@@ -126,18 +126,32 @@ class RobotContainer:
         # stationary commands
         self.tower = ParallelCommandGroup(
                     DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
-                    SetShooter(self.shooter, tower_flywheel_velocity, tower_drivetrain_angle.radians())
+                    SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
                 )
         
         self.hub = ParallelCommandGroup(
             DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
-            SetShooter(self.shooter, tower_flywheel_velocity, hub_drivetrain_angle.radians())            
+            SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle)            
         )
 
+        self.pass_right = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, rightpass_drivetrain_angle),
+            SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle)            
+        )
+
+        self.pass_left = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
+        )            
+
+        #dpad selector for stationary commands
         self.stationaryselector = SelectCommand(
             {
+                0: self.pass_right,
                 90: self.hub,
-                180: self.tower
+                180: self.tower,
+                270: self.pass_left 
+
             },
             self.operator_controller.getHID().getPOV
         )

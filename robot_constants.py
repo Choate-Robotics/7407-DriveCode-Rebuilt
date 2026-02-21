@@ -9,3 +9,11 @@ tower_hood_angle = 0 # PLACEHOLDER
 hub_drivetrain_angle = Rotation2d() # PLACEHOLDER
 hub_flywheel_velocity = 0 # PLACEHOLDER
 hub_hood_angle = 0 # PLACEHOLDER
+
+leftpass_drivetrain_angle = Rotation2d() # PLACEHOLDER
+leftpass_flywheel_velocity = 0 # PLACEHOLDER
+leftpass_hood_angle = 0 # PLACEHOLDER
+
+rightpass_drivetrain_angle = Rotation2d() # PLACEHOLDER
+rightpass_flywheel_velocity = 0 # PLACEHOLDER
+rightpass_hood_angle = 0 # PLACEHOLDER
