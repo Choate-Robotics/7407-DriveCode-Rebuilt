@@ -61,7 +61,7 @@ class SetShooterAuto(commands2.Command):
         self.pose = pose
 
     def initialize(self):
-        self.subsystem.target_stationary(Pose2d, False)
+        self.subsystem.target_stationary(self.pose, False)
 
     def execute(self):
         pass
@@ -141,8 +141,8 @@ class TuneShooter(commands2.Command):
         self.shot_tuner = self.nt_inst.getTable("Shot Tuner")
 
         
-        self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").publish()
-        self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").publish()
+        self.hood_angle_pub = self.shot_tuner.getDoubleTopic("hood angle").publish()
+        self.flywheel_rps_pub = self.shot_tuner.getDoubleTopic("flywheel rps").publish()
         self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(20.0)
         self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(15.0)
         self.distance_pub = self.shot_tuner.getDoubleTopic("distance to hub").publish()

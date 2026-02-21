@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup, ConditionalCommand
+from commands2 import ParallelCommandGroup, ConditionalCommand, SelectCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -121,6 +121,26 @@ class RobotContainer:
         #         lambda: self.operator_controller.getHID().getPOV() == 180
         #     )
         # )
+        
+
+        # stationary commands
+        self.tower = ParallelCommandGroup(
+                    DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
+                    SetShooter(self.shooter, tower_flywheel_velocity, tower_drivetrain_angle.radians())
+                )
+        
+        self.hub = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, hub_drivetrain_angle.radians())            
+        )
+
+        self.stationaryselector = SelectCommand(
+            {
+                90: self.hub,
+                180: self.tower
+            },
+            self.operator_controller.getHID().getPOV
+        )
 
         self.driver_controller.rightTrigger().onTrue(
             ParallelCommandGroup(
@@ -128,7 +148,6 @@ class RobotContainer:
                 AimDrivetrain(self.drivetrain, self.driver_controller)
             )
         )
-
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
             RunIndexer(self.indexer)
