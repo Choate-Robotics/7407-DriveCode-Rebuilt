@@ -1,4 +1,4 @@
-from phoenix6 import hardware, configs, signals
+from phoenix6 import hardware, configs, signals, units
 from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
@@ -10,14 +10,14 @@ right_follow_id: int = 61 # placeholder
 hood_id: int = 62 # placeholder
 hood_cancoder_id: int = 57 #placeholder
 
-flywheel_threshold = 2.0 # placeholder
-hood_threshold = 2.0 # placeholder
+flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
+hood_angle_threshold: units.rotation = 1.0 / 360# placeholder
 
 hood_gear_ratio = 69 # 69:1
-max_hood_angle = 43 # placeholder
-min_hood_angle = 0 # placeholder
+max_hood_angle: units.rotation = 43 / 360 # placeholder
+min_hood_angle: units.rotation = 10 / 360
 
-idle_velocity = 0 # placeholder
+idle_velocity: units.rotations_per_second = 0 # placeholder
 
 NT_SHOOTER: bool = True
 
@@ -42,6 +42,9 @@ flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_s(0) # placeholder
     .with_k_v(0) # placeholder
     .with_k_a(0) # placeholder
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(80) # placeholder
 )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(
@@ -69,7 +72,10 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_sensor_to_mechanism_ratio(2)
     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)  
     .with_feedback_remote_sensor_id(hood_cancoder_id)
-) 
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(60) # placeholder
+)
 
 
 def load_shooter_table_csv(rel_path: str) -> np.ndarray:

@@ -103,7 +103,7 @@ class SetShooter(commands2.Command):
     
     Args:
             velocity (rotations per second): desired left and right flywheel velocity
-            angle (radians): desired hood angle
+            angle (rotations): desired hood angle
     """
 
     def __init__(self, subsystem: Shooter, velocity: units.rotations_per_second, angle: units.radian):
@@ -150,7 +150,7 @@ class TuneShooter(commands2.Command):
     def initialize(self):
         self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
-        self.subsystem.set_hood_angle(self.hood_angle_sub.get())
+        self.subsystem.set_hood_angle(self.hood_angle_sub.get() / 360)
 
     def execute(self):
         self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.drivetrain.get_pose()))

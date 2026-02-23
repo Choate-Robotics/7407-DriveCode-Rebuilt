@@ -39,7 +39,6 @@ class RobotContainer:
             )  # Use open-loop control for drive motors
         )
         self._brake = swerve.requests.SwerveDriveBrake()
-        self._point = swerve.requests.PointWheelsAt()
 
         self._logger = Telemetry(max_speed)
 
@@ -100,34 +99,12 @@ class RobotContainer:
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
-        # Aim drivetrain and shooter
-        # self.driver_controller.rightTrigger().whileTrue(
-        #     ConditionalCommand(
-        #         ParallelCommandGroup(
-        #             DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
-        #             SetShooter(self.shooter, self.driver_controller, tower_flywheel_velocity, tower_hood_angle)
-        #         ),
-        #         ConditionalCommand(
-        #             ParallelCommandGroup(
-        #                 DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
-        #                 SetShooter(self.shooter, self.driver_controller, hub_flywheel_velocity, hub_hood_angle)
-        #             ),
-        #             ParallelCommandGroup(
-        #                 AimDrivetrain(self.drivetrain, self.driver_controller),
-        #                 AimShooter(self.shooter, self.drivetrain)
-        #             ),
-        #             lambda: self.operator_controller.getHID().getPOV() == 0
-        #         ),
-        #         lambda: self.operator_controller.getHID().getPOV() == 180
-        #     )
-        # )
-        
-
         # stationary commands
+
         self.tower = ParallelCommandGroup(
-                    DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
-                    SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
-                )
+            DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
+        )
         
         self.hub = ParallelCommandGroup(
             DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
@@ -144,18 +121,24 @@ class RobotContainer:
             SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
         )            
 
-        #dpad selector for stationary commands
-        self.stationaryselector = SelectCommand(
-            {
-                0: self.pass_right,
-                90: self.hub,
-                180: self.tower,
-                270: self.pass_left 
+        # aim drivetrain and shooter based on operator input
+        # self.driver_controller.rightTrigger().onTrue(
+        #     SelectCommand(
+        #         {
+        #             0: self.hub,
+        #             90: self.pass_right,
+        #             180: self.tower,
+        #             270: self.pass_left,
+        #             -1: ParallelCommandGroup(
+        #                 AimShooter(self.shooter, self.drivetrain),
+        #                 AimDrivetrain(self.drivetrain, self.driver_controller)
+        #             )
+        #         },
+        #         self.operator_controller.getHID().getPOV
+        #     )
+        # )
 
-            },
-            self.operator_controller.getHID().getPOV
-        )
-
+        # command used to tune the shooter by taking in a value from networktables
         self.driver_controller.rightTrigger().onTrue(
             ParallelCommandGroup(
                 TuneShooter(self.shooter, self.drivetrain),
@@ -167,6 +150,7 @@ class RobotContainer:
             RunIndexer(self.indexer)
         )
 
+        # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
             SnakeMode(self.drivetrain, self.driver_controller)
         )

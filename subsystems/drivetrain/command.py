@@ -17,9 +17,9 @@ class AimDrivetrain(commands2.Command):
         self.controller = controller
         self._brake = swerve.requests.SwerveDriveBrake()
         self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            aiming_pid_p,
-            aiming_pid_i,
-            aiming_pid_d
+            aiming_kP,
+            aiming_kI,
+            aiming_kD
         )
 
         self.addRequirements(self.drivetrain)
@@ -80,9 +80,9 @@ class DriveAtAngle(commands2.Command):
         self.controller = controller
         self._brake = swerve.requests.SwerveDriveBrake()
         self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            aiming_pid_p,
-            aiming_pid_i,
-            aiming_pid_d
+            aiming_kP,
+            aiming_kI,
+            aiming_kD
         )
 
         self.addRequirements(self.drivetrain)
@@ -131,9 +131,9 @@ class SnakeMode(commands2.Command):
         self.drivetrain = subsystem
         self.controller = controller
         self.aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            snake_mode_pid_p,
-            snake_mode_pid_i,
-            snake_mode_pid_d
+            snake_mode_kP,
+            snake_mode_kI,
+            snake_mode_kD
         )
         self.drive = swerve.requests.FieldCentric().with_drive_request_type(
             swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
