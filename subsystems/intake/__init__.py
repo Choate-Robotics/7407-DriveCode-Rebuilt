@@ -1,3 +1,3 @@
 from .subsystem import Intake
-from .command import SetPivot, RunIntake, ReverseIntake, DeployIntake
-from .constants import intake_initial_angle, intake_deploy_angle
+from .command import IntakeIndex, RunIntake, DeployIntake, RetractIntake, ReverseIntake
+from .constants import intake_retract_rotation, intake_deploy_rotation, intake_maximum_rotation

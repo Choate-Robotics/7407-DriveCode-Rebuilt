@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup, ConditionalCommand, SelectCommand
+from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -17,8 +17,6 @@ from wpilib import DriverStation, SendableChooser, SmartDashboard
 
 import autos
 from utils import math_utils
-
-from subsystems import *
 from typing import Callable
 
 class RobotContainer:
@@ -147,7 +145,7 @@ class RobotContainer:
         )
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-            RunIndexer(self.indexer)
+            Index(self.indexer, self.intake)
         )
 
         # drive in "snake mode" (intake faces direction of travel)
@@ -167,17 +165,20 @@ class RobotContainer:
         
         # deploy and run intake
         self.operator_controller.rightTrigger().whileTrue(
-            DeployIntake(self.intake)
+            SequentialCommandGroup(
+                DeployIntake(self.intake),
+                RunIntake(self.intake)
+            )
         )
 
         # run intake in reverse
         self.operator_controller.leftTrigger().whileTrue(
-            ReverseIntake(self.intake).onlyIf(lambda: self.intake.is_at_angle(intake_deploy_angle))
+            ReverseIntake(self.intake)
         )
 
         # retract intake
         self.operator_controller.leftBumper().onTrue(
-            SetPivot(self.intake, intake_initial_angle)
+            RetractIntake(self.intake)
         )
 
         # deploy climb
@@ -187,7 +188,7 @@ class RobotContainer:
         
         # climb
         self.operator_controller.back().whileTrue(
-            Retract(self.climber)
+            RetractClimb(self.climber)
         )
 
         # Run SysId routines when holding back/start and X/Y.

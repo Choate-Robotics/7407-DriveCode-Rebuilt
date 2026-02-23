@@ -1,5 +1,5 @@
 from phoenix6.hardware import CANcoder
-from phoenix6 import StatusSignal, controls, configs, hardware, signals 
+from phoenix6 import StatusSignal, controls, configs, hardware, signals, units
 import math
 import commands2
 from .constants import *
@@ -12,13 +12,16 @@ class Intake(commands2.Subsystem):
         # self.encoder: CANcoder = CANcoder()
 
         self.horizontal_motor = hardware.TalonFX(horizontal_motor_id)
-
         self.pivot_motor = hardware.TalonFX(pivot_motor_id)
+
         self.horizontal_motor_out = controls.DutyCycleOut(0)
-        self.pivot_request = controls.MotionMagicVoltage(0.0)
+        self.pivot_motion_magic = controls.MotionMagicVoltage(0.0)
+        self.pivot_voltage = controls.VoltageOut(0)
         self.target_angle = 0.0    
 
-        self.pivot_motor.set_position(0.0)
+        #initial zero
+        self.pivot_motor.set_position(intake_deploy_rotation)
+        
         self.intake_running = False
         self.pivot_running = False
 
@@ -26,7 +29,6 @@ class Intake(commands2.Subsystem):
         self.pivot_motor.configurator.apply(pivot_motor_configs)
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Intake")
         self.anglepub = self.table.getDoubleTopic("pivot angle").publish()
-        # self.zeroedpub = self.table.getBooleanTopic("pivot zeroed").publish()
         self.targetpub = self.table.getDoubleTopic("target angle").publish()
         self.pivot_supply_currentpub = self.table.getDoubleTopic("pivot supply current").publish()
         self.horizontal_motor_currentpub = self.table.getDoubleTopic("horizontal motor current").publish()
@@ -72,7 +74,7 @@ class Intake(commands2.Subsystem):
         """
         return self.horizontal_motor.get_supply_current()
     
-    def get_pivot_angle(self):
+    def get_pivot_angle(self) -> units.rotation:
         """
         get rotations of pivot motor
         """
@@ -82,30 +84,37 @@ class Intake(commands2.Subsystem):
         """
         stop pivot motor
         """
-        self.pivot_request = controls.MotionMagicDutyCycle(0.0)
-        self.pivot_motor.set_control(self.pivot_request)
+        self.pivot_motor.set_control(self.pivot_voltage.with_output(0))
         
-    def set_pivot_out(self, output:float):
+    def set_pivot_motor_in(self, output: units.volt):
         """
         set pivot motor voltage
         """
         self.output = output
-        self.pivot_request = controls.VoltageOut(self.output)
-        self.pivot_motor.set_control(self.pivot_request)
+        self.pivot_motor.set_control(self.pivot_voltage.with_output(self.output))
     
-    def is_at_angle(self, angle: float):
+    def is_at_angle(self, angle: units.rotation):
         """
         checks at angle 
         """
         return abs(self.get_pivot_angle() - angle) < angle_threshold
 
-    def set_pivot(self, angle: float):
+    def set_pivot(self, angle: units.rotation):
         """
         set pivot motor angle
         """
-        self.target_angle = angle
-        self.pivot_request = controls.MotionMagicVoltage(angle)
-        self.pivot_motor.set_control(self.pivot_request)
+        self.target_angle = self.limit_pivot_angle(angle)
+        self.pivot_motor.set_control(self.pivot_motion_magic.with_position(self.target_angle))
+
+    def limit_pivot_angle(self, angle: units.rotation):
+        """
+        limit angle request to max pivot motor
+        """
+        if angle >= intake_maximum_rotation:
+            return intake_maximum_rotation
+        elif angle <= intake_retract_rotation:
+            return intake_retract_rotation
+        return angle
     
     def update_table(self):
         """
@@ -117,3 +126,6 @@ class Intake(commands2.Subsystem):
         self.intake_runningpub.set(self.intake_running)
         self.horizontal_motor_currentpub.set(self.get_horizontal_motor_supply_current().value)
         self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
+
+    def periodic(self):
+        self.update_table()
