@@ -145,7 +145,7 @@ class RobotContainer:
         )
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-            RunIndexer(self.indexer)
+            Index(self.indexer, self.intake)
         )
 
         # drive in "snake mode" (intake faces direction of travel)
