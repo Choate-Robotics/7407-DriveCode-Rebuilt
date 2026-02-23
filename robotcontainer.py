@@ -16,8 +16,6 @@ from wpilib import DriverStation, SendableChooser, SmartDashboard
 
 import autos
 from utils import math_utils
-
-from subsystems import *
 from typing import Callable
 
 class RobotContainer:
@@ -127,12 +125,12 @@ class RobotContainer:
 
         # run intake in reverse
         self.operator_controller.leftTrigger().whileTrue(
-            ReverseIntake(self.intake).onlyIf(lambda: self.intake.is_at_angle(intake_deploy_angle))
+            ReverseIntake(self.intake)
         )
 
         # retract intake
         self.operator_controller.leftBumper().onTrue(
-            SetPivot(self.intake, intake_initial_angle)
+            RetractIntake(self.intake)
         )
 
         # deploy climb

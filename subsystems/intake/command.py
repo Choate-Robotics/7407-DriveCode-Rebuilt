@@ -3,6 +3,7 @@ import commands2
 from .constants import *
 from enum import Enum
 from utils import local_logger
+from phoenix6 import units
 
 log = local_logger.LocalLogger("intake")
 
@@ -10,7 +11,7 @@ class SetPivot(commands2.Command):
     """
     Setpivot to specificed angle 
     """
-    def __init__(self, subsystem: Intake, angle: float):
+    def __init__(self, subsystem: Intake, angle: units.rotation):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
@@ -28,7 +29,6 @@ class SetPivot(commands2.Command):
     
     def end(self, interrupted: bool):
         if not interrupted:
-            self.subsystem.stop_pivot()
             self.subsystem.pivot_running = False
         else:
             log.message("intake pivot interrupted")
@@ -69,12 +69,13 @@ class ReverseIntake(commands2.Command):
         return False
     
     def end(self, interrupted: bool):
-        self.subsystem.stop_intake() 
+        self.subsystem.stop_intake()
+
 class SetPivotIn(commands2.Command):
     """
     Set pivot motor to specified angle with voltage in
     """
-    def __init__(self, subsystem: Intake, angle: float):
+    def __init__(self, subsystem: Intake, angle: units.rotation):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
@@ -87,25 +88,32 @@ class SetPivotIn(commands2.Command):
         pass
 
     def isFinished(self) -> bool:
-        return self.subsystem.is_at_angle(self.angle)
+        return self.subsystem.get_pivot_angle() >= self.angle
     
     def end(self, interrupted: bool):
-        if not interrupted:
-            self.subsystem.stop_pivot()
-            self.subsystem.pivot_running = False
-        else:
+        self.subsystem.stop_pivot()
+        self.subsystem.pivot_running = False
+        if interrupted:
             log.message("intake pivot interrupted")
+
 class RetractIntake(SetPivot):
     """
-    Deploy the intake
+    Fully retract the intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_retract_rotation)
+        super().__init__(subsystem, intake_maximum_rotation)
 
-class DeployIntakeOut(SetPivotIn):
+class DeployIntake(SetPivot):
     """
-    Deploy intake by setting pivot to specified angle with voltagein
+    Fully deploy intake
     """
     def __init__(self, subsystem: Intake):
         super().__init__(subsystem, intake_deploy_rotation)
+
+class IntakeIndex(SetPivotIn):
+    """
+    Index with the intake by setting pivot to specified angle with voltagein
+    """
+    def __init__(self, subsystem: Intake):
+        super().__init__(subsystem, intake_retract_rotation)
 
