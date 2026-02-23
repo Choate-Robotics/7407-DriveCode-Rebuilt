@@ -17,9 +17,9 @@ class AimDrivetrain(commands2.Command):
         self.controller = controller
         self._brake = swerve.requests.SwerveDriveBrake()
         self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            aiming_pid_p,
-            aiming_pid_i,
-            aiming_pid_d
+            aiming_kP,
+            aiming_kI,
+            aiming_kD
         )
 
         self.addRequirements(self.drivetrain)
@@ -52,16 +52,71 @@ class AimDrivetrain(commands2.Command):
         self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
+        self.is_facing_angle = self.drivetrain.is_facing_angle(self.target_angle.radians())
 
-        if self.drivetrain.is_facing_angle(self.target_angle.radians()) and self.cmd_speed == 0:
+        if self.is_facing_angle and self.cmd_speed == 0:
             self.drivetrain.set_control(self._brake)
 
-        elif self.cmd_speed > 0 or not self.drivetrain.is_facing_angle(self.target_angle.radians()):
+        else:
             self.drivetrain.set_control(
                 self._aim_at.with_target_direction(self.target_angle)
                 .with_velocity_x(self.v_x)
                 .with_velocity_y(self.v_y)
             )
+
+        self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
+        
+    def isFinished(self) -> bool:
+        return False
+    
+    def end(self, interrupted: bool) -> None:
+        pass
+
+class DriveAtAngle(commands2.Command):
+    def __init__(self, subsystem: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController, target_angle: Rotation2d):
+        super().__init__()
+
+        self.drivetrain = subsystem
+        self.controller = controller
+        self._brake = swerve.requests.SwerveDriveBrake()
+        self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+            aiming_kP,
+            aiming_kI,
+            aiming_kD
+        )
+
+        self.addRequirements(self.drivetrain)
+        self.target_angle = target_angle
+
+    def initialize(self):
+        self.target_angle = alliance_flip_util.get_alliance(self.target_angle)
+
+    def execute(self):
+        """
+        1. Calculate v_x and v_y based on controller inputs
+        2. If speed is too high, drive at angle
+        3. Check if drivetrain is facing angle within tolerance
+        4. If facing angle and speed is 0, apply brake
+        5. Else: drive at angle
+        """
+
+        self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
+        self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
+
+        self.cmd_speed = math.hypot(self.v_x, self.v_y)
+        self.is_facing_angle = self.drivetrain.is_facing_angle(self.target_angle.radians())
+
+        if self.is_facing_angle and self.cmd_speed == 0:
+            self.drivetrain.set_control(self._brake)
+
+        else:
+            self.drivetrain.set_control(
+                self._aim_at.with_target_direction(self.target_angle)
+                .with_velocity_x(self.v_x)
+                .with_velocity_y(self.v_y)
+            )
+
+        self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
         
     def isFinished(self) -> bool:
         return False
@@ -76,9 +131,9 @@ class SnakeMode(commands2.Command):
         self.drivetrain = subsystem
         self.controller = controller
         self.aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            snake_mode_pid_p,
-            snake_mode_pid_i,
-            snake_mode_pid_d
+            snake_mode_kP,
+            snake_mode_kI,
+            snake_mode_kD
         )
         self.drive = swerve.requests.FieldCentric().with_drive_request_type(
             swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
