@@ -3,13 +3,14 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup
+from commands2 import ParallelCommandGroup, ConditionalCommand, SelectCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from subsystems import *
+from robot_constants import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
@@ -38,7 +39,6 @@ class RobotContainer:
             )  # Use open-loop control for drive motors
         )
         self._brake = swerve.requests.SwerveDriveBrake()
-        self._point = swerve.requests.PointWheelsAt()
 
         self._logger = Telemetry(max_speed)
 
@@ -99,19 +99,61 @@ class RobotContainer:
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
         )
 
-        # Aim drivetrain and shooter
-        self.driver_controller.rightTrigger().whileTrue(
+        # stationary commands
+
+        self.tower = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
+        )
+        
+        self.hub = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+            SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle)            
+        )
+
+        self.pass_right = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, rightpass_drivetrain_angle),
+            SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle)            
+        )
+
+        self.pass_left = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
+        )            
+
+        # aim drivetrain and shooter based on operator input
+        # self.driver_controller.rightTrigger().onTrue(
+        #     SelectCommand(
+        #         {
+        #             0: self.hub,
+        #             90: self.pass_right,
+        #             180: self.tower,
+        #             270: self.pass_left,
+        #             -1: ParallelCommandGroup(
+        #                 AimShooter(self.shooter, self.drivetrain),
+        #                 AimDrivetrain(self.drivetrain, self.driver_controller)
+        #             )
+        #         },
+        #         self.operator_controller.getHID().getPOV
+        #     )
+        # )
+
+        # command used to tune the shooter by taking in a value from networktables
+        self.driver_controller.rightTrigger().onTrue(
             ParallelCommandGroup(
-                AimDrivetrain(self.drivetrain, self.driver_controller),
-                AimShooter(self.shooter, self.drivetrain)
+                TuneShooter(self.shooter, self.drivetrain),
+                AimDrivetrain(self.drivetrain, self.driver_controller)
             )
         )
 
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+            RunIndexer(self.indexer)
+        )
+
+        # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
             SnakeMode(self.drivetrain, self.driver_controller)
         )
-
-
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
