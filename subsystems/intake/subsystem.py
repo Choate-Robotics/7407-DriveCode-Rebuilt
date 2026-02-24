@@ -15,7 +15,7 @@ class Intake(commands2.Subsystem):
         self.pivot_motor = hardware.TalonFX(pivot_motor_id, "canivore")
 
         self.horizontal_motor_out = controls.DutyCycleOut(0)
-        self.pivot_motion_magic = controls.MotionMagicVoltage(0.0)
+        self.pivot_position = controls.PositionVoltage(0.0)
         self.pivot_voltage = controls.VoltageOut(0)
         self.target_angle = 0.0    
 
@@ -104,7 +104,7 @@ class Intake(commands2.Subsystem):
         set pivot motor angle
         """
         self.target_angle = self.limit_pivot_angle(angle)
-        self.pivot_motor.set_control(self.pivot_motion_magic.with_position(self.target_angle))
+        self.pivot_motor.set_control(self.pivot_position.with_position(self.target_angle))
 
     def limit_pivot_angle(self, angle: units.rotation):
         """
