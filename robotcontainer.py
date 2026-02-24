@@ -45,7 +45,7 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
-        # self.climber = Climber()
+        self.climber = Climber()
         self.indexer = Indexer()
         self.intake = Intake()
 
