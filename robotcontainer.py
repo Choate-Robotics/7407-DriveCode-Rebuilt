@@ -45,7 +45,7 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
-        self.climber = Climber()
+        # self.climber = Climber()
         self.indexer = Indexer()
         self.intake = Intake()
 
@@ -137,59 +137,59 @@ class RobotContainer:
         # )
 
         # command used to tune the shooter by taking in a value from networktables
-        self.driver_controller.rightTrigger().onTrue(
-            ParallelCommandGroup(
-                TuneShooter(self.shooter, self.drivetrain),
-                AimDrivetrain(self.drivetrain, self.driver_controller)
-            )
-        )
+        # self.driver_controller.rightTrigger().onTrue(
+        #     ParallelCommandGroup(
+        #         TuneShooter(self.shooter, self.drivetrain),
+        #         AimDrivetrain(self.drivetrain, self.driver_controller)
+        #     )
+        # )
 
-        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-            Index(self.indexer, self.intake)
-        )
+        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+        #     Index(self.indexer, self.intake)
+        # )
 
-        # drive in "snake mode" (intake faces direction of travel)
-        self.driver_controller.rightBumper().whileTrue(
-            SnakeMode(self.drivetrain, self.driver_controller)
-        )
+        # # drive in "snake mode" (intake faces direction of travel)
+        # self.driver_controller.rightBumper().whileTrue(
+        #     SnakeMode(self.drivetrain, self.driver_controller)
+        # )
 
-        # force the indexer to spin
-        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-            RunIndexer(self.indexer)
-        )
+        # # force the indexer to spin
+        # self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+        #     RunIndexer(self.indexer)
+        # )
 
-        # reverse the indexer
-        self.operator_controller.y().onTrue(
-            RunIndexerReversed(self.indexer)
-        )
+        # # reverse the indexer
+        # self.operator_controller.y().onTrue(
+        #     RunIndexerReversed(self.indexer)
+        # )
         
-        # deploy and run intake
-        self.operator_controller.rightTrigger().whileTrue(
-            SequentialCommandGroup(
-                DeployIntake(self.intake),
-                RunIntake(self.intake)
-            )
-        )
+        # # deploy and run intake
+        # self.operator_controller.rightTrigger().whileTrue(
+        #     SequentialCommandGroup(
+        #         DeployIntake(self.intake),
+        #         RunIntake(self.intake)
+        #     )
+        # )
 
-        # run intake in reverse
-        self.operator_controller.leftTrigger().whileTrue(
-            ReverseIntake(self.intake)
-        )
+        # # run intake in reverse
+        # self.operator_controller.leftTrigger().whileTrue(
+        #     ReverseIntake(self.intake)
+        # )
 
-        # retract intake
-        self.operator_controller.leftBumper().onTrue(
-            RetractIntake(self.intake)
-        )
+        # # retract intake
+        # self.operator_controller.leftBumper().onTrue(
+        #     RetractIntake(self.intake)
+        # )
 
-        # deploy climb
-        self.operator_controller.start().onTrue(
-            DeployClimbL1(self.climber)
-        )
+        # # deploy climb
+        # self.operator_controller.start().onTrue(
+        #     DeployClimbL1(self.climber)
+        # )
         
-        # climb
-        self.operator_controller.back().whileTrue(
-            RetractClimb(self.climber)
-        )
+        # # climb
+        # self.operator_controller.back().whileTrue(
+        #     RetractClimb(self.climber)
+        # )
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.

@@ -3,12 +3,12 @@ from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
 
-left_lead_id: int = 58 # placeholder
-left_follower_id: int = 59 # placeholder
-right_lead_id: int = 60 # placeholder
-right_follow_id: int = 61 # placeholder
-hood_id: int = 62 # placeholder
-hood_cancoder_id: int = 57 #placeholder
+left_lead_id: int = 16
+left_follower_id: int = 17
+right_lead_id: int = 18
+right_follow_id: int = 19
+hood_id: int = 20
+hood_cancoder_id: int = 23
 
 flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
 hood_angle_threshold: units.rotation = 1.0 / 360# placeholder

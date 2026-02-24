@@ -5,8 +5,8 @@ from phoenix6.hardware import TalonFX
 from phoenix6.configs import TalonFXConfiguration
 
 # ids
-horizontal_motor_id = 25 #placeholder
-pivot_motor_id = 24 #placeholder
+horizontal_motor_id = 14
+pivot_motor_id = 15
 
 # constants
 angle_threshold = 0.01 #placeholder 

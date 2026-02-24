@@ -1,8 +1,8 @@
 from phoenix6 import configs, signals
 
 #motor configs
-indexer_motor_id = 30 #TODO: placeholder
-tower_motor_id = 31 #TODO: placeholder
+indexer_motor_id = 22
+tower_motor_id = 21
 
 indexer_speed = 0 #TODO: placeholder
 tower_speed = 0 #TODO: placeholder

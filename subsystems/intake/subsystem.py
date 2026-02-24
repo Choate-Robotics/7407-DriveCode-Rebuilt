@@ -12,7 +12,7 @@ class Intake(commands2.Subsystem):
         # self.encoder: CANcoder = CANcoder()
 
         self.horizontal_motor = hardware.TalonFX(horizontal_motor_id)
-        self.pivot_motor = hardware.TalonFX(pivot_motor_id)
+        self.pivot_motor = hardware.TalonFX(pivot_motor_id, "canivore")
 
         self.horizontal_motor_out = controls.DutyCycleOut(0)
         self.pivot_motion_magic = controls.MotionMagicVoltage(0.0)
