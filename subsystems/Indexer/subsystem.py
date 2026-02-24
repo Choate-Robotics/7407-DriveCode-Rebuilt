@@ -8,7 +8,7 @@ class Indexer(Subsystem):
 
     def __init__(self):
         super().__init__()
-        self.indexer_motor: hardware.TalonFX = hardware.TalonFX(indexer_motor_id)
+        self.indexer_motor: hardware.TalonFX = hardware.TalonFX(indexer_motor_id, "canivore")
         self.tower_motor: hardware.TalonFX = hardware.TalonFX(tower_motor_id)
         self.control_duty_cycle = controls.DutyCycleOut(0)
         self.control_velocity = controls.VelocityTorqueCurrentFOC(0)

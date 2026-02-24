@@ -30,7 +30,7 @@ class DeployClimbL1(commands2.Command):
         self.subsystem.moving = False
 
 
-class Retract(commands2.Command):
+class RetractClimb(commands2.Command):
     """
     lower climber to climb robot.
     uses set_voltage method from Climber subsystem.

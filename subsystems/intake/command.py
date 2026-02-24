@@ -3,6 +3,7 @@ import commands2
 from .constants import *
 from enum import Enum
 from utils import local_logger
+from phoenix6 import units
 
 log = local_logger.LocalLogger("intake")
 
@@ -10,7 +11,7 @@ class SetPivot(commands2.Command):
     """
     Setpivot to specificed angle 
     """
-    def __init__(self, subsystem: Intake, angle: float):
+    def __init__(self, subsystem: Intake, angle: units.rotation):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
@@ -28,7 +29,6 @@ class SetPivot(commands2.Command):
     
     def end(self, interrupted: bool):
         if not interrupted:
-            self.subsystem.stop_pivot()
             self.subsystem.pivot_running = False
         else:
             log.message("intake pivot interrupted")
@@ -69,51 +69,51 @@ class ReverseIntake(commands2.Command):
         return False
     
     def end(self, interrupted: bool):
-        self.subsystem.stop_intake() 
+        self.subsystem.stop_intake()
 
-class SetPivotOut(commands2.Command):
+class SetPivotIn(commands2.Command):
     """
-    Set pivot motor to specified angle with voltage out
+    Set pivot motor to specified angle with voltage in
     """
-    def __init__(self, subsystem: Intake, voltage:float, angle: float):
+    def __init__(self, subsystem: Intake, angle: units.rotation):
         super().__init__()
         self.subsystem = subsystem
-        self.voltage = voltage
         self.angle = angle
 
     def initialize(self):
-        self.subsystem.set_pivot_out(self.voltage)
+        self.subsystem.set_pivot_motor_in(voltage_out)
         self.subsystem.pivot_running = True
 
     def execute(self):
         pass
 
     def isFinished(self) -> bool:
-        return self.subsystem.is_at_angle(self.angle)
+        return self.subsystem.get_pivot_angle() >= self.angle
     
     def end(self, interrupted: bool):
-        if not interrupted:
-            self.subsystem.stop_pivot()
-            self.subsystem.pivot_running = False
-        else:
+        self.subsystem.stop_pivot()
+        self.subsystem.pivot_running = False
+        if interrupted:
             log.message("intake pivot interrupted")
 
-class DeployIntake(commands2.SequentialCommandGroup):
+class RetractIntake(SetPivot):
     """
-    Deploy intake by setting pivot to specificed angle and running intake
+    Fully retract the intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(
-            SetPivot(subsystem, intake_deploy_angle),
-            RunIntake(subsystem)
-        )
+        super().__init__(subsystem, intake_maximum_rotation)
 
-class DeployIntakeOut(commands2.SequentialCommandGroup):
+class DeployIntake(SetPivot):
     """
-    Deploy intake by setting pivot to specified angle with voltageout
+    Fully deploy intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(
-            SetPivotOut(subsystem, voltage_out, intake_deploy_angle),
-            RunIntake(subsystem)
-            )
+        super().__init__(subsystem, intake_deploy_rotation)
+
+class IntakeIndex(SetPivotIn):
+    """
+    Index with the intake by setting pivot to specified angle with voltagein
+    """
+    def __init__(self, subsystem: Intake):
+        super().__init__(subsystem, intake_retract_rotation)
+

@@ -1,10 +1,10 @@
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals
 #ID values
-left_motor_id = 26 #placeholder
+left_motor_id = 24
 
 # other constants
-climber_gear_ratio = 2 #placeholder
+climber_gear_ratio = 125
 climber_retract_voltage = 2 #placeholder
 climber_deploy_speed = 2 #placeholder
 climber_lower_bound = 0 #placeholder

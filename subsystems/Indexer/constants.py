@@ -1,8 +1,8 @@
 from phoenix6 import configs, signals
 
 #motor configs
-indexer_motor_id = 30 #TODO: placeholder
-tower_motor_id = 31 #TODO: placeholder
+indexer_motor_id = 22
+tower_motor_id = 21
 
 indexer_speed = 0 #TODO: placeholder
 tower_speed = 0 #TODO: placeholder
@@ -17,6 +17,10 @@ tower_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
     .with_neutral_mode(signals.NeutralModeValue.BRAKE)
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
+).with_feedback(
+     configs.FeedbackConfigs()
+     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)
+     .with_sensor_to_mechanism_ratio(3) 
 ).with_slot0(
     configs.Slot0Configs()
     .with_k_p(0) # placeholder
