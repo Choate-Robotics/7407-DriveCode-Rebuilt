@@ -13,8 +13,11 @@ path_name = "TwoLoopClimb"
 paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(7)]
 def auto(robot_container: RobotContainer) -> AutoRoutine:
     command = SequentialCommandGroup(
-        
-        AutoBuilder.followPath(paths[0]),
+
+        ParallelCommandGroup(
+            AutoBuilder.followPath(paths[0]),
+            SetPivot(robot_container.intake, 90)
+            )
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[1]),
