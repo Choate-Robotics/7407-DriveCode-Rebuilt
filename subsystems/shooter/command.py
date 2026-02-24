@@ -42,31 +42,26 @@ class AimShooter(commands2.Command):
 
     def end(self, interrupted):
         pass
-<<<<<<< HEAD
-
-
-=======
     
->>>>>>> 35e02742f1fc830946021e7ca1eabd1dbd8dddc5
 class SetShooterAuto(commands2.Command):
     """
     uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
-    never ends
+    ends
+    
+    Args:
+            pose: robot Pose2d
     """
 
-    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain):
-        super().__init__()     
-
+    def __init__(self, subsystem: Shooter, pose: Pose2d):
+        super().__init__()
+       
+       
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
-        self.drivetrain = drivetrain
+        self.pose = pose
 
     def initialize(self):
-<<<<<<< HEAD
-        pass
-=======
         self.subsystem.target_stationary(self.pose, False)
->>>>>>> 35e02742f1fc830946021e7ca1eabd1dbd8dddc5
 
     def execute(self):
         pass

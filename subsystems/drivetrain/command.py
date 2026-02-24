@@ -72,20 +72,6 @@ class AimDrivetrain(commands2.Command):
     def end(self, interrupted: bool) -> None:
         pass
 
-<<<<<<< HEAD
-class AimDrivetrainAuto(commands2.Command):
-    def __init__(self, subsystem: CommandSwerveDrivetrain):
-        super().__init__()
-
-        self.drivetrain = subsystem
-        self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
-            aiming_pid_p,
-            aiming_pid_i,
-            aiming_pid_d
-        )
-
-        self.addRequirements(self.drivetrain)
-=======
 class DriveAtAngle(commands2.Command):
     def __init__(self, subsystem: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController, target_angle: Rotation2d):
         super().__init__()
@@ -153,37 +139,11 @@ class SnakeMode(commands2.Command):
             swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
         )
         self.addRequirements(self.drivetrain)
->>>>>>> 35e02742f1fc830946021e7ca1eabd1dbd8dddc5
 
     def initialize(self):
         pass
 
     def execute(self):
-<<<<<<< HEAD
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
-            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.drivetrain.get_pose(),
-                alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
-            ))
-
-        else:
-            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.drivetrain.get_pose(),
-                shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
-            ))
-
-        self.drivetrain.set_control(
-            self._aim_at.with_target_direction(self.target_angle)
-            .with_velocity_x(0)
-            .with_velocity_y(0)
-        )
-        
-    def isFinished(self) -> bool:
-        self.drivetrain.is_facing_angle(self.target_angle)
-    
-    def end(self, interrupted: bool) -> None:
-        pass
-=======
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
         aiming_joystick_x = math_utils.curve(-self.controller.getRightX(), deadband, curve)
@@ -215,4 +175,3 @@ class SnakeMode(commands2.Command):
     
     def end(self, interrupted: bool) -> None:
         pass
->>>>>>> 35e02742f1fc830946021e7ca1eabd1dbd8dddc5
