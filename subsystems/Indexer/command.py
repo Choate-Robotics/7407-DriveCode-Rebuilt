@@ -21,7 +21,7 @@ class RunIndexer(commands2.Command):
     def execute(self) -> None:
         pass
     
-    def isFinished(self) -> None:
+    def isFinished(self) -> bool:
         return False
 
     def end(self, interrupted) -> None:
@@ -44,7 +44,7 @@ class RunIndexerReversed(commands2.Command):
     def execute(self) -> None:
         pass
     
-    def isFinished(self) -> None:
+    def isFinished(self) -> bool:
         return False
 
     def end(self, interrupted) -> None:
@@ -81,7 +81,7 @@ class AutoUnjamming(commands2.Command):
             self.subsystem.run_tower()
         self.counter -= 1
     
-    def isFinished(self) -> None:
+    def isFinished(self) -> bool:
         return False
 
     def end(self, interrupted) -> None:
