@@ -2,8 +2,11 @@ import commands2
 from .subsystem import Shooter
 from wpimath.geometry import Pose2d
 from subsystems.drivetrain.command_swerve_drivetrain import CommandSwerveDrivetrain
-from utils import alliance_flip_util, field_constants
+from utils import alliance_flip_util, field_constants, shooter_utils
 from .constants import *
+from phoenix6 import units
+
+from ntcore import NetworkTableInstance
 
 class AimShooter(commands2.Command):
     """
@@ -39,8 +42,12 @@ class AimShooter(commands2.Command):
 
     def end(self, interrupted):
         pass
+<<<<<<< HEAD
 
 
+=======
+    
+>>>>>>> 35e02742f1fc830946021e7ca1eabd1dbd8dddc5
 class SetShooterAuto(commands2.Command):
     """
     uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
@@ -55,7 +62,11 @@ class SetShooterAuto(commands2.Command):
         self.drivetrain = drivetrain
 
     def initialize(self):
+<<<<<<< HEAD
         pass
+=======
+        self.subsystem.target_stationary(self.pose, False)
+>>>>>>> 35e02742f1fc830946021e7ca1eabd1dbd8dddc5
 
     def execute(self):
         pass
@@ -83,6 +94,71 @@ class SetShooterIdle(commands2.Command):
 
     def execute(self):
         pass
+
+    def isFinished(self):
+        return False
+
+    def end(self, interrupted):
+        pass
+
+class SetShooter(commands2.Command):
+    """
+    sets left and right flywheels to specified velocity and set hood to specified angle
+    never ends
+    
+    Args:
+            velocity (rotations per second): desired left and right flywheel velocity
+            angle (rotations): desired hood angle
+    """
+
+    def __init__(self, subsystem: Shooter, velocity: units.rotations_per_second, angle: units.radian):
+        super().__init__()
+
+        self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+        self.velocity = velocity
+        self.angle = angle
+
+    def initialize(self):
+        self.subsystem.set_left_target_velocity(self.velocity)
+        self.subsystem.set_right_target_velocity(self.velocity)
+        self.subsystem.set_hood_angle(self.angle)
+
+    def execute(self):
+        pass
+
+    def isFinished(self):
+        return False
+
+    def end(self, interrupted):
+        pass
+
+
+class TuneShooter(commands2.Command):
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain):
+        super().__init__()
+
+        self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+        self.drivetrain = drivetrain
+
+        self.nt_inst = NetworkTableInstance.getDefault()
+        self.shot_tuner = self.nt_inst.getTable("Shot Tuner")
+
+        
+        self.hood_angle_pub = self.shot_tuner.getDoubleTopic("hood angle").publish()
+        self.flywheel_rps_pub = self.shot_tuner.getDoubleTopic("flywheel rps").publish()
+        self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(20.0)
+        self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(15.0)
+        self.distance_pub = self.shot_tuner.getDoubleTopic("distance to hub").publish()
+
+    def initialize(self):
+        self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
+        self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
+        self.subsystem.set_hood_angle(self.hood_angle_sub.get() / 360)
+
+    def execute(self):
+        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.drivetrain.get_pose()))
 
     def isFinished(self):
         return False

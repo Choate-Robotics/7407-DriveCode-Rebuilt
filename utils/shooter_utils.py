@@ -2,7 +2,7 @@ from wpimath.geometry import Pose2d, Pose3d, Translation2d, Translation3d, Rotat
 from utils import alliance_flip_util, field_constants
 import math
 
-from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, shooter_offset, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS
+from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS
 from utils.field_constants import Hub
 import numpy as np
 
@@ -49,18 +49,17 @@ def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     - measures distance to hub center
     - interpolates hood and rps from DIST_M tables
     """
-    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
-
-    shooter_origin_field: Translation2d = (
-        robot_pose.translation() + shooter_offset.rotateBy(robot_pose.rotation())
-    )
-
-    distance_m: float = shooter_origin_field.distance(hub2d)
+    distance_m: float = shot_distance_from_pose(robot_pose)
 
     hood_deg: float = float(np.interp(distance_m, DIST_M, HOOD_DEG))
     rps: float = float(np.interp(distance_m, DIST_M, RPS))
 
     return hood_deg, rps
+
+def shot_distance_from_pose(robot_pose: Pose2d) -> float:
+    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
+
+    return robot_pose.translation().distance(hub2d)
 
 #passing
 def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
@@ -72,11 +71,7 @@ def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     """
     pass_setpoint: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
 
-    shooter_origin_field: Translation2d = (
-        robot_pose.translation() + shooter_offset.rotateBy(robot_pose.rotation())
-    )
-
-    distance_m: float = shooter_origin_field.distance(pass_setpoint)
+    distance_m: float = robot_pose.translation().distance(pass_setpoint)
 
     hood_deg: float = float(np.interp(distance_m, PASS_DIST_M, PASS_HOOD_DEG))
     rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
