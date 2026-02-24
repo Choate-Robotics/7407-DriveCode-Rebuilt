@@ -16,53 +16,41 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[0]),
-            SetPivot(robot_container.intake, 90)
-            )
+            DeployIntake(robot_container.intake)
+            ),
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[1]),
             RunIntake(robot_container.intake)
         ),
 
-        AutoBuilder.followPath(paths[2]),
-
         ParallelCommandGroup(
-            AutoBuilder.followPath(paths[3]),
-            RunIndexer(robot_container.indexer) #replace with index deadline command
+            AutoBuilder.followPath(paths[2]),
+            SetShooterAuto(robot_container.shooter, robot_container.drivetrain.get_pose())
         ),
 
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[4]),
-            SetShooterAuto(robot_container.shooter, robot_container.drivetrain)
-        ),
+        AutoBuilder.followPath(paths[3]),
+        Index(robot_container.indexer, robot_container.intake).withTimeout(5), #placeholder because no timeout constant
         
         ParallelCommandGroup(
-            AutoBuilder.followPath(paths[5]),
-            SetPivot(robot_container.intake, 90)
+            AutoBuilder.followPath(paths[4]),
+            DeployIntake(robot_container.intake)
             ),
 
         ParallelCommandGroup(
-            AutoBuilder.followPath(paths[6]),
+            AutoBuilder.followPath(paths[5]),
             RunIntake(robot_container.intake)
         ),
 
-        AutoBuilder.followPath(paths[7]),
+        AutoBuilder.followPath(paths[6]),
+        Index(robot_container.indexer, robot_container.intake).withTimeout(5), #ditto, is this on purpose?
 
         ParallelCommandGroup(
-            AutoBuilder.followPath(paths[8]),
-            SetShooterAuto(robot_container.shooter, robot_container.drivetrain)
-        ),
-
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[9]),
-        # index deadlinecommand (the one that retracts intake) added once merge occurs
-
-        ),
-        
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[10]),
+            AutoBuilder.followPath(paths[7]),
             DeployClimbL1(robot_container.climber)
         ),
-        Retract(robot_container.climber)
-    )
+
+        RetractClimb(robot_container.climber)
+
+        ),
     return AutoRoutine(command, paths[0].getStartingHolonomicPose())
