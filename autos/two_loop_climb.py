@@ -53,4 +53,4 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         RetractClimb(robot_container.climber)
 
         ),
-    return AutoRoutine(command, paths[0].getStartingHolonomicPose())
+    return AutoRoutine(command, paths[0].getStartingHolonomicPose()) # why is this red im gonna cry

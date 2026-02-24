@@ -23,20 +23,17 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
             RunIntake(robot_container.intake)
         ),
 
-        AutoBuilder.followPath(paths[2]),
         ParallelCommandGroup(
-            AutoBuilder.followPath(paths[3]),
-            SetPivot(robot_container.intake, 90.0)
-        ),
-
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[4]),
+            AutoBuilder.followPath(paths[2]),
             SetShooterAuto(robot_container.shooter, robot_container.drivetrain.get_pose())
         ),
-        RunIndexer(robot_container.indexer).withTimeout(robot_constants.auto_shooting_timeout),
+
+        Index(robot_container.indexer, robot_container.intake).withTimeout(5),
         ParallelCommandGroup(
-            AutoBuilder.followPath(paths[5]),
+            AutoBuilder.followPath(paths[3]),
             DeployClimbL1(robot_container.climber)
-        )
+        ),
+
+        RetractClimb(robot_container.climber)
     )  
-    return AutoRoutine(command, paths[0].getStartingHolonomicPose())
+    return AutoRoutine(command, paths[0].getStartingHolonomicPose()) # why is this red im gonna cry
