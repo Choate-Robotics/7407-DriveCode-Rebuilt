@@ -9,15 +9,12 @@ from subsystems import *
 
 from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantCommand, ParallelDeadlineGroup
 
-path_name = "Climb2Loop"
-paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(11)]
+path_name = "TwoLoopClimb"
+paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(7)]
 def auto(robot_container: RobotContainer) -> AutoRoutine:
     command = SequentialCommandGroup(
         
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[0]),
-            DeployIntake(robot_container.intake),
-        ),
+        AutoBuilder.followPath(paths[0]),
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[1]),
@@ -28,12 +25,12 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[3]),
-            SetShooterAuto(robot_container.shooter, robot_container.drivetrain)
+            RunIndexer(robot_container.indexer) #replace with index deadline command
         ),
 
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[4]),
-            # index deadlinecommand (the one that retracts intake) added once merge occurs
+            SetShooterAuto(robot_container.shooter, robot_container.drivetrain)
         ),
         
         ParallelCommandGroup(
