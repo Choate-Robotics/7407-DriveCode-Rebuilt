@@ -11,7 +11,7 @@ from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from subsystems import *
 from sensors import *
-import robot_constants
+from robot_constants import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
@@ -55,12 +55,12 @@ class RobotContainer:
         self.intake = Intake()
 
         # Initialize odometry
-        self.left_cam = PhotonCamCustom(robot_constants.left_cam_name, robot_constants.left_cam_transform)
-        self.right_cam = PhotonCamCustom(robot_constants.right_cam_name, robot_constants.right_cam_transform)
-        self.back_cam = PhotonCamCustom(robot_constants.back_cam_name, robot_constants.back_cam_transform)
-        self.zoom_cam = PhotonCamCustom(robot_constants.zoom_cam_name, robot_constants.zoom_cam_transform)
+        self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
+        self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
+        self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
+        self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
 
-        self.field_odometry = FieldOdometry(self.drivetrain, [self.left_cam, self.right_cam, self.back_cam, self.zoom_cam])
+        self.field_odometry = FieldOdometry(self.drivetrain, [self.left_cam, self.right_cam, self.back_cam, self.front_cam])
 
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
