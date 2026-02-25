@@ -3,12 +3,13 @@ from .constants import *
 from commands2 import Subsystem
 from phoenix6 import hardware, controls
 import ntcore
+from utils.phoenix_util import apply_config
 
 class Indexer(Subsystem):
 
     def __init__(self):
         super().__init__()
-        self.indexer_motor: hardware.TalonFX = hardware.TalonFX(indexer_motor_id)
+        self.indexer_motor: hardware.TalonFX = hardware.TalonFX(indexer_motor_id, "canivore")
         self.tower_motor: hardware.TalonFX = hardware.TalonFX(tower_motor_id)
         self.control_duty_cycle = controls.DutyCycleOut(0)
         self.control_velocity = controls.VelocityTorqueCurrentFOC(0)
@@ -19,8 +20,8 @@ class Indexer(Subsystem):
         self.indexer_running: bool = False
         self.indexer_reversed: bool = False
 
-        self.indexer_motor.configurator.apply(self.indexer_config)
-        self.tower_motor.configurator.apply(self.tower_config)
+        apply_config(self.indexer_motor, self.indexer_config)
+        apply_config(self.tower_motor, self.tower_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("indexer")
         self.indexer_running_pub = self.table.getBooleanTopic("indexer running").publish()

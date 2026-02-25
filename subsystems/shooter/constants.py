@@ -1,25 +1,35 @@
-from phoenix6 import hardware, configs, signals
+from phoenix6 import hardware, configs, signals, units
 from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
 
-left_lead_id: int = 58 # placeholder
-left_follower_id: int = 59 # placeholder
-right_lead_id: int = 60 # placeholder
-right_follow_id: int = 61 # placeholder
-hood_id: int = 62 # placeholder
+left_lead_id: int = 16
+left_follower_id: int = 17
+right_lead_id: int = 18
+right_follow_id: int = 19
+hood_id: int = 20
+hood_cancoder_id: int = 23
 
-flywheel_threshold = 2.0 # placeholder
-hood_threshold = 2.0 # placeholder
+flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
+hood_angle_threshold: units.rotation = 1.0 / 360# placeholder
 
-hood_gear_ratio = 0 # placeholder
+hood_gear_ratio = 69 # 69:1
+max_hood_angle: units.rotation = 43 / 360 # placeholder
+min_hood_angle: units.rotation = 10 / 360
 
-idle_velocity = 0 # placeholder
+idle_velocity: units.rotations_per_second = 0 # placeholder
 
 NT_SHOOTER: bool = True
 
 left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
+
+hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
+    configs.MagnetSensorConfigs()
+    .with_absolute_sensor_discontinuity_point(0) # placeholder
+    .with_magnet_offset(0) # placeholder
+    .with_sensor_direction(signals.SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
+)
 
 flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
@@ -32,6 +42,9 @@ flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_s(0) # placeholder
     .with_k_v(0) # placeholder
     .with_k_a(0) # placeholder
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(80) # placeholder
 )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(
@@ -55,9 +68,15 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_g(0) # placeholder
 ).with_feedback(
     configs.FeedbackConfigs()
-    .with_sensor_to_mechanism_ratio(0) # placeholder
-    .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.ROTOR_SENSOR)
+    .with_rotor_to_sensor_ratio(23*1.5)
+    .with_sensor_to_mechanism_ratio(2)
+    .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)  
+    .with_feedback_remote_sensor_id(hood_cancoder_id)
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(60) # placeholder
 )
+
 
 def load_shooter_table_csv(rel_path: str) -> np.ndarray:
     """
@@ -77,10 +96,6 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
         raise ValueError(f"Expected 3 columns (distance_m, hood_deg, rps), got {table.shape[1]} from {file_path}")
     
     return table
-
-shooter_offset = Translation2d(1, 1) # placeholder
-max_hood_angle = 43 # placeholder
-min_hood_angle = 0 # placeholder
 
 # robot distance to hub, hood angle, and RPS
 SHOT_TABLE = load_shooter_table_csv("shot_table.csv")
