@@ -2,6 +2,7 @@ from .constants import *
 import math
 import ntcore
 from utils import shooter_utils
+from utils.phoenix_util import apply_config
 from wpimath.geometry import Pose2d
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
@@ -26,21 +27,21 @@ class Shooter(Subsystem):
         self.right_target_velocity = 0 
         self.hood_target_angle = 0
 
-        self.hood_cancoder.configurator.apply(hood_cancoder_config)
+        apply_config(self.hood_cancoder, hood_cancoder_config)
         
-        self.left_leader_motor.configurator.apply(flywheel_config.with_motor_output(
+        apply_config(self.left_leader_motor, flywheel_config.with_motor_output(
             configs.MotorOutputConfigs()
             .with_inverted(left_direction)
         ))
         self.left_follower_motor.set_control(controls.Follower(left_lead_id, signals.MotorAlignmentValue.ALIGNED))
 
-        self.right_leader_motor.configurator.apply(flywheel_config.with_motor_output(
+        apply_config(self.right_leader_motor, flywheel_config.with_motor_output(
             configs.MotorOutputConfigs()
             .with_inverted(right_direction)
         ))
         self.right_follower_motor.set_control(controls.Follower(right_lead_id, signals.MotorAlignmentValue.ALIGNED))
         
-        self.hood_motor.configurator.apply(hood_config)
+        apply_config(self.hood_motor, hood_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
         self.left_velocity_pub = self.table.getDoubleTopic("left velocity").publish()

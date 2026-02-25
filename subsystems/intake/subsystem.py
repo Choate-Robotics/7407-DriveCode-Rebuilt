@@ -4,6 +4,7 @@ import math
 import commands2
 from .constants import *
 import ntcore
+from utils.phoenix_util import apply_config
 
 
 class Intake(commands2.Subsystem):
@@ -25,8 +26,9 @@ class Intake(commands2.Subsystem):
         self.intake_running = False
         self.pivot_running = False
 
-        self.horizontal_motor.configurator.apply(horizontal_motor_configs)
-        self.pivot_motor.configurator.apply(pivot_motor_configs)
+        apply_config(self.horizontal_motor, horizontal_motor_configs)
+        apply_config(self.pivot_motor, pivot_motor_configs)
+
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Intake")
         self.anglepub = self.table.getDoubleTopic("pivot angle").publish()
         self.targetpub = self.table.getDoubleTopic("target angle").publish()
