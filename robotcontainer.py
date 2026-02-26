@@ -57,16 +57,27 @@ class RobotContainer:
         # Initialize odometry
         self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
         self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
-        self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
+        # self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
         self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
+        cams = [
+            self.left_cam,
+            self.right_cam,
+            # self.back_cam,
+            self.front_cam
+        ]
 
-        self.field_odometry = FieldOdometry(self.drivetrain, [self.left_cam, self.right_cam, self.back_cam, self.front_cam])
+        self.field_odometry = FieldOdometry(self.drivetrain, cams)
 
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
 
         SmartDashboard.putData("Auto", self.auto_selection)
+
+    def telemetrize_drivetrain(self):
+        self.drivetrain.register_telemetry(
+            lambda state: self._logger.telemeterize(state)
+        )
         
     def configureButtonBindings(self) -> None:
         """
@@ -219,10 +230,6 @@ class RobotContainer:
         # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
-
-        self.drivetrain.register_telemetry(
-            lambda state: self._logger.telemeterize(state)
-        )
 
     def getAutonomousCommand(self) -> Callable[[RobotContainer], autos.AutoRoutine]:
         """

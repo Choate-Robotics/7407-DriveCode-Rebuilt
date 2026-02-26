@@ -24,7 +24,7 @@ back_cam_transform = Transform3d(
     Rotation3d(0, 0, 0)
 )
 front_cam_transform = Transform3d(
-    Translation3d(inchesToMeters(-4.231), inchesToMeters(10.909), inchesToMeters(20.185)),
+    Translation3d(inchesToMeters(-4.231), inchesToMeters(-10.909), inchesToMeters(20.185)),
     Rotation3d(0, math.radians(-31.537), math.radians(-10))
 )
 

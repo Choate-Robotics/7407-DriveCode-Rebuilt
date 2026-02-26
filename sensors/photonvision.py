@@ -31,21 +31,23 @@ class PhotonCamCustom:
         if not TimedRobot.isSimulation():
             result = self.get_result()
 
-            if result.estimatedPose:
-                self.pose_publisher.set(result.estimatedPose.toPose2d())
+            if result:
 
-            has_targets = len(result.targetsUsed) > 0
+                if result.estimatedPose:
+                    self.pose_publisher.set(result.estimatedPose.toPose2d())
 
-            self.has_target_publisher.set(has_targets)
+                has_targets = len(result.targetsUsed) > 0
 
-            if has_targets:
-                self.targets_publisher.set([target.getFiducialId() for target in result.targetsUsed])
-                self.distance_publisher.set(
-                    result.targetsUsed[0].bestCameraToTarget
-                    .translation()
-                    .toTranslation2d()
-                    .distance(Translation2d(0, 0)),
-                )
+                self.has_target_publisher.set(has_targets)
+
+                if has_targets:
+                    self.targets_publisher.set([target.getFiducialId() for target in result.targetsUsed])
+                    self.distance_publisher.set(
+                        result.targetsUsed[0].bestCameraToTarget
+                        .translation()
+                        .toTranslation2d()
+                        .distance(Translation2d(0, 0)),
+                    )
 
     def get_estimated_robot_pose(self) -> Pose3d:
         """
@@ -63,11 +65,13 @@ class PhotonCamCustom:
         Returns an EstimatedRobotPose, which includes pose, timestamp, tags
         """
         result = self.cam.getLatestResult()
-        est_pose = self.estimator.estimateCoprocMultiTagPose(result)
-        if est_pose is None:
-            est_pose = self.estimator.estimateLowestAmbiguityPose(result)
+        if result:
+            est_pose = self.estimator.estimateCoprocMultiTagPose(result)
+            if est_pose is None:
+                est_pose = self.estimator.estimateLowestAmbiguityPose(result)
 
-        return est_pose
+            return est_pose
+        return None
 
 
 class PhotonController:

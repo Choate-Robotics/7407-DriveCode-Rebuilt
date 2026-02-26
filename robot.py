@@ -38,6 +38,8 @@ class MyRobot(wpilib.TimedRobot):
         if wpilib.RobotBase.isSimulation():
             DriverStation.silenceJoystickConnectionWarning(True)
 
+        self.robot.telemetrize_drivetrain()
+
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
         that you want ran during disabled, autonomous, teleoperated and test.
@@ -50,6 +52,8 @@ class MyRobot(wpilib.TimedRobot):
         current_time = wpilib.Timer.getFPGATimestamp()
         self.time_pub.set(current_time - self.time)
         self.time = current_time
+
+
         self.robot.field_odometry.update()
 
     def disabledInit(self) -> None:

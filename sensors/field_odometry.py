@@ -38,7 +38,7 @@ class FieldOdometry:
         primary_id = ids[0]
         distance_to_target = tags[0].getBestCameraToTarget().translation().toTranslation2d().distance(Translation2d(0, 0))
 
-        total_tag_area = sum([tag.getArea() for tag in tags])
+        # total_tag_area = sum([tag.getArea() for tag in tags])
 
         if tag_count == 1:
             if distance_to_target > robot_constants.odometry_tag_distance:
@@ -70,9 +70,9 @@ class FieldOdometry:
 
         for cam in self.cams:
             est = cam.get_result()
-            if est is not None:
+            if est:
                 self.add_vision_measure(cam, est)
-                cam.update_tables
+                cam.update_tables()
                     
 
 
