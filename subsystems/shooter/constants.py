@@ -26,9 +26,9 @@ right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
 
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
-    .with_absolute_sensor_discontinuity_point(0) # placeholder
-    .with_magnet_offset(0) # placeholder
-    .with_sensor_direction(signals.SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
+    .with_absolute_sensor_discontinuity_point(1) # placeholder
+    .with_magnet_offset(0.03) # placeholder
+    .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
 flywheel_config = configs.TalonFXConfiguration().with_motor_output(
@@ -58,14 +58,14 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_motion_magic_jerk(0) # placeholder
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(0) # placeholder
-    .with_k_i(0) # placeholder
-    .with_k_d(0) # placeholder
-    .with_k_s(0) # placeholder
-    .with_k_v(0) # placeholder
-    .with_k_a(0) # placeholder
+    .with_k_p(125)
+    .with_k_i(0)
+    .with_k_d(1)
+    .with_k_s(.5)
+    .with_k_v(0)
+    .with_k_a(0)
     .with_gravity_type(signals.GravityTypeValue.ARM_COSINE)
-    .with_k_g(0) # placeholder
+    .with_k_g(0)
 ).with_feedback(
     configs.FeedbackConfigs()
     .with_rotor_to_sensor_ratio(23*1.5)
