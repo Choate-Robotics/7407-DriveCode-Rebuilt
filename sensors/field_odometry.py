@@ -45,14 +45,14 @@ class FieldOdometry:
                 return
 
             if self.cam_name == robot_constants.front_cam_name:
-                std_dev = 0.2 if 25 <= primary_id <= 26 else 0.3
+                std_dev = 0.2 if 19 <= primary_id <= 27 else 0.3
             else:
                 std_dev = 0.4
 
         elif tag_count == 2:
             std_dev = 0.7
             if self.cam_name == robot_constants.front_cam_name:
-                std_dev = 0.1 if 25 <= primary_id <= 26 else 0.2
+                std_dev = 0.1 if 19 <= primary_id <= 27 else 0.2
             else:
                 if distance_to_target <= 0.75:
                     std_dev = 0.4
