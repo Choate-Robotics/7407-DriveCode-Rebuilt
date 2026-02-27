@@ -17,11 +17,12 @@ class Shooter(Subsystem):
         self.right_follower_motor = hardware.TalonFX(right_follow_id)
 
         self.velocity_torque_current = controls.VelocityTorqueCurrentFOC(0)
+        self.duty_cycle = controls.DutyCycleOut(0)
 
         self.hood_motor = hardware.TalonFX(hood_id)
         self.hood_cancoder = hardware.CANcoder(hood_cancoder_id)
 
-        self.motion_magic = controls.MotionMagicVoltage(0)
+        self.motion_magic = controls.PositionVoltage(0)
 
         self.left_target_velocity = 0
         self.right_target_velocity = 0 
@@ -74,6 +75,14 @@ class Shooter(Subsystem):
 
         self.right_leader_motor.set_control(self.velocity_torque_current.with_velocity(self.right_target_velocity))
 
+    def stop_left(self):
+        self.left_target_velocity = 0
+        self.left_leader_motor.set_control(self.duty_cycle.with_output(0))
+
+    def stop_right(self):
+        self.right_target_velocity = 0
+        self.right_leader_motor.set_control(self.duty_cycle.with_output(0))
+        
     def get_left_velocity(self) -> units.rotations_per_second:
         """
         obtains the current velocity of the left flywheel

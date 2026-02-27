@@ -49,10 +49,10 @@ class RobotContainer:
         # Initialize subsystems
 
         self.drivetrain = TunerConstants.create_drivetrain()
-        # self.shooter = Shooter()
-        # self.climber = Climber()
-        # self.indexer = Indexer()
-        # self.intake = Intake()
+        self.shooter = Shooter()
+        self.climber = Climber()
+        self.indexer = Indexer()
+        self.intake = Intake()
 
         # Initialize odometry
         self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
@@ -145,7 +145,7 @@ class RobotContainer:
         # )            
 
         # aim drivetrain and shooter based on operator input
-        # self.driver_controller.rightTrigger().onTrue(
+        # self.driver_controller.rightTrigger().whileTrue(
         #     SelectCommand(
         #         {
         #             0: self.hub,
@@ -162,39 +162,40 @@ class RobotContainer:
         # )
 
         # command used to tune the shooter by taking in a value from networktables
-        # self.driver_controller.rightTrigger().onTrue(
-        #     ParallelCommandGroup(
-        #         TuneShooter(self.shooter, self.drivetrain),
-        #         AimDrivetrain(self.drivetrain, self.driver_controller)
-        #     )
-        # )
+        self.driver_controller.rightTrigger().whileTrue(
+            ParallelCommandGroup(
+                TuneShooter(self.shooter, self.drivetrain),
+                AimDrivetrain(self.drivetrain, self.driver_controller)
+            )
+        )
 
-        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-        #     Index(self.indexer, self.intake)
-        # )
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+            # Index(self.indexer, self.intake)
+            RunIndexer(self.indexer)
+        )
 
         # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
             SnakeMode(self.drivetrain, self.driver_controller)
         )
 
-        # # force the indexer to spin
-        # self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-        #     RunIndexer(self.indexer)
-        # )
+        # force the indexer to spin
+        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+            RunIndexer(self.indexer)
+        )
 
-        # # reverse the indexer
-        # self.operator_controller.y().onTrue(
-        #     RunIndexerReversed(self.indexer)
-        # )
+        # reverse the indexer
+        self.operator_controller.y().onTrue(
+            RunIndexerReversed(self.indexer)
+        )
         
         # # deploy and run intake
-        # self.operator_controller.rightTrigger().whileTrue(
-        #     SequentialCommandGroup(
-        #         DeployIntake(self.intake),
-        #         RunIntake(self.intake)
-        #     )
-        # )
+        self.operator_controller.rightTrigger().whileTrue(
+            SequentialCommandGroup(
+                # DeployIntake(self.intake),
+                RunIntake(self.intake)
+            )
+        )
 
         # # run intake in reverse
         # self.operator_controller.leftTrigger().whileTrue(

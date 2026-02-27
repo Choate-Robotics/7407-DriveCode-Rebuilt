@@ -4,8 +4,8 @@ from phoenix6 import configs, signals
 indexer_motor_id = 22
 tower_motor_id = 21
 
-indexer_speed = 0 #TODO: placeholder
-tower_speed = 0 #TODO: placeholder
+indexer_speed = 0.8 #TODO: placeholder
+tower_speed = 30 #TODO: placeholder
 
 indexer_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
@@ -19,16 +19,16 @@ tower_config = configs.TalonFXConfiguration().with_motor_output(
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_feedback(
      configs.FeedbackConfigs()
-     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.FUSED_CANCODER)
+     .with_feedback_sensor_source(signals.FeedbackSensorSourceValue.ROTOR_SENSOR)
      .with_sensor_to_mechanism_ratio(3) 
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(0) # placeholder
-    .with_k_i(0) # placeholder
-    .with_k_d(0) # placeholder
-    .with_k_s(0) # placeholder
-    .with_k_v(0) # placeholder
-    .with_k_a(0) # placeholder
+    .with_k_p(60)
+    .with_k_i(0)
+    .with_k_d(0)
+    .with_k_s(0)
+    .with_k_v(0)
+    .with_k_a(0)
 )
 
 #debouncer thresholds

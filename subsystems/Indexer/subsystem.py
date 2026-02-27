@@ -89,7 +89,7 @@ class Indexer(Subsystem):
         Stops the tower motor
         """
         self.tower_motor.set_control(
-            self.control_velocity.with_velocity(0)
+            self.control_duty_cycle.with_output(0)
         )
         self.indexer_running = False
     

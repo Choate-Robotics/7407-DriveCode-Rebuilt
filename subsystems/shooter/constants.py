@@ -21,8 +21,8 @@ idle_velocity: units.rotations_per_second = 0 # placeholder
 
 NT_SHOOTER: bool = True
 
-left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
-right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
+left_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
+right_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
@@ -36,7 +36,7 @@ flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_neutral_mode(signals.NeutralModeValue.BRAKE)
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(0) # placeholder
+    .with_k_p(25)
     .with_k_i(0) # placeholder
     .with_k_d(0) # placeholder
     .with_k_s(0) # placeholder
