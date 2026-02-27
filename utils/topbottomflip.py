@@ -10,33 +10,33 @@ FIELD_HEIGHT = 8
 # change choreo_dir to the name you want
 # run in terminal 
 
-def waypoint_flip(output_path: Path): 
-    with open("deploy/choreo/testing.traj", "r") as f: 
-        data = json.load(f)
-        waypoints = data
+    def waypoint_flip(output_path: Path): 
+        with open("deploy/choreo/TwoLoopTopClimb.traj", "r") as f: 
+            data = json.load(f)
+            waypoints = data
 
-    data["snapshot"]["waypoints"] = [] # i dont even know what snapshot does in a traj file tbh
-    data["trajectory"]["samples"] = [] # emptying out the path generated from the previous waypoints
-    
-    for waypoint in data["params"]["waypoints"]:
-        waypoint["y"]["val"] = FIELD_HEIGHT - float(waypoint["y"]["val"]) # flips waypoint to other side of alliance side
-        waypoint["y"]["exp"] = str(waypoint["y"]["val"]) + " m" # add "m" to signify meters for choreo
-        waypoint["heading"]["val"] *= -1 #flips waypoint pose / rotation
-
-        if "rad" in waypoint["heading"]["exp"]:
-            waypoint["heading"]["exp"] = str(waypoint["heading"]["val"]) + " rad" # add "rad" to signify radians for choreo
-        else:
-            waypoint["heading"]["exp"] = str(waypoint["heading"]["val"] * (180/math.pi)) + " deg" # if your waypoints are in degrees
-
-    data["trajectory"]["samples"] = []
+        data["snapshot"]["waypoints"] = []
+        data["trajectory"]["samples"] = [] # emptying out the path generated from the previous waypoints
         
+        for waypoint in data["params"]["waypoints"]:
+            waypoint["y"]["val"] = FIELD_HEIGHT - float(waypoint["y"]["val"]) # flips waypoint to other side of alliance side
+            waypoint["y"]["exp"] = str(waypoint["y"]["val"]) + " m" # add "m" to signify meters for choreo
+            waypoint["heading"]["val"] *= -1 #flips waypoint pose / rotation
 
-    with open(output_path, "w") as f:
-        json.dump(data, f, indent=2)
+            if "rad" in waypoint["heading"]["exp"]:
+                waypoint["heading"]["exp"] = str(waypoint["heading"]["val"]) + " rad" # add "rad" to signify radians for choreo
+            else:
+                waypoint["heading"]["exp"] = str(waypoint["heading"]["val"] * (180/math.pi)) + " deg" # if your waypoints are in degrees
 
-if __name__ == "__main__":
-    choreo_dir = Path("deploy/choreo")
+        data["trajectory"]["samples"] = []
+            
 
-    waypoint_flip(
-        choreo_dir / "testbottom.traj"
-    )
+        with open(output_path, "w") as f:
+            json.dump(data, f, indent=2)
+
+    if __name__ == "__main__":
+        choreo_dir = Path("deploy/choreo")
+
+        waypoint_flip(
+            choreo_dir / "TwoLoopBottomClimb.traj"
+        )
