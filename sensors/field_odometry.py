@@ -20,6 +20,12 @@ class FieldOdometry:
     def disable(self):
         self.use_vision = False
 
+    def get_alliance_hub_tags(self) -> list[int]:
+        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+            return [2, 3, 4, 5, 8, 9, 10, 11]
+        elif DriverStation.getAlliance() == DriverStation.Alliance.kBlue:
+            return [18, 19, 20, 21, 24, 25, 26, 27]
+
     def add_vision_measure(self, cam: PhotonCamCustom, estimated_pose: EstimatedRobotPose):
         self.cam_name = cam.name
         self.pose = estimated_pose.estimatedPose.toPose2d()
@@ -29,7 +35,7 @@ class FieldOdometry:
         tag_count = len(tags)
 
         std_dev = 2
-        std_dev_rot = 10
+        std_dev_rot = 100
 
         if tag_count == 0:
             return
@@ -40,26 +46,24 @@ class FieldOdometry:
 
         # total_tag_area = sum([tag.getArea() for tag in tags])
 
-        if tag_count == 1:
-            if distance_to_target > robot_constants.odometry_tag_distance:
-                return
+        
 
-            if self.cam_name == robot_constants.front_cam_name:
-                std_dev = 0.2 if 19 <= primary_id <= 27 else 0.3
-            else:
-                std_dev = 0.4
+        if tag_count == 1:
+            if distance_to_target > robot_constants.odometry_tag_distance or tags[0].poseAmbiguity > 0.2:
+                return
+            std_dev = 1
 
         elif tag_count == 2:
             std_dev = 0.7
             if self.cam_name == robot_constants.front_cam_name:
-                std_dev = 0.1 if 19 <= primary_id <= 27 else 0.2
+                std_dev = 0.2 if primary_id in self.get_alliance_hub_tags() else 0.3
             else:
                 if distance_to_target <= 0.75:
                     std_dev = 0.4
 
         else:  # tag_count >= 3
             std_dev = 0.2
-            if 24 <= primary_id <= 27:
+            if primary_id in self.get_alliance_hub_tags():
                 std_dev = 0.1
 
         self.drivetrain.add_vision_measurement(self.pose, self.time, (std_dev, std_dev, std_dev_rot))
