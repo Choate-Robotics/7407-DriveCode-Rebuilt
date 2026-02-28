@@ -23,11 +23,11 @@ tower_config = configs.TalonFXConfiguration().with_motor_output(
      .with_sensor_to_mechanism_ratio(3) 
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(60)
+    .with_k_p(17)
     .with_k_i(0)
     .with_k_d(0)
-    .with_k_s(0)
-    .with_k_v(0)
+    .with_k_s(10)
+    .with_k_v(0.22)
     .with_k_a(0)
 )
 

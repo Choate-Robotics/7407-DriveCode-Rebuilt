@@ -36,12 +36,12 @@ flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_neutral_mode(signals.NeutralModeValue.BRAKE)
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(25)
-    .with_k_i(0) # placeholder
-    .with_k_d(0) # placeholder
-    .with_k_s(0) # placeholder
-    .with_k_v(0) # placeholder
-    .with_k_a(0) # placeholder
+    .with_k_p(10)
+    .with_k_i(0)
+    .with_k_d(0)
+    .with_k_s(6.25)
+    .with_k_v(0.028)
+    .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
     .with_stator_current_limit(80) # placeholder

@@ -10,7 +10,7 @@ max_angular_rate = rotationsToRadians(
     1.5
 )  # 3/4 of a rotation per second max angular velocity
 
-deadband = 0.1  # deadband for controller inputs
+deadband = 0.05  # deadband for controller inputs
 curve = 2  # curve exponent for controller inputs
 
 #heading pid tolerance ALL PLACEHOLDERS

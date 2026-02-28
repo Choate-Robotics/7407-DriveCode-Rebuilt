@@ -4,7 +4,7 @@ from .constants import *
 from .command_swerve_drivetrain import CommandSwerveDrivetrain
 from phoenix6 import swerve
 from utils import alliance_flip_util, field_constants, math_utils, shooter_utils
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 
 import ntcore
 
@@ -24,6 +24,10 @@ class AimDrivetrain(commands2.Command):
 
         self.addRequirements(self.drivetrain)
 
+        self.table = ntcore.NetworkTableInstance.getDefault().getTable("Shot Tuning")
+        self.pose_pub = self.table.getStructTopic("Target pose", Translation2d).publish()
+        self.angle_pub = self.table.getDoubleTopic("Angle").publish()
+
     def initialize(self):
         pass
 
@@ -41,12 +45,17 @@ class AimDrivetrain(commands2.Command):
                 self.drivetrain.get_pose(),
                 alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
             ))
+            self.pose_pub.set(alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d())
 
         else:
             self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
                 self.drivetrain.get_pose(),
                 shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
             ))
+            self.pose_pub.set(shooter_utils.get_pass_setpoint(self.drivetrain.get_pose()))
+
+        self.angle_pub.set(self.target_angle.degrees())
+        
 
         self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
         self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed

@@ -145,15 +145,15 @@ class TuneShooter(commands2.Command):
         self.flywheel_rps_pub = self.shot_tuner.getDoubleTopic("flywheel rps").publish()
         self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(min_hood_angle)
         self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(0)
-        self.distance_pub = self.shot_tuner.getDoubleTopic("distance to hub").publish()
+        
 
     def initialize(self):
+        pass
+
+    def execute(self):
         self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_hood_angle(self.hood_angle_sub.get() / 360)
-
-    def execute(self):
-        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.drivetrain.get_pose()))
 
     def isFinished(self):
         return False
