@@ -20,8 +20,8 @@ right_cam_transform = Transform3d(
     Rotation3d(0, math.radians(-20), math.radians(-75))
 )
 back_cam_transform = Transform3d(
-    Translation3d(0, 0, 0),
-    Rotation3d(0, 0, 0)
+    Translation3d(inchesToMeters(-12.418), inchesToMeters(8.921), inchesToMeters(10.525)),
+    Rotation3d(0, math.radians(-30), math.radians(-175))
 )
 front_cam_transform = Transform3d(
     Translation3d(inchesToMeters(-4.231), inchesToMeters(-10.909), inchesToMeters(20.185)),

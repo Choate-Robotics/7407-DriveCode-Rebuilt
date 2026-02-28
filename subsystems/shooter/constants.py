@@ -11,7 +11,7 @@ hood_id: int = 20
 hood_cancoder_id: int = 23
 
 flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
-hood_angle_threshold: units.rotation = 1.0 / 360 # placeholder
+hood_angle_threshold: units.rotation = 1.5 / 360 # placeholder
 
 hood_gear_ratio = 69 # 69:1
 max_hood_angle: units.rotation = 50 / 360

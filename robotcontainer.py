@@ -57,12 +57,12 @@ class RobotContainer:
         # Initialize odometry
         self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
         self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
-        # self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
+        self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
         self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
         cams = [
             self.left_cam,
             self.right_cam,
-            # self.back_cam,
+            self.back_cam,
             self.front_cam
         ]
 
@@ -189,7 +189,7 @@ class RobotContainer:
             ClearTower(self.indexer, self.shooter)
         )
         
-        # # deploy and run intake
+        # deploy and run intake
         self.operator_controller.rightTrigger().whileTrue(
             SequentialCommandGroup(
                 # DeployIntake(self.intake),
