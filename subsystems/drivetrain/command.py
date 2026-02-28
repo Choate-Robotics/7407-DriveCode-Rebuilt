@@ -5,7 +5,7 @@ from .command_swerve_drivetrain import CommandSwerveDrivetrain
 from phoenix6 import swerve
 from utils import alliance_flip_util, field_constants, math_utils, shooter_utils
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
-
+from utils.field_constants import Hub, LinesHorizontal, LinesVertical
 import ntcore
 
 
@@ -179,6 +179,100 @@ class SnakeMode(commands2.Command):
                 .with_velocity_y(joystick_x * max_speed)  
         )            
 
+    def isFinished(self) -> bool:
+        return False
+    
+    def end(self, interrupted: bool) -> None:
+        pass
+
+class AutoAlign(commands2.Command):
+    def __init__(self, subsystem: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController):
+        super().__init__()
+        self.drivetrain = subsystem
+        self.controller = controller
+        self.aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+            autoalign_pid_p,
+            autoalign_pid_i,
+            autoalign_pid_d
+        )
+        self.joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
+        self.joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+        #prob not gonna work cause i still dont understand how the field constants are defined 
+        left_trench_center = Translation2d(
+            LinesVertical.HUB_CENTER,
+            (LinesHorizontal.LEFT_TRENCH_OPEN_END + LinesHorizontal.LEFT_TRENCH_OPEN_START) / 2
+        )
+
+        right_trench_center = Translation2d(
+            LinesVertical.HUB_CENTER,
+            (LinesHorizontal.RIGHT_TRENCH_OPEN_START + LinesHorizontal.RIGHT_TRENCH_OPEN_END) / 2
+        )
+
+        left_bump_center = Translation2d(
+            (Hub.FAR_LEFT_CORNER.X() + Hub.NEAR_LEFT_CORNER.X()) / 2,
+            (LinesHorizontal.LEFT_BUMP_START + LinesHorizontal.LEFT_BUMP_END) / 2
+        )
+
+        right_bump_center = Translation2d(
+            (Hub.FAR_RIGHT_CORNER.X() + Hub.NEAR_RIGHT_CORNER.X()) / 2,
+            (LinesHorizontal.RIGHT_BUMP_START + LinesHorizontal.RIGHT_BUMP_END) / 2
+        )
+        robot_pose = self.drivetrain.get_pose()
+        robot_translation = robot_pose.translation()
+        self.drive = swerve.requests.FieldCentric().with_drive_request_type(
+            swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
+        )
+        self.left_candidates = {
+            "left_trench": robot_translation.distance(left_trench_center),
+            "left_bump": robot_translation.distance(left_bump_center),
+        }
+        self.right_candidates = {
+            "right_bump": robot_translation.distance(right_bump_center),
+            "right_trench": robot_translation.distance(right_trench_center),
+        }
+
+        self.addRequirements(self.drivetrain)
+        
+    def initialize(self):
+        pass
+
+    def execute(self):
+        closest_left = min(self.left_candidates["left_trench"], self.left_candidates["left_bump"])
+        closest_right = min(self.right_candidates["right_trench"], self.right_candidates["right_bump"])
+        if closest_left < closest_right:
+            if closest_left == "left_trench":
+                self.drivetrain.set_control(
+                    self.aim_at
+                        .with_target_direction(Rotation2d.fromDegrees(0))
+                        .with_velocity_x(self.joystick_y * max_speed)
+                        .with_velocity_y(self.joystick_x * max_speed)  
+                )
+            else:
+                self.drivetrain.set_control(
+                    self.aim_at
+                        .with_target_direction(Rotation2d.fromDegrees(-45))
+                        .with_velocity_x(0)
+                        .with_velocity_y(0)
+                )
+
+        elif closest_right < closest_left:
+            if closest_left == "right_trench":
+                self.drivetrain.set_control(
+                    self.aim_at
+                        .with_target_direction(Rotation2d.fromDegrees(0))
+                        .with_velocity_x(self.joystick_y * max_speed)
+                        .with_velocity_y(self.joystick_x * max_speed)  
+                )
+            else:
+                self.drivetrain.set_control(
+                    self.aim_at
+                        .with_target_direction(Rotation2d.fromDegrees(45))
+                        .with_velocity_x(self.joystick_y * max_speed)
+                        .with_velocity_y(self.joystick_x * max_speed)  
+                )
+        else:
+            pass
+            
     def isFinished(self) -> bool:
         return False
     
