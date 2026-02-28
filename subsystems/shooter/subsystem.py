@@ -173,11 +173,11 @@ class Shooter(Subsystem):
         :param robot_pose: robot's pose on the field
         """
         if passing:
-            hood_pos, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
+            hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
         else:
-            hood_pos, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
+            hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 
-        self.set_hood_angle(hood_pos)
+        self.set_hood_angle(hood_deg/360)
         self.set_left_target_velocity(rps)
         self.set_right_target_velocity(rps)
         

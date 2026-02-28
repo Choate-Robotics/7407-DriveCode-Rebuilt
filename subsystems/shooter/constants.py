@@ -17,7 +17,8 @@ hood_gear_ratio = 69 # 69:1
 max_hood_angle: units.rotation = 50 / 360
 min_hood_angle: units.rotation = 10 / 360
 
-idle_velocity: units.rotations_per_second = 0 # placeholder
+idle_velocity: units.rotations_per_second = 0
+slow_velocity: units.rotations_per_second = 10
 
 NT_SHOOTER: bool = True
 
@@ -101,12 +102,12 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
 SHOT_TABLE = load_shooter_table_csv("shot_table.csv")
 
 DIST_M = SHOT_TABLE[:, 0]
-HOOD_DEG = SHOT_TABLE[:, 1]
-RPS = SHOT_TABLE[:, 2]
+HOOD_DEG = SHOT_TABLE[:, 2]
+RPS = SHOT_TABLE[:, 1]
 
 # robot distance to pass, hood angle, and RPS
 PASS_TABLE = load_shooter_table_csv("pass_table.csv")
 
 PASS_DIST_M = SHOT_TABLE[:, 0]
-PASS_HOOD_DEG = SHOT_TABLE[:, 1]
-PASS_RPS = SHOT_TABLE[:, 2]
+PASS_HOOD_DEG = SHOT_TABLE[:, 2]
+PASS_RPS = SHOT_TABLE[:, 1]

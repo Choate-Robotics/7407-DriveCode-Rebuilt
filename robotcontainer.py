@@ -145,29 +145,29 @@ class RobotContainer:
         )            
 
         # aim drivetrain and shooter based on operator input
-        # self.driver_controller.rightTrigger().whileTrue(
-        #     SelectCommand(
-        #         {
-        #             0: self.hub,
-        #             90: self.pass_right,
-        #             180: self.tower,
-        #             270: self.pass_left,
-        #             -1: ParallelCommandGroup(
-        #                 AimShooter(self.shooter, self.drivetrain),
-        #                 AimDrivetrain(self.drivetrain, self.driver_controller)
-        #             )
-        #         },
-        #         self.operator_controller.getHID().getPOV
-        #     )
-        # )
-
-        # command used to tune the shooter by taking in a value from networktables
         self.driver_controller.rightTrigger().whileTrue(
-            ParallelCommandGroup(
-                TuneShooter(self.shooter, self.drivetrain),
-                AimDrivetrain(self.drivetrain, self.driver_controller)
+            SelectCommand(
+                {
+                    0: self.hub,
+                    90: self.pass_right,
+                    180: self.tower,
+                    270: self.pass_left,
+                    -1: ParallelCommandGroup(
+                        AimShooter(self.shooter, self.drivetrain),
+                        AimDrivetrain(self.drivetrain, self.driver_controller)
+                    )
+                },
+                self.operator_controller.getHID().getPOV
             )
         )
+
+        # command used to tune the shooter by taking in a value from networktables
+        # self.driver_controller.rightTrigger().whileTrue(
+        #     ParallelCommandGroup(
+        #         TuneShooter(self.shooter, self.drivetrain),
+        #         AimDrivetrain(self.drivetrain, self.driver_controller)
+        #     )
+        # )
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
             # Index(self.indexer, self.intake)
@@ -186,7 +186,7 @@ class RobotContainer:
 
         # reverse the indexer
         self.operator_controller.y().or_(self.driver_controller.y()).whileTrue(
-            RunIndexerReversed(self.indexer)
+            ClearTower(self.indexer, self.shooter)
         )
         
         # # deploy and run intake
