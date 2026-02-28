@@ -103,9 +103,9 @@ class RobotContainer:
             )
         )
 
-        # self.shooter.setDefaultCommand(
-        #     SetShooterIdle(self.shooter)
-        # )
+        self.shooter.setDefaultCommand(
+            SetShooterIdle(self.shooter)
+        )
 
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
@@ -124,25 +124,25 @@ class RobotContainer:
 
         # stationary commands
 
-        # self.tower = ParallelCommandGroup(
-        #     DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
-        #     SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
-        # )
+        self.tower = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
+        )
         
-        # self.hub = ParallelCommandGroup(
-        #     DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
-        #     SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle)            
-        # )
+        self.hub = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+            SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle)            
+        )
 
-        # self.pass_right = ParallelCommandGroup(
-        #     DriveAtAngle(self.drivetrain, self.driver_controller, rightpass_drivetrain_angle),
-        #     SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle)            
-        # )
+        self.pass_right = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, rightpass_drivetrain_angle),
+            SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle)            
+        )
 
-        # self.pass_left = ParallelCommandGroup(
-        #     DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
-        #     SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
-        # )            
+        self.pass_left = ParallelCommandGroup(
+            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+            SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
+        )            
 
         # aim drivetrain and shooter based on operator input
         # self.driver_controller.rightTrigger().whileTrue(
@@ -185,7 +185,7 @@ class RobotContainer:
         )
 
         # reverse the indexer
-        self.operator_controller.y().onTrue(
+        self.operator_controller.y().or_(self.driver_controller.y()).whileTrue(
             RunIndexerReversed(self.indexer)
         )
         
@@ -197,10 +197,10 @@ class RobotContainer:
             )
         )
 
-        # # run intake in reverse
-        # self.operator_controller.leftTrigger().whileTrue(
-        #     ReverseIntake(self.intake)
-        # )
+        # run intake in reverse
+        self.operator_controller.leftTrigger().whileTrue(
+            ReverseIntake(self.intake)
+        )
 
         # # retract intake
         # self.operator_controller.leftBumper().onTrue(

@@ -68,7 +68,7 @@ class SetShooterAuto(commands2.Command):
 
     def isFinished(self) -> bool:
         """
-        we expect this command to be interrupted
+        End command for autonomous purposes
         """
         return self.subsystem.ready_to_shoot()
 
@@ -159,6 +159,4 @@ class TuneShooter(commands2.Command):
         return False
 
     def end(self, interrupted):
-        self.subsystem.stop_left()
-        self.subsystem.stop_right()
-        self.subsystem.set_hood_angle(min_hood_angle)
+        pass

@@ -11,10 +11,10 @@ hood_id: int = 20
 hood_cancoder_id: int = 23
 
 flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
-hood_angle_threshold: units.rotation = 1.0 / 360# placeholder
+hood_angle_threshold: units.rotation = 1.0 / 360 # placeholder
 
 hood_gear_ratio = 69 # 69:1
-max_hood_angle: units.rotation = 43 / 360 # placeholder
+max_hood_angle: units.rotation = 50 / 360
 min_hood_angle: units.rotation = 10 / 360
 
 idle_velocity: units.rotations_per_second = 0 # placeholder
@@ -26,8 +26,8 @@ right_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
 
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
-    .with_absolute_sensor_discontinuity_point(1) # placeholder
-    .with_magnet_offset(0.03) # placeholder
+    .with_absolute_sensor_discontinuity_point(1)
+    .with_magnet_offset(0.03)
     .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
