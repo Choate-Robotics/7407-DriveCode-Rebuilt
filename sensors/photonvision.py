@@ -58,7 +58,10 @@ class PhotonCamCustom:
         if est_pose is None:
             est_pose = self.estimator.estimateLowestAmbiguityPose(result)
 
-        return est_pose.estimatedPose
+        if est_pose is not None:
+            return est_pose.estimatedPose
+        
+        return Pose3d()
 
     def get_result(self) -> EstimatedRobotPose | None:
         """
@@ -75,7 +78,7 @@ class PhotonCamCustom:
 
 
 class PhotonController:
-    def __init__(self, cams: list[PhotonCamCustom | None]):
+    def __init__(self, cams: list[PhotonCamCustom]):
         self.cams = cams
 
     def init(self):
