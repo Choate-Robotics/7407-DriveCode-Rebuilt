@@ -32,7 +32,7 @@ class AimShooter(commands2.Command):
         if you are in passing zone, set shooter to passing setpoints
         else, set shooter to shooting setpoints
         """
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.NEUTRAL_ZONE_NEAR:
             self.subsystem.target_stationary(self.drivetrain.get_pose(), False)
         else:
             self.subsystem.target_stationary(self.drivetrain.get_pose(), True)
