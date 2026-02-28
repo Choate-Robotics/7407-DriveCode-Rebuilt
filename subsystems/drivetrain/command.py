@@ -195,8 +195,7 @@ class AutoAlign(commands2.Command):
             autoalign_pid_i,
             autoalign_pid_d
         )
-        self.joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
-        self.joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+
         #prob not gonna work cause i still dont understand how the field constants are defined 
         left_trench_center = Translation2d(
             LinesVertical.HUB_CENTER,
@@ -217,61 +216,57 @@ class AutoAlign(commands2.Command):
             (Hub.FAR_RIGHT_CORNER.X() + Hub.NEAR_RIGHT_CORNER.X()) / 2,
             (LinesHorizontal.RIGHT_BUMP_START + LinesHorizontal.RIGHT_BUMP_END) / 2
         )
-        robot_pose = self.drivetrain.get_pose()
-        robot_translation = robot_pose.translation()
-        self.drive = swerve.requests.FieldCentric().with_drive_request_type(
-            swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
-        )
-        self.left_candidates = {
-            "left_trench": robot_translation.distance(left_trench_center),
-            "left_bump": robot_translation.distance(left_bump_center),
+        self.left_centers = {
+            "left_trench": left_trench_center,
+            "left_bump": left_bump_center,
         }
-        self.right_candidates = {
-            "right_bump": robot_translation.distance(right_bump_center),
-            "right_trench": robot_translation.distance(right_trench_center),
+        self.right_centers = {
+            "right_trench": right_trench_center,
+            "right_bump": right_bump_center,
         }
 
         self.addRequirements(self.drivetrain)
-        
+
     def initialize(self):
-        pass
+        robot_translation = self.drivetrain.get_pose().translation()
+        self.closest_left = min(self.left_centers, key=lambda k: robot_translation.distance(self.left_centers[k]))
+        self.closest_right = min(self.right_centers, key=lambda k: robot_translation.distance(self.right_centers[k]))
+        self.left_dist = robot_translation.distance(self.left_centers[self.closest_left])
+        self.right_dist = robot_translation.distance(self.right_centers[self.closest_right])
 
     def execute(self):
-        closest_left = min(self.left_candidates["left_trench"], self.left_candidates["left_bump"])
-        closest_right = min(self.right_candidates["right_trench"], self.right_candidates["right_bump"])
-        if closest_left < closest_right:
-            if closest_left == "left_trench":
+        joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
+        joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+        if self.left_dist < self.right_dist:
+            if self.closest_left == "left_trench":
                 self.drivetrain.set_control(
                     self.aim_at
                         .with_target_direction(Rotation2d.fromDegrees(0))
-                        .with_velocity_x(self.joystick_y * max_speed)
-                        .with_velocity_y(self.joystick_x * max_speed)  
+                        .with_velocity_x(joystick_y * max_speed)
+                        .with_velocity_y(joystick_x * max_speed)
                 )
             else:
                 self.drivetrain.set_control(
                     self.aim_at
                         .with_target_direction(Rotation2d.fromDegrees(-45))
-                        .with_velocity_x(0)
-                        .with_velocity_y(0)
+                        .with_velocity_x(joystick_y * max_speed)
+                        .with_velocity_y(joystick_x * max_speed)
                 )
-
-        elif closest_right < closest_left:
-            if closest_left == "right_trench":
+        elif self.right_dist < self.left_dist:
+            if self.closest_right == "right_trench":
                 self.drivetrain.set_control(
                     self.aim_at
                         .with_target_direction(Rotation2d.fromDegrees(0))
-                        .with_velocity_x(self.joystick_y * max_speed)
-                        .with_velocity_y(self.joystick_x * max_speed)  
+                        .with_velocity_x(joystick_y * max_speed)
+                        .with_velocity_y(joystick_x * max_speed)
                 )
             else:
                 self.drivetrain.set_control(
                     self.aim_at
                         .with_target_direction(Rotation2d.fromDegrees(45))
-                        .with_velocity_x(self.joystick_y * max_speed)
-                        .with_velocity_y(self.joystick_x * max_speed)  
+                        .with_velocity_x(joystick_y * max_speed)
+                        .with_velocity_y(joystick_x * max_speed)
                 )
-        else:
-            pass
             
     def isFinished(self) -> bool:
         return False
