@@ -58,7 +58,7 @@ class FieldOdometry:
                     std_dev = 0.4
 
         else:  # tag_count >= 3
-            std_dev = 0.4
+            std_dev = 0.2
             if 24 <= primary_id <= 27:
                 std_dev = 0.1
 
