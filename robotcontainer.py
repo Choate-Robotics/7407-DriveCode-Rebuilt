@@ -107,11 +107,15 @@ class RobotContainer:
             )
         )
 
+        # Makes the robot drive like a car
         self.driver_controller.rightBumper().whileTrue(
             SnakeMode(self.drivetrain, self.driver_controller)
         )
 
-
+        #Auto aligns the robot depending on which field element is closer (trenches or bumps)
+        self.driver_controller.leftBumper().whileTrue(
+            AutoAlign(self.drivetrain, self.driver_controller)
+        )
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
