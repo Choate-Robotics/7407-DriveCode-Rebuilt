@@ -9,11 +9,10 @@ from subsystems import *
 
 from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantCommand, ParallelDeadlineGroup
 
-path_name = "TwoLoopClimb"
+path_name = "TwoLoopTopClimb" or "TwoLoopBottomClimb"
 paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(7)]
 def auto(robot_container: RobotContainer) -> AutoRoutine:
     command = SequentialCommandGroup(
-
         ParallelCommandGroup(
             AutoBuilder.followPath(paths[0]),
             DeployIntake(robot_container.intake)
@@ -51,6 +50,5 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         ),
 
         RetractClimb(robot_container.climber)
-
-        ),
+    ),
     return AutoRoutine(command, paths[0].getStartingHolonomicPose()) # why is this red im gonna cry

@@ -10,8 +10,8 @@ FIELD_HEIGHT = 8
 # change choreo_dir to the name you want
 # run in terminal 
 
-    def waypoint_flip(output_path: Path): 
-        with open("deploy/choreo/TwoLoopTopClimb.traj", "r") as f: 
+def waypoint_flip(output_path: Path): 
+        with open("deploy/choreo/OutpostDepot.traj", "r") as f: 
             data = json.load(f)
             waypoints = data
 
@@ -34,9 +34,9 @@ FIELD_HEIGHT = 8
         with open(output_path, "w") as f:
             json.dump(data, f, indent=2)
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
         choreo_dir = Path("deploy/choreo")
 
         waypoint_flip(
-            choreo_dir / "TwoLoopBottomClimb.traj"
+            choreo_dir / "DepotOutpost.traj"
         )
