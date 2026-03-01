@@ -36,15 +36,9 @@ class Climber(commands2.Subsystem):
         super().__init__()
         self.moving = False
         self.zeroed = True
-
         self.motor = hardware.TalonFX(left_motor_id)
-
         self.motor_out = controls.VoltageOut(0)
-        self.climb_climber = controls.MotionMagicVoltage(0)
-        self.drop_climber = controls.VoltageOut(0)
-
         self.motor.configurator.apply(climber_motor_configs)
-
         self.setup_table()
         self.zero()
 
@@ -52,28 +46,15 @@ class Climber(commands2.Subsystem):
         self.motor.set_position(0)
         self.zeroed = True
 
-    def set_position(self, target) -> None:
-        self.moving = True
-        if target >= climber_lower_bound and target <= climber_upper_bound:
-            self.motor.set_control(self.climb_climber.with_position(target))
-        else:
-            if target < climber_lower_bound:
-                target = climber_lower_bound
-            elif target > climber_upper_bound:
-                target = climber_upper_bound
-            self.motor.set_control(self.climb_climber.with_position(target))
-        target = 0
-
-
     def set_voltage(self, voltage):
-        self.motor.set_control(self.drop_climber.with_output(voltage))
+        self.motor.set_control(self.motor_out.with_output(voltage))
         self.moving = True
 
     def get_motor_position(self):
         return self.motor.get_position().value
     
     def is_motor_position(self, position) -> bool:
-        return (self.get_motor_position() >= position)
+        return (round(self.get_motor_position()) >= position )
 
     def setup_table(self) -> None:
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("climber")

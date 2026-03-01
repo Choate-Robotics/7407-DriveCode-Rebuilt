@@ -18,17 +18,16 @@ class DeployClimbL1(commands2.Command):
         self.addRequirements(self.subsystem)
 
     def initialize(self):
-        self.subsystem.set_position(L1_pos)
+        pass
 
     def execute(self):
-        pass
+        self.subsystem.set_voltage(climber_extend_voltage)
 
     def isFinished(self):
         return self.subsystem.get_motor_position() >= L1_pos
     
     def end(self, interrupted: bool):
         self.subsystem.moving = False
-
 
 class Retract(commands2.Command):
     """
