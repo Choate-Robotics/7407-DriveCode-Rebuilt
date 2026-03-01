@@ -153,6 +153,12 @@ class SnakeMode(commands2.Command):
         pass
 
     def execute(self):
+        """"
+        Gets the input from the left controller to get x and y velocities for the robot
+        Then, gets the aiming direction from the right controller
+        Uses aformentioned inputs to drive the robot like a car
+        e.g. drives in the direction the robot is facing
+        """
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
         aiming_joystick_x = math_utils.curve(-self.controller.getRightX(), deadband, curve)
@@ -228,6 +234,11 @@ class AutoAlign(commands2.Command):
         self.addRequirements(self.drivetrain)
 
     def initialize(self):
+        """"
+        Calculates the closest field element based on current robot pose and field util
+        If closest element is a trench, the robot will align to be perpendicular to the bottom edge of the field
+        Otherwise, if the closest element is a bump, the robot aligns to be at a 45 degree angle
+        """
         robot_translation = self.drivetrain.get_pose().translation()
         self.closest_left = min(self.left_centers, key=lambda k: robot_translation.distance(self.left_centers[k]))
         self.closest_right = min(self.right_centers, key=lambda k: robot_translation.distance(self.right_centers[k]))
@@ -237,6 +248,7 @@ class AutoAlign(commands2.Command):
     def execute(self):
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+
         if self.left_dist < self.right_dist:
             if self.closest_left == "left_trench":
                 self.drivetrain.set_control(
