@@ -37,13 +37,14 @@ class RunIntake(commands2.Command):
     """
     Run intake
     """
-    def __init__(self, subsystem: Intake):
+    def __init__(self, subsystem: Intake, speed=fuel_speed):
         super().__init__()
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
+        self.speed = speed
 
     def initialize(self):
-        self.subsystem.intake_fuel()
+        self.subsystem.intake_fuel(self.speed)
 
     def isFinished(self) -> bool:
         "command expected to be interrupted"
@@ -75,13 +76,14 @@ class SetPivotIn(commands2.Command):
     """
     Set pivot motor to specified angle with voltage in
     """
-    def __init__(self, subsystem: Intake, angle: units.rotation):
+    def __init__(self, subsystem: Intake, angle: units.rotation, speed=index_speed):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
+        self.speed = speed
 
     def initialize(self):
-        self.subsystem.intake_fuel()
+        self.subsystem.intake_fuel(self.speed)
         self.subsystem.set_pivot_motor_in(voltage_out)
         self.subsystem.pivot_running = True
 

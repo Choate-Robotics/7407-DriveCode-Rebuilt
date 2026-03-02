@@ -1,5 +1,8 @@
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals
+
+NT_CLIMBER = True
+
 #ID values
 left_motor_id = 24
 

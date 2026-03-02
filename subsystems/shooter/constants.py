@@ -3,6 +3,8 @@ from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
 
+NT_SHOOTER: bool = True
+
 left_lead_id: int = 16
 left_follower_id: int = 17
 right_lead_id: int = 18
@@ -21,8 +23,6 @@ hood_clear_angle = 40 / 360
 
 idle_velocity: units.rotations_per_second = 0
 slow_velocity: units.rotations_per_second = 10
-
-NT_SHOOTER: bool = True
 
 left_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
 right_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE

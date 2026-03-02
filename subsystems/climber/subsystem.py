@@ -85,9 +85,10 @@ class Climber(commands2.Subsystem):
 
     def update_table(self) -> None:
         self.pos_pub.set(self.get_motor_position())
-        self.moving_pub.set(self.moving)
-        self.zero_pub.set(self.zeroed)
+        # self.moving_pub.set(self.moving)
+        # self.zero_pub.set(self.zeroed)
         self.current_pub.set(self.motor.get_supply_current().value)
 
     def periodic(self) -> None:
-        self.update_table()
+        if NT_CLIMBER:
+            self.update_table()

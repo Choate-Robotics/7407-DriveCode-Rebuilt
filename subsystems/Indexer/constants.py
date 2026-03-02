@@ -1,5 +1,7 @@
 from phoenix6 import configs, signals
 
+NT_INDEXER = True
+
 #motor configs
 indexer_motor_id = 22
 tower_motor_id = 21

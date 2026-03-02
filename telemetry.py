@@ -30,51 +30,51 @@ class Telemetry:
         self._drive_odometry_frequency = self._drive_state_table.getDoubleTopic("OdometryFrequency").publish()
 
         # Robot pose for field positioning
-        self._table = self._inst.getTable("Pose")
-        self._field_pub = self._table.getDoubleArrayTopic("robotPose").publish()
-        self._field_type_pub = self._table.getStringTopic(".type").publish()
+        # self._table = self._inst.getTable("Pose")
+        # self._field_pub = self._table.getDoubleArrayTopic("robotPose").publish()
+        # self._field_type_pub = self._table.getStringTopic(".type").publish()
 
         # Mechanisms to represent the swerve module states
-        self._module_mechanisms: list[Mechanism2d] = [
-            Mechanism2d(1, 1),
-            Mechanism2d(1, 1),
-            Mechanism2d(1, 1),
-            Mechanism2d(1, 1),
-        ]
+        # self._module_mechanisms: list[Mechanism2d] = [
+        #     Mechanism2d(1, 1),
+        #     Mechanism2d(1, 1),
+        #     Mechanism2d(1, 1),
+        #     Mechanism2d(1, 1),
+        # ]
         # A direction and length changing ligament for speed representation
-        self._module_speeds: list[MechanismLigament2d] = [
-            self._module_mechanisms[0]
-            .getRoot("RootSpeed", 0.5, 0.5)
-            .appendLigament("Speed", 0.5, 0),
-            self._module_mechanisms[1]
-            .getRoot("RootSpeed", 0.5, 0.5)
-            .appendLigament("Speed", 0.5, 0),
-            self._module_mechanisms[2]
-            .getRoot("RootSpeed", 0.5, 0.5)
-            .appendLigament("Speed", 0.5, 0),
-            self._module_mechanisms[3]
-            .getRoot("RootSpeed", 0.5, 0.5)
-            .appendLigament("Speed", 0.5, 0),
-        ]
+        # self._module_speeds: list[MechanismLigament2d] = [
+        #     self._module_mechanisms[0]
+        #     .getRoot("RootSpeed", 0.5, 0.5)
+        #     .appendLigament("Speed", 0.5, 0),
+        #     self._module_mechanisms[1]
+        #     .getRoot("RootSpeed", 0.5, 0.5)
+        #     .appendLigament("Speed", 0.5, 0),
+        #     self._module_mechanisms[2]
+        #     .getRoot("RootSpeed", 0.5, 0.5)
+        #     .appendLigament("Speed", 0.5, 0),
+        #     self._module_mechanisms[3]
+        #     .getRoot("RootSpeed", 0.5, 0.5)
+        #     .appendLigament("Speed", 0.5, 0),
+        # ]
         # A direction changing and length constant ligament for module direction
-        self._module_directions: list[MechanismLigament2d] = [
-            self._module_mechanisms[0]
-            .getRoot("RootDirection", 0.5, 0.5)
-            .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
-            self._module_mechanisms[1]
-            .getRoot("RootDirection", 0.5, 0.5)
-            .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
-            self._module_mechanisms[2]
-            .getRoot("RootDirection", 0.5, 0.5)
-            .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
-            self._module_mechanisms[3]
-            .getRoot("RootDirection", 0.5, 0.5)
-            .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
-        ]
+        # self._module_directions: list[MechanismLigament2d] = [
+        #     self._module_mechanisms[0]
+        #     .getRoot("RootDirection", 0.5, 0.5)
+        #     .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
+        #     self._module_mechanisms[1]
+        #     .getRoot("RootDirection", 0.5, 0.5)
+        #     .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
+        #     self._module_mechanisms[2]
+        #     .getRoot("RootDirection", 0.5, 0.5)
+        #     .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
+        #     self._module_mechanisms[3]
+        #     .getRoot("RootDirection", 0.5, 0.5)
+        #     .appendLigament("Direction", 0.1, 0, 0, Color8Bit(Color.kWhite)),
+        # ]
 
         # Set up the module state Mechanism2d telemetry
-        for i, module_mechanism in enumerate(self._module_mechanisms):
-            SmartDashboard.putData(f"Module {i}", module_mechanism)
+        # for i, module_mechanism in enumerate(self._module_mechanisms):
+        #     SmartDashboard.putData(f"Module {i}", module_mechanism)
 
     def telemeterize(self, state: swerve.SwerveDrivetrain.SwerveDriveState):
         """
@@ -106,13 +106,13 @@ class Telemetry:
         )
 
         # Telemeterize the pose to a Field2d
-        self._field_type_pub.set("Field2d")
+        # self._field_type_pub.set("Field2d")
 
-        pose_array = [state.pose.x, state.pose.y, state.pose.rotation().degrees()]
-        self._field_pub.set(pose_array)
+        # pose_array = [state.pose.x, state.pose.y, state.pose.rotation().degrees()]
+        # self._field_pub.set(pose_array)
 
         # Telemeterize each module state to a Mechanism2d
-        for i, module_state in enumerate(state.module_states):
-            self._module_speeds[i].setAngle(module_state.angle.degrees())
-            self._module_directions[i].setAngle(module_state.angle.degrees())
-            self._module_speeds[i].setLength(module_state.speed / (2 * self._max_speed))
+        # for i, module_state in enumerate(state.module_states):
+        #     self._module_speeds[i].setAngle(module_state.angle.degrees())
+        #     self._module_directions[i].setAngle(module_state.angle.degrees())
+        #     self._module_speeds[i].setLength(module_state.speed / (2 * self._max_speed))

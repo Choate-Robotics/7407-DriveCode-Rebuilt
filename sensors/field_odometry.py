@@ -46,8 +46,6 @@ class FieldOdometry:
 
         # total_tag_area = sum([tag.getArea() for tag in tags])
 
-        
-
         if tag_count == 1:
             if distance_to_target > robot_constants.odometry_tag_distance or tags[0].poseAmbiguity > 0.2:
                 return

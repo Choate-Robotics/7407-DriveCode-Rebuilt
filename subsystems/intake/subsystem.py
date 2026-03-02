@@ -39,11 +39,11 @@ class Intake(commands2.Subsystem):
 
         self.pivot_motor.set_position(intake_maximum_rotation)
 
-    def intake_fuel(self):
+    def intake_fuel(self, speed=fuel_speed):
         """
         run intake
         """
-        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(fuel_speed))
+        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(speed))
         self.intake_running = True
 
     def reverse_intake(self):
@@ -126,10 +126,11 @@ class Intake(commands2.Subsystem):
         """
         self.anglepub.set(self.get_pivot_angle())
         self.targetpub.set(self.target_angle)
-        self.pivot_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
+        # self.pivot_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
         self.intake_runningpub.set(self.intake_running)
         self.horizontal_motor_currentpub.set(self.get_horizontal_motor_supply_current().value)
-        self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
+        # self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
 
     def periodic(self):
-        self.update_table()
+        if NT_INTAKE:
+            self.update_table()

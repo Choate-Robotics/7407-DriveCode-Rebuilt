@@ -42,6 +42,8 @@ class MyRobot(wpilib.TimedRobot):
         self.robot.telemetrize_drivetrain()
         self.distance_pub = self.nt_inst.getTable("Shot Tuner").getDoubleTopic("distance to hub").publish()
 
+        # self.robot.field_odometry.disable()
+
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
         that you want ran during disabled, autonomous, teleoperated and test.
