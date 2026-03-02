@@ -153,6 +153,12 @@ class SnakeMode(commands2.Command):
         pass
 
     def execute(self):
+        """"
+        Gets the input from the left controller to get x and y velocities for the robot
+        Then, gets the aiming direction from the right controller
+        Uses aformentioned inputs to drive the robot like a car
+        e.g. drives in the direction the robot is facing
+        """
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
         aiming_joystick_x = math_utils.curve(-self.controller.getRightX(), deadband, curve)
@@ -224,52 +230,50 @@ class AutoAlign(commands2.Command):
             "right_trench": right_trench_center,
             "right_bump": right_bump_center,
         }
-
+        self.target_angle = Rotation2d.fromDegrees(0)
         self.addRequirements(self.drivetrain)
+        
 
     def initialize(self):
+        """
+        Calculates the closest field element based on current robot pose and field util
+        If closest element is a trench, the robot will align to be perpendicular to the bottom edge of the field
+        Otherwise, if the closest element is a bump, the robot aligns to be at a 45 degree angle
+        """
         robot_translation = self.drivetrain.get_pose().translation()
         self.closest_left = min(self.left_centers, key=lambda k: robot_translation.distance(self.left_centers[k]))
         self.closest_right = min(self.right_centers, key=lambda k: robot_translation.distance(self.right_centers[k]))
         self.left_dist = robot_translation.distance(self.left_centers[self.closest_left])
         self.right_dist = robot_translation.distance(self.right_centers[self.closest_right])
+        self.robot_rotation = self.drivetrain.get_pose().rotation().degrees()
+        
+        
 
     def execute(self):
+        self.robot_rotation = self.drivetrain.get_pose().rotation().degrees()
         joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
         joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
-        if self.left_dist < self.right_dist:
+
+        if self.left_dist <= self.right_dist:
             if self.closest_left == "left_trench":
-                self.drivetrain.set_control(
-                    self.aim_at
-                        .with_target_direction(Rotation2d.fromDegrees(0))
-                        .with_velocity_x(joystick_y * max_speed)
-                        .with_velocity_y(joystick_x * max_speed)
-                )
+                self.target_angle = Rotation2d.fromDegrees(round(self.robot_rotation / 90) * 90)
             else:
-                self.drivetrain.set_control(
-                    self.aim_at
-                        .with_target_direction(Rotation2d.fromDegrees(-45))
-                        .with_velocity_x(joystick_y * max_speed)
-                        .with_velocity_y(joystick_x * max_speed)
-                )
-        elif self.right_dist < self.left_dist:
+                self.target_angle = self.drivetrain.snap_bump_angle(self.robot_rotation)
+        else:
             if self.closest_right == "right_trench":
-                self.drivetrain.set_control(
-                    self.aim_at
-                        .with_target_direction(Rotation2d.fromDegrees(0))
-                        .with_velocity_x(joystick_y * max_speed)
-                        .with_velocity_y(joystick_x * max_speed)
-                )
+                self.target_angle = Rotation2d.fromDegrees(round(self.robot_rotation / 90) * 90)
             else:
-                self.drivetrain.set_control(
-                    self.aim_at
-                        .with_target_direction(Rotation2d.fromDegrees(45))
-                        .with_velocity_x(joystick_y * max_speed)
-                        .with_velocity_y(joystick_x * max_speed)
-                )
-            
+                self.target_angle = self.drivetrain.snap_bump_angle(self.robot_rotation)
+
+        self.drivetrain.set_control(
+                self.aim_at
+                    .with_target_direction(self.target_angle)
+                    .with_velocity_x(joystick_y * max_speed)
+                    .with_velocity_y(joystick_x * max_speed)
+            )
+
     def isFinished(self) -> bool:
         return False
-    
+
     def end(self, interrupted: bool) -> None:
         pass
