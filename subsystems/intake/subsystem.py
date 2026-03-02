@@ -18,7 +18,7 @@ class Intake(commands2.Subsystem):
         self.horizontal_motor_out = controls.DutyCycleOut(0)
         self.pivot_position = controls.PositionVoltage(0.0)
         self.pivot_voltage = controls.VoltageOut(0)
-        self.target_angle = 0.0    
+        self.target_angle = intake_maximum_rotation
 
         #initial zero
         self.pivot_motor.set_position(intake_deploy_rotation)
@@ -36,6 +36,8 @@ class Intake(commands2.Subsystem):
         self.horizontal_motor_currentpub = self.table.getDoubleTopic("horizontal motor current").publish()
         self.intake_runningpub = self.table.getBooleanTopic("intake running").publish()
         self.pivot_stator_currentpub = self.table.getDoubleTopic("pivot stator current").publish()
+
+        self.pivot_motor.set_position(intake_maximum_rotation)
 
     def intake_fuel(self):
         """
@@ -114,8 +116,8 @@ class Intake(commands2.Subsystem):
         """
         if angle >= intake_maximum_rotation:
             return intake_maximum_rotation
-        elif angle <= intake_retract_rotation:
-            return intake_retract_rotation
+        elif angle <= intake_deploy_rotation:
+            return intake_deploy_rotation
         return angle
     
     def update_table(self):

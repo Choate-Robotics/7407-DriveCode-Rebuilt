@@ -17,6 +17,8 @@ hood_gear_ratio = 69 # 69:1
 max_hood_angle: units.rotation = 50 / 360
 min_hood_angle: units.rotation = 10 / 360
 
+hood_clear_angle = 40 / 360
+
 idle_velocity: units.rotations_per_second = 0
 slow_velocity: units.rotations_per_second = 10
 

@@ -50,7 +50,7 @@ class RunIntake(commands2.Command):
         return False
     
     def end(self, interrupted: bool):
-        self.subsystem.stop_intake() 
+        self.subsystem.stop_intake()
 
 class ReverseIntake(commands2.Command):
     """
@@ -81,6 +81,7 @@ class SetPivotIn(commands2.Command):
         self.angle = angle
 
     def initialize(self):
+        self.subsystem.intake_fuel()
         self.subsystem.set_pivot_motor_in(voltage_out)
         self.subsystem.pivot_running = True
 
@@ -91,6 +92,7 @@ class SetPivotIn(commands2.Command):
         return self.subsystem.get_pivot_angle() >= self.angle
     
     def end(self, interrupted: bool):
+        self.subsystem.stop_intake()
         self.subsystem.stop_pivot()
         self.subsystem.pivot_running = False
         if interrupted:

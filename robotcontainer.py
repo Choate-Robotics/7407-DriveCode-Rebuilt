@@ -170,8 +170,7 @@ class RobotContainer:
         # )
 
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-            # Index(self.indexer, self.intake)
-            RunIndexer(self.indexer)
+            Index(self.indexer, self.intake)
         )
 
         # drive in "snake mode" (intake faces direction of travel)
@@ -186,7 +185,7 @@ class RobotContainer:
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-            RunIndexer(self.indexer)
+            Index(self.indexer, self.intake)
         )
 
         # reverse the indexer
@@ -197,7 +196,7 @@ class RobotContainer:
         # deploy and run intake
         self.operator_controller.rightTrigger().whileTrue(
             SequentialCommandGroup(
-                # DeployIntake(self.intake),
+                DeployIntake(self.intake),
                 RunIntake(self.intake)
             )
         )
@@ -207,10 +206,10 @@ class RobotContainer:
             ReverseIntake(self.intake)
         )
 
-        # # retract intake
-        # self.operator_controller.leftBumper().onTrue(
-        #     RetractIntake(self.intake)
-        # )
+        # retract intake
+        self.operator_controller.leftBumper().onTrue(
+            RetractIntake(self.intake)
+        )
 
         # # deploy climb
         # self.operator_controller.start().onTrue(

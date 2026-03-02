@@ -138,7 +138,7 @@ class SetShooterSlow(commands2.Command):
     def initialize(self):
         self.subsystem.set_left_target_velocity(slow_velocity)
         self.subsystem.set_right_target_velocity(slow_velocity)
-        self.subsystem.set_hood_angle(min_hood_angle)
+        self.subsystem.set_hood_angle(hood_clear_angle)
 
     def execute(self):
         pass

@@ -9,12 +9,11 @@ horizontal_motor_id = 14
 pivot_motor_id = 15
 
 # constants
-angle_threshold = 0.01 #placeholder 
-fuel_speed = 0.75  #placeholder
-voltage_out = 3 #placeholder
+angle_threshold = 0.01
+fuel_speed = 1
+voltage_out = 3
 
-# 
-intake_retract_rotation = 0.25
+intake_retract_rotation = 0.18
 intake_deploy_rotation = 0
 intake_maximum_rotation = 0.34
 
@@ -43,7 +42,7 @@ pivot_motor_configs = (
                 .with_sensor_to_mechanism_ratio(45)
             ).with_slot0(
                 configs.Slot0Configs()
-                .with_k_p(45)
+                .with_k_p(35)
                 .with_k_i(0.0)
                 .with_k_d(0.0)
                 .with_k_s(0.5)
