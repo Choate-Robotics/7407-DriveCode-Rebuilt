@@ -11,7 +11,7 @@ FIELD_HEIGHT = 8
 # run in terminal 
 
 def waypoint_flip(output_path: Path): 
-        with open("deploy/choreo/OutpostDepot.traj", "r") as f: 
+        with open("deploy/choreo/slowloop.traj", "r") as f: 
             data = json.load(f)
             waypoints = data
 
@@ -38,5 +38,5 @@ if __name__ == "__main__":
         choreo_dir = Path("deploy/choreo")
 
         waypoint_flip(
-            choreo_dir / "DepotOutpost.traj"
+            choreo_dir / "slowloop.traj"
         )
