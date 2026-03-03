@@ -4,6 +4,7 @@ import math
 import commands2
 from .constants import *
 import ntcore
+from utils.phoenix_util import apply_config
 
 
 class Intake(commands2.Subsystem):
@@ -17,7 +18,7 @@ class Intake(commands2.Subsystem):
         self.horizontal_motor_out = controls.DutyCycleOut(0)
         self.pivot_position = controls.PositionVoltage(0.0)
         self.pivot_voltage = controls.VoltageOut(0)
-        self.target_angle = 0.0    
+        self.target_angle = intake_maximum_rotation
 
         #initial zero
         self.pivot_motor.set_position(intake_deploy_rotation)
@@ -25,8 +26,9 @@ class Intake(commands2.Subsystem):
         self.intake_running = False
         self.pivot_running = False
 
-        self.horizontal_motor.configurator.apply(horizontal_motor_configs)
-        self.pivot_motor.configurator.apply(pivot_motor_configs)
+        apply_config(self.horizontal_motor, horizontal_motor_configs)
+        apply_config(self.pivot_motor, pivot_motor_configs)
+
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Intake")
         self.anglepub = self.table.getDoubleTopic("pivot angle").publish()
         self.targetpub = self.table.getDoubleTopic("target angle").publish()
@@ -35,11 +37,13 @@ class Intake(commands2.Subsystem):
         self.intake_runningpub = self.table.getBooleanTopic("intake running").publish()
         self.pivot_stator_currentpub = self.table.getDoubleTopic("pivot stator current").publish()
 
-    def intake_fuel(self):
+        self.pivot_motor.set_position(intake_maximum_rotation)
+
+    def intake_fuel(self, speed=fuel_speed):
         """
         run intake
         """
-        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(fuel_speed))
+        self.horizontal_motor.set_control(self.horizontal_motor_out.with_output(speed))
         self.intake_running = True
 
     def reverse_intake(self):
@@ -112,8 +116,8 @@ class Intake(commands2.Subsystem):
         """
         if angle >= intake_maximum_rotation:
             return intake_maximum_rotation
-        elif angle <= intake_retract_rotation:
-            return intake_retract_rotation
+        elif angle <= intake_deploy_rotation:
+            return intake_deploy_rotation
         return angle
     
     def update_table(self):
@@ -122,10 +126,11 @@ class Intake(commands2.Subsystem):
         """
         self.anglepub.set(self.get_pivot_angle())
         self.targetpub.set(self.target_angle)
-        self.pivot_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
+        # self.pivot_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
         self.intake_runningpub.set(self.intake_running)
         self.horizontal_motor_currentpub.set(self.get_horizontal_motor_supply_current().value)
-        self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
+        # self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
 
     def periodic(self):
-        self.update_table()
+        if NT_INTAKE:
+            self.update_table()

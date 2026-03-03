@@ -3,6 +3,7 @@ from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals 
 import commands2
 import ntcore
+from utils.phoenix_util import apply_config
 
 class Climber(commands2.Subsystem):
     """
@@ -43,7 +44,7 @@ class Climber(commands2.Subsystem):
         self.climb_climber = controls.MotionMagicVoltage(0)
         self.drop_climber = controls.VoltageOut(0)
 
-        self.motor.configurator.apply(climber_motor_configs)
+        apply_config(self.motor, climber_motor_configs)
 
         self.setup_table()
         self.zero()
@@ -84,9 +85,10 @@ class Climber(commands2.Subsystem):
 
     def update_table(self) -> None:
         self.pos_pub.set(self.get_motor_position())
-        self.moving_pub.set(self.moving)
-        self.zero_pub.set(self.zeroed)
+        # self.moving_pub.set(self.moving)
+        # self.zero_pub.set(self.zeroed)
         self.current_pub.set(self.motor.get_supply_current().value)
 
     def periodic(self) -> None:
-        self.update_table()
+        if NT_CLIMBER:
+            self.update_table()

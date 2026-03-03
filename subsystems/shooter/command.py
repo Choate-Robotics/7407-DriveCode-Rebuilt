@@ -32,7 +32,7 @@ class AimShooter(commands2.Command):
         if you are in passing zone, set shooter to passing setpoints
         else, set shooter to shooting setpoints
         """
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.NEUTRAL_ZONE_NEAR:
             self.subsystem.target_stationary(self.drivetrain.get_pose(), False)
         else:
             self.subsystem.target_stationary(self.drivetrain.get_pose(), True)
@@ -68,7 +68,7 @@ class SetShooterAuto(commands2.Command):
 
     def isFinished(self) -> bool:
         """
-        we expect this command to be interrupted
+        End command for autonomous purposes
         """
         return self.subsystem.ready_to_shoot()
 
@@ -106,7 +106,7 @@ class SetShooter(commands2.Command):
             angle (rotations): desired hood angle
     """
 
-    def __init__(self, subsystem: Shooter, velocity: units.rotations_per_second, angle: units.radian):
+    def __init__(self, subsystem: Shooter, velocity: units.rotations_per_second, angle: units.rotation):
         super().__init__()
 
         self.subsystem = subsystem
@@ -118,6 +118,27 @@ class SetShooter(commands2.Command):
         self.subsystem.set_left_target_velocity(self.velocity)
         self.subsystem.set_right_target_velocity(self.velocity)
         self.subsystem.set_hood_angle(self.angle)
+
+    def execute(self):
+        pass
+
+    def isFinished(self):
+        return False
+
+    def end(self, interrupted):
+        pass
+
+class SetShooterSlow(commands2.Command):
+    def __init__(self, subsystem: Shooter):
+        super().__init__()
+
+        self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+
+    def initialize(self):
+        self.subsystem.set_left_target_velocity(slow_velocity)
+        self.subsystem.set_right_target_velocity(slow_velocity)
+        self.subsystem.set_hood_angle(hood_clear_angle)
 
     def execute(self):
         pass
@@ -143,17 +164,17 @@ class TuneShooter(commands2.Command):
         
         self.hood_angle_pub = self.shot_tuner.getDoubleTopic("hood angle").publish()
         self.flywheel_rps_pub = self.shot_tuner.getDoubleTopic("flywheel rps").publish()
-        self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(20.0)
-        self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(15.0)
-        self.distance_pub = self.shot_tuner.getDoubleTopic("distance to hub").publish()
+        self.hood_angle_sub = self.shot_tuner.getDoubleTopic("hood angle").subscribe(min_hood_angle)
+        self.flywheel_rps_sub = self.shot_tuner.getDoubleTopic("flywheel rps").subscribe(0)
+        
 
     def initialize(self):
+        pass
+
+    def execute(self):
         self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_hood_angle(self.hood_angle_sub.get() / 360)
-
-    def execute(self):
-        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.drivetrain.get_pose()))
 
     def isFinished(self):
         return False

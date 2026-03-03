@@ -3,6 +3,8 @@ from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
 
+NT_SHOOTER: bool = True
+
 left_lead_id: int = 16
 left_follower_id: int = 17
 right_lead_id: int = 18
@@ -11,40 +13,58 @@ hood_id: int = 20
 hood_cancoder_id: int = 23
 
 flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
-hood_angle_threshold: units.rotation = 1.0 / 360# placeholder
+hood_angle_threshold: units.rotation = 1.5 / 360 # placeholder
 
 hood_gear_ratio = 69 # 69:1
-max_hood_angle: units.rotation = 43 / 360 # placeholder
+max_hood_angle: units.rotation = 50 / 360
 min_hood_angle: units.rotation = 10 / 360
 
-idle_velocity: units.rotations_per_second = 0 # placeholder
+hood_clear_angle = 40 / 360
 
-NT_SHOOTER: bool = True
-
-left_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
-right_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
+idle_velocity: units.rotations_per_second = 0
+slow_velocity: units.rotations_per_second = 10
 
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
-    .with_absolute_sensor_discontinuity_point(0) # placeholder
-    .with_magnet_offset(0) # placeholder
-    .with_sensor_direction(signals.SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE)
+    .with_absolute_sensor_discontinuity_point(1)
+    .with_magnet_offset(0.03)
+    .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
-flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
+    .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(0) # placeholder
-    .with_k_i(0) # placeholder
-    .with_k_d(0) # placeholder
-    .with_k_s(0) # placeholder
-    .with_k_v(0) # placeholder
-    .with_k_a(0) # placeholder
+    .with_k_p(10)
+    .with_k_i(0)
+    .with_k_d(0)
+    .with_k_s(6.25)
+    .with_k_v(0.028)
+    .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(80) # placeholder
+    .with_stator_current_limit(60)
+    .with_supply_current_limit(60)
+)
+
+right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+    configs.MotorOutputConfigs()
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
+    .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+).with_slot0(
+    configs.Slot0Configs()
+    .with_k_p(15)
+    .with_k_i(0)
+    .with_k_d(0)
+    .with_k_s(8.5)
+    .with_k_v(0.095)
+    .with_k_a(0)
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(60)
+    .with_supply_current_limit(60)
 )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(
@@ -58,14 +78,14 @@ hood_config = configs.TalonFXConfiguration().with_motor_output(
     .with_motion_magic_jerk(0) # placeholder
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(0) # placeholder
-    .with_k_i(0) # placeholder
-    .with_k_d(0) # placeholder
-    .with_k_s(0) # placeholder
-    .with_k_v(0) # placeholder
-    .with_k_a(0) # placeholder
+    .with_k_p(125)
+    .with_k_i(0)
+    .with_k_d(1)
+    .with_k_s(.5)
+    .with_k_v(0)
+    .with_k_a(0)
     .with_gravity_type(signals.GravityTypeValue.ARM_COSINE)
-    .with_k_g(0) # placeholder
+    .with_k_g(0)
 ).with_feedback(
     configs.FeedbackConfigs()
     .with_rotor_to_sensor_ratio(23*1.5)
@@ -101,12 +121,12 @@ def load_shooter_table_csv(rel_path: str) -> np.ndarray:
 SHOT_TABLE = load_shooter_table_csv("shot_table.csv")
 
 DIST_M = SHOT_TABLE[:, 0]
-HOOD_DEG = SHOT_TABLE[:, 1]
-RPS = SHOT_TABLE[:, 2]
+HOOD_DEG = SHOT_TABLE[:, 2]
+RPS = SHOT_TABLE[:, 1]
 
 # robot distance to pass, hood angle, and RPS
 PASS_TABLE = load_shooter_table_csv("pass_table.csv")
 
 PASS_DIST_M = SHOT_TABLE[:, 0]
-PASS_HOOD_DEG = SHOT_TABLE[:, 1]
-PASS_RPS = SHOT_TABLE[:, 2]
+PASS_HOOD_DEG = SHOT_TABLE[:, 2]
+PASS_RPS = SHOT_TABLE[:, 1]

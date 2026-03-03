@@ -37,20 +37,21 @@ class RunIntake(commands2.Command):
     """
     Run intake
     """
-    def __init__(self, subsystem: Intake):
+    def __init__(self, subsystem: Intake, speed=fuel_speed):
         super().__init__()
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
+        self.speed = speed
 
     def initialize(self):
-        self.subsystem.intake_fuel()
+        self.subsystem.intake_fuel(self.speed)
 
     def isFinished(self) -> bool:
         "command expected to be interrupted"
         return False
     
     def end(self, interrupted: bool):
-        self.subsystem.stop_intake() 
+        self.subsystem.stop_intake()
 
 class ReverseIntake(commands2.Command):
     """
@@ -75,12 +76,14 @@ class SetPivotIn(commands2.Command):
     """
     Set pivot motor to specified angle with voltage in
     """
-    def __init__(self, subsystem: Intake, angle: units.rotation):
+    def __init__(self, subsystem: Intake, angle: units.rotation, speed=index_speed):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
+        self.speed = speed
 
     def initialize(self):
+        self.subsystem.intake_fuel(self.speed)
         self.subsystem.set_pivot_motor_in(voltage_out)
         self.subsystem.pivot_running = True
 
@@ -91,7 +94,8 @@ class SetPivotIn(commands2.Command):
         return self.subsystem.get_pivot_angle() >= self.angle
     
     def end(self, interrupted: bool):
-        self.subsystem.stop_pivot()
+        self.subsystem.stop_intake()
+        self.subsystem.set_pivot(self.angle)
         self.subsystem.pivot_running = False
         if interrupted:
             log.message("intake pivot interrupted")

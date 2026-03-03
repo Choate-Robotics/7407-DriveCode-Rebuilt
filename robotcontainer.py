@@ -10,6 +10,7 @@ from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from subsystems import *
+from sensors import *
 from robot_constants import *
 
 from phoenix6 import swerve
@@ -29,7 +30,7 @@ class RobotContainer:
 
     def __init__(self) -> None:
 
-        # Setting up bindings for necessary control of the swerve drive platform
+        # Initialize drive requests
         self._drive = (
             swerve.requests.FieldCentric()
             .with_drive_request_type(
@@ -40,8 +41,12 @@ class RobotContainer:
 
         self._logger = Telemetry(max_speed)
 
+        # Initialize controllers
+
         self.driver_controller = CommandXboxController(0)
         self.operator_controller = CommandXboxController(1)
+
+        # Initialize subsystems
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
@@ -49,10 +54,30 @@ class RobotContainer:
         self.indexer = Indexer()
         self.intake = Intake()
 
+        # Initialize odometry
+        self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
+        self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
+        self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
+        self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
+        cams = [
+            self.left_cam,
+            self.right_cam,
+            self.back_cam,
+            self.front_cam
+        ]
+
+        self.field_odometry = FieldOdometry(self.drivetrain, cams)
+
+        # Initialize auto chooser
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
 
         SmartDashboard.putData("Auto", self.auto_selection)
+
+    def telemetrize_drivetrain(self):
+        self.drivetrain.register_telemetry(
+            lambda state: self._logger.telemeterize(state)
+        )
         
     def configureButtonBindings(self) -> None:
         """
@@ -120,66 +145,72 @@ class RobotContainer:
         )            
 
         # aim drivetrain and shooter based on operator input
-        # self.driver_controller.rightTrigger().onTrue(
-        #     SelectCommand(
-        #         {
-        #             0: self.hub,
-        #             90: self.pass_right,
-        #             180: self.tower,
-        #             270: self.pass_left,
-        #             -1: ParallelCommandGroup(
-        #                 AimShooter(self.shooter, self.drivetrain),
-        #                 AimDrivetrain(self.drivetrain, self.driver_controller)
-        #             )
-        #         },
-        #         self.operator_controller.getHID().getPOV
-        #     )
-        # )
+        self.driver_controller.rightTrigger().whileTrue(
+            SelectCommand(
+                {
+                    0: self.hub,
+                    90: self.pass_right,
+                    180: self.tower,
+                    270: self.pass_left,
+                    -1: ParallelCommandGroup(
+                        AimShooter(self.shooter, self.drivetrain),
+                        AimDrivetrain(self.drivetrain, self.driver_controller)
+                    )
+                },
+                self.operator_controller.getHID().getPOV
+            )
+        )
 
         # command used to tune the shooter by taking in a value from networktables
-        # self.driver_controller.rightTrigger().onTrue(
+        # self.driver_controller.rightTrigger().whileTrue(
         #     ParallelCommandGroup(
         #         TuneShooter(self.shooter, self.drivetrain),
         #         AimDrivetrain(self.drivetrain, self.driver_controller)
         #     )
         # )
 
-        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-        #     Index(self.indexer, self.intake)
-        # )
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+            Index(self.indexer, self.intake)
+        )
 
-        # # drive in "snake mode" (intake faces direction of travel)
-        # self.driver_controller.rightBumper().whileTrue(
-        #     SnakeMode(self.drivetrain, self.driver_controller)
-        # )
+        # drive in "snake mode" (intake faces direction of travel)
+        self.driver_controller.rightBumper().whileTrue(
+            SnakeMode(self.drivetrain, self.driver_controller)
+        )
 
-        # # force the indexer to spin
-        # self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-        #     RunIndexer(self.indexer)
-        # )
+        #Auto aligns the robot depending on which field element is closer (trenches or bumps)
+        self.driver_controller.leftBumper().whileTrue(
+            AutoAlign(self.drivetrain, self.driver_controller)
+        )
 
-        # # reverse the indexer
-        # self.operator_controller.y().onTrue(
-        #     RunIndexerReversed(self.indexer)
-        # )
+        # force the indexer to spin
+        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+            # Index(self.indexer, self.intake)
+            RunIndexer(self.indexer)
+        )
+
+        # reverse the indexer
+        self.operator_controller.y().or_(self.driver_controller.y()).whileTrue(
+            ClearTower(self.indexer, self.shooter)
+        )
         
-        # # deploy and run intake
-        # self.operator_controller.rightTrigger().whileTrue(
-        #     SequentialCommandGroup(
-        #         DeployIntake(self.intake),
-        #         RunIntake(self.intake)
-        #     )
-        # )
+        # deploy and run intake
+        self.operator_controller.rightTrigger().whileTrue(
+            SequentialCommandGroup(
+                DeployIntake(self.intake),
+                RunIntake(self.intake)
+            )
+        )
 
-        # # run intake in reverse
-        # self.operator_controller.leftTrigger().whileTrue(
-        #     ReverseIntake(self.intake)
-        # )
+        # run intake in reverse
+        self.operator_controller.leftTrigger().whileTrue(
+            ReverseIntake(self.intake)
+        )
 
-        # # retract intake
-        # self.operator_controller.leftBumper().onTrue(
-        #     RetractIntake(self.intake)
-        # )
+        # retract intake
+        self.operator_controller.leftBumper().onTrue(
+            RetractIntake(self.intake)
+        )
 
         # # deploy climb
         # self.operator_controller.start().onTrue(
@@ -205,10 +236,6 @@ class RobotContainer:
         # (self.driver_controller.start() & self.driver_controller.x()).whileTrue(
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
-
-        self.drivetrain.register_telemetry(
-            lambda state: self._logger.telemeterize(state)
-        )
 
     def getAutonomousCommand(self) -> Callable[[RobotContainer], autos.AutoRoutine]:
         """

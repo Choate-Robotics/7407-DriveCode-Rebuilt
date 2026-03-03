@@ -2,6 +2,7 @@ from .constants import *
 import math
 import ntcore
 from utils import shooter_utils
+from utils.phoenix_util import apply_config
 from wpimath.geometry import Pose2d
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
@@ -16,31 +17,26 @@ class Shooter(Subsystem):
         self.right_follower_motor = hardware.TalonFX(right_follow_id)
 
         self.velocity_torque_current = controls.VelocityTorqueCurrentFOC(0)
+        self.duty_cycle = controls.DutyCycleOut(0)
 
         self.hood_motor = hardware.TalonFX(hood_id)
         self.hood_cancoder = hardware.CANcoder(hood_cancoder_id)
 
-        self.motion_magic = controls.MotionMagicVoltage(0)
+        self.motion_magic = controls.PositionVoltage(0)
 
         self.left_target_velocity = 0
         self.right_target_velocity = 0 
         self.hood_target_angle = 0
 
-        self.hood_cancoder.configurator.apply(hood_cancoder_config)
+        apply_config(self.hood_cancoder, hood_cancoder_config)
+        apply_config(self.hood_motor, hood_config)
         
-        self.left_leader_motor.configurator.apply(flywheel_config.with_motor_output(
-            configs.MotorOutputConfigs()
-            .with_inverted(left_direction)
-        ))
+        apply_config(self.left_leader_motor, left_flywheel_config)
         self.left_follower_motor.set_control(controls.Follower(left_lead_id, signals.MotorAlignmentValue.ALIGNED))
 
-        self.right_leader_motor.configurator.apply(flywheel_config.with_motor_output(
-            configs.MotorOutputConfigs()
-            .with_inverted(right_direction)
-        ))
+        apply_config(self.right_leader_motor, right_flywheel_config)
         self.right_follower_motor.set_control(controls.Follower(right_lead_id, signals.MotorAlignmentValue.ALIGNED))
         
-        self.hood_motor.configurator.apply(hood_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
         self.left_velocity_pub = self.table.getDoubleTopic("left velocity").publish()
@@ -73,6 +69,14 @@ class Shooter(Subsystem):
 
         self.right_leader_motor.set_control(self.velocity_torque_current.with_velocity(self.right_target_velocity))
 
+    def stop_left(self):
+        self.left_target_velocity = 0
+        self.left_leader_motor.set_control(self.duty_cycle.with_output(0))
+
+    def stop_right(self):
+        self.right_target_velocity = 0
+        self.right_leader_motor.set_control(self.duty_cycle.with_output(0))
+        
     def get_left_velocity(self) -> units.rotations_per_second:
         """
         obtains the current velocity of the left flywheel
@@ -163,11 +167,11 @@ class Shooter(Subsystem):
         :param robot_pose: robot's pose on the field
         """
         if passing:
-            hood_pos, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
+            hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
         else:
-            hood_pos, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
+            hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 
-        self.set_hood_angle(hood_pos)
+        self.set_hood_angle(hood_deg/360)
         self.set_left_target_velocity(rps)
         self.set_right_target_velocity(rps)
         

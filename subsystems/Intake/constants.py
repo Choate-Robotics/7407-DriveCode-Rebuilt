@@ -4,17 +4,19 @@ from phoenix6.signals import FeedbackSensorSourceValue
 from phoenix6.hardware import TalonFX
 from phoenix6.configs import TalonFXConfiguration
 
+NT_INTAKE = True
+
 # ids
 horizontal_motor_id = 14
 pivot_motor_id = 15
 
 # constants
-angle_threshold = 0.01 #placeholder 
-fuel_speed = 0.75  #placeholder
-voltage_out = 3 #placeholder
+angle_threshold = 0.01
+fuel_speed = 0.8
+voltage_out = 2
+index_speed = 0
 
-# 
-intake_retract_rotation = 0.25
+intake_retract_rotation = 0.18
 intake_deploy_rotation = 0
 intake_maximum_rotation = 0.34
 
@@ -23,7 +25,7 @@ horizontal_motor_configs = (
     configs.TalonFXConfiguration()
     .with_motor_output(
         configs.MotorOutputConfigs()
-        .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
+        .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
         .with_neutral_mode(signals.NeutralModeValue.BRAKE)
     ).with_current_limits(
         configs.CurrentLimitsConfigs()
@@ -43,7 +45,7 @@ pivot_motor_configs = (
                 .with_sensor_to_mechanism_ratio(45)
             ).with_slot0(
                 configs.Slot0Configs()
-                .with_k_p(45)
+                .with_k_p(35)
                 .with_k_i(0.0)
                 .with_k_d(0.0)
                 .with_k_s(0.5)

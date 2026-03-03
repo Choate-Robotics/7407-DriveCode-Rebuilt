@@ -3,6 +3,7 @@ from .constants import *
 from commands2 import Subsystem
 from phoenix6 import hardware, controls
 import ntcore
+from utils.phoenix_util import apply_config
 
 class Indexer(Subsystem):
 
@@ -19,8 +20,8 @@ class Indexer(Subsystem):
         self.indexer_running: bool = False
         self.indexer_reversed: bool = False
 
-        self.indexer_motor.configurator.apply(self.indexer_config)
-        self.tower_motor.configurator.apply(self.tower_config)
+        apply_config(self.indexer_motor, self.indexer_config)
+        apply_config(self.tower_motor, self.tower_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("indexer")
         self.indexer_running_pub = self.table.getBooleanTopic("indexer running").publish()
@@ -88,7 +89,7 @@ class Indexer(Subsystem):
         Stops the tower motor
         """
         self.tower_motor.set_control(
-            self.control_velocity.with_velocity(0)
+            self.control_duty_cycle.with_output(0)
         )
         self.indexer_running = False
     
@@ -96,13 +97,13 @@ class Indexer(Subsystem):
         """
         gets tower motor (supply) current
         """
-        return self.tower_motor.get_supply_current()
+        return self.tower_motor.get_supply_current().value
 
     def get_indexer_motor_current(self) -> float:
         """
         gets indexer motor (supply) current
         """
-        return self.indexer_motor.get_supply_current()
+        return self.indexer_motor.get_supply_current().value
     
 
     def get_indexer_motor_velocity(self) -> float:
@@ -121,11 +122,14 @@ class Indexer(Subsystem):
         """
         updates network tables
         """
-        table = ntcore.NetworkTableInstance.getDefault().getTable("Indexer")
 
-        self.indexer_running_pub.set(self.indexer_running)
-        self.indexer_reversed_pub.set(self.indexer_reversed)
+        # self.indexer_running_pub.set(self.indexer_running)
+        # self.indexer_reversed_pub.set(self.indexer_reversed)
         self.tower_motor_current_pub.set(self.get_tower_motor_current())
         self.indexer_motor_current_pub.set(self.get_indexer_motor_current())
         self.indexer_motor_velocity_pub.set(self.get_indexer_motor_velocity())
         self.tower_motor_velocity_pub.set(self.get_tower_motor_velocity())
+
+    def periodic(self):
+        if NT_INDEXER:
+            self.update_table()
