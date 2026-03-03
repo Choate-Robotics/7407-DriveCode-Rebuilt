@@ -46,7 +46,9 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
     .with_stator_current_limit(60)
+    .with_stator_current_limit_enable(True)
     .with_supply_current_limit(60)
+    .with_supply_current_limit_enable(True)
 )
 
 right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
@@ -64,7 +66,9 @@ right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
     .with_stator_current_limit(60)
+    .with_stator_current_limit_enable(True)
     .with_supply_current_limit(60)
+    .with_supply_current_limit_enable(True)
 )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(

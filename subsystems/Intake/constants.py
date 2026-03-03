@@ -12,7 +12,7 @@ pivot_motor_id = 15
 
 # constants
 angle_threshold = 0.01
-fuel_speed = 0.8
+fuel_speed = 1
 voltage_out = 2
 index_speed = 0
 
