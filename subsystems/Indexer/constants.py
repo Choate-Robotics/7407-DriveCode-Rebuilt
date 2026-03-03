@@ -13,6 +13,9 @@ indexer_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
     .with_neutral_mode(signals.NeutralModeValue.BRAKE)
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(60)
 )
 
 tower_config = configs.TalonFXConfiguration().with_motor_output(
@@ -31,6 +34,9 @@ tower_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_s(10)
     .with_k_v(0.22)
     .with_k_a(0)
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(60)
 )
 
 #debouncer thresholds

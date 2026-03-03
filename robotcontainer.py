@@ -185,7 +185,8 @@ class RobotContainer:
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-            Index(self.indexer, self.intake)
+            # Index(self.indexer, self.intake)
+            RunIndexer(self.indexer)
         )
 
         # reverse the indexer

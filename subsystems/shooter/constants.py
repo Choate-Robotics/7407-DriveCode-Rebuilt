@@ -24,9 +24,6 @@ hood_clear_angle = 40 / 360
 idle_velocity: units.rotations_per_second = 0
 slow_velocity: units.rotations_per_second = 10
 
-left_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
-right_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
-
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
     .with_absolute_sensor_discontinuity_point(1)
@@ -34,9 +31,10 @@ hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
-flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
+    .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_slot0(
     configs.Slot0Configs()
     .with_k_p(10)
@@ -47,7 +45,26 @@ flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(80) # placeholder
+    .with_stator_current_limit(60)
+    .with_supply_current_limit(60)
+)
+
+right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+    configs.MotorOutputConfigs()
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
+    .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+).with_slot0(
+    configs.Slot0Configs()
+    .with_k_p(15)
+    .with_k_i(0)
+    .with_k_d(0)
+    .with_k_s(8.5)
+    .with_k_v(0.095)
+    .with_k_a(0)
+).with_current_limits(
+    configs.CurrentLimitsConfigs()
+    .with_stator_current_limit(60)
+    .with_supply_current_limit(60)
 )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(

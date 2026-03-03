@@ -29,20 +29,14 @@ class Shooter(Subsystem):
         self.hood_target_angle = 0
 
         apply_config(self.hood_cancoder, hood_cancoder_config)
+        apply_config(self.hood_motor, hood_config)
         
-        apply_config(self.left_leader_motor, flywheel_config.with_motor_output(
-            configs.MotorOutputConfigs()
-            .with_inverted(left_direction)
-        ))
+        apply_config(self.left_leader_motor, left_flywheel_config)
         self.left_follower_motor.set_control(controls.Follower(left_lead_id, signals.MotorAlignmentValue.ALIGNED))
 
-        apply_config(self.right_leader_motor, flywheel_config.with_motor_output(
-            configs.MotorOutputConfigs()
-            .with_inverted(right_direction)
-        ))
+        apply_config(self.right_leader_motor, right_flywheel_config)
         self.right_follower_motor.set_control(controls.Follower(right_lead_id, signals.MotorAlignmentValue.ALIGNED))
         
-        apply_config(self.hood_motor, hood_config)
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
         self.left_velocity_pub = self.table.getDoubleTopic("left velocity").publish()

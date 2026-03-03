@@ -95,7 +95,7 @@ class SetPivotIn(commands2.Command):
     
     def end(self, interrupted: bool):
         self.subsystem.stop_intake()
-        self.subsystem.stop_pivot()
+        self.subsystem.set_pivot(self.angle)
         self.subsystem.pivot_running = False
         if interrupted:
             log.message("intake pivot interrupted")

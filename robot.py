@@ -43,6 +43,8 @@ class MyRobot(wpilib.TimedRobot):
         self.distance_pub = self.nt_inst.getTable("Shot Tuner").getDoubleTopic("distance to hub").publish()
 
         # self.robot.field_odometry.disable()
+        
+        self.robot.configureButtonBindings()
 
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -89,7 +91,7 @@ class MyRobot(wpilib.TimedRobot):
         self.scheduler.cancelAll()
 
     def teleopInit(self) -> None:
-        self.robot.configureButtonBindings()
+        pass
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""

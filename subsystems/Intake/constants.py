@@ -14,9 +14,9 @@ pivot_motor_id = 15
 angle_threshold = 0.01
 fuel_speed = 0.8
 voltage_out = 2
-index_speed = 0.5
+index_speed = 0
 
-intake_retract_rotation = 0.15
+intake_retract_rotation = 0.18
 intake_deploy_rotation = 0
 intake_maximum_rotation = 0.34
 
