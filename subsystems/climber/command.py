@@ -24,9 +24,10 @@ class DeployClimbL1(commands2.Command):
         self.subsystem.set_voltage(climber_extend_voltage)
 
     def isFinished(self):
-        return self.subsystem.get_motor_position() >= L1_pos
+        return self.subsystem.get_motor_position() >= climber_upper_bound
     
     def end(self, interrupted: bool):
+        self.subsystem.set_voltage(0)
         self.subsystem.moving = False
 
 
@@ -49,7 +50,7 @@ class RetractClimb(commands2.Command):
         pass
 
     def isFinished(self):
-        return self.subsystem.is_motor_position(climber_lower_bound)
+        return self.subsystem.get_motor_position() <= climb_l1
 
     def end(self, interrupted: bool):
         self.subsystem.moving = False

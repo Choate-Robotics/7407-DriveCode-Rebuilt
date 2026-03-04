@@ -31,8 +31,6 @@ class Climber(commands2.Subsystem):
     The motor for the climber uses motion magic control for ascending and voltage control for descending. (defaulted to voltage out)
     """
 
-    
-
     def __init__(self) -> None:
         super().__init__()
         self.moving = False
@@ -54,10 +52,10 @@ class Climber(commands2.Subsystem):
         self.moving = True
 
     def get_motor_position(self):
-        return self.motor.get_position().value
+        return self.motor.get_rotor_position().value
     
     def is_motor_position(self, position) -> bool:
-        return (round(self.get_motor_position()) >= position )
+        return (self.get_motor_position() >= position)
 
     def setup_table(self) -> None:
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("climber")

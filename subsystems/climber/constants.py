@@ -7,22 +7,17 @@ NT_CLIMBER = True
 left_motor_id = 24
 
 # other constants
-climber_gear_ratio = 125
-climber_retract_voltage = 2 #placeholder
-climber_extend_voltage = 2 #placeholder
-climber_deploy_speed = 2 #placeholder
-climber_lower_bound = 0 #placeholder
-climber_upper_bound = 30 #placeholder
-L1_pos = 10 #placeholder
+climber_retract_voltage = -9 #placeholder
+climber_extend_voltage = 12 #placeholder
+climber_lower_bound = 0
+climber_upper_bound = 220
+climb_l1 = 15
 
 climber_motor_configs = (
-            configs.TalonFXConfiguration()
-            .with_motor_output(
-                configs.MotorOutputConfigs()
-                .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
-                .with_neutral_mode(signals.NeutralModeValue.BRAKE)
-            ).with_feedback(
-                configs.FeedbackConfigs()
-                .with_feedback_remote_sensor_id(signals.FeedbackSensorSourceValue.FUSED_CANCODER.value)
-            )
+    configs.TalonFXConfiguration()
+    .with_motor_output(
+        configs.MotorOutputConfigs()
+        .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+        .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+    )
 )

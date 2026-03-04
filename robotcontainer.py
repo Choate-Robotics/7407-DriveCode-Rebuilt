@@ -212,15 +212,15 @@ class RobotContainer:
             RetractIntake(self.intake)
         )
 
-        # # deploy climb
-        # self.operator_controller.start().onTrue(
-        #     DeployClimbL1(self.climber)
-        # )
+        # deploy climb
+        self.operator_controller.start().onTrue(
+            DeployClimbL1(self.climber)
+        )
         
-        # # climb
-        # self.operator_controller.back().whileTrue(
-        #     RetractClimb(self.climber)
-        # )
+        # climb
+        self.operator_controller.back().whileTrue(
+            RetractClimb(self.climber)
+        )
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
