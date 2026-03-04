@@ -1,9 +1,8 @@
 import commands2
 
 from .constants import *
-from subsystem import Indexer
+from .subsystem import Indexer
 from wpimath.filter import Debouncer
-from subsystems import Indexer
 
 
 class RunIndexer(commands2.Command):
@@ -87,4 +86,25 @@ class AutoUnjamming(commands2.Command):
 
     def end(self, interrupted) -> None:
         self.subsystem.stop_indexer_motor()
+        self.subsystem.stop_tower_motor()
+
+class RunTower(commands2.Command):
+    """
+    Runs Indexer
+    """
+    def __init__(self, subsystem: Indexer):
+        super().__init__()
+        self.subsystem = subsystem
+        self.addRequirements(self.subsystem)
+
+    def initialize(self) -> None:
+        self.subsystem.run_tower()
+    
+    def execute(self) -> None:
+        pass
+    
+    def isFinished(self) -> None:
+        return False
+
+    def end(self, interrupted) -> None:
         self.subsystem.stop_tower_motor()

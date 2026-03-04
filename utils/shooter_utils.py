@@ -2,6 +2,10 @@ from wpimath.geometry import Pose2d, Pose3d, Translation2d, Translation3d, Rotat
 from utils import alliance_flip_util, field_constants
 import math
 
+from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS
+from utils.field_constants import Hub
+import numpy as np
+
 def angle_aim_to_target(robot_pose: Pose2d, target: Pose2d | Pose3d | Translation2d | Translation3d) -> Rotation2d:
     """
     Calculates the angle the robot needs to face to aim at a target position.
@@ -36,3 +40,40 @@ def get_pass_setpoint(robot_pose: Pose2d) -> Translation2d:
         # from middle-upper quadrant
         else:
             return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_1.X(), field_constants.LinesHorizontal.CENTER + field_constants.pass_target_1.Y()))
+        
+#shooting        
+def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
+    """
+    Computes shot (hood_deg, rps) from robot pose:
+    - computes shooter exit point in field coords (robot translation + rotated shooter_offset)
+    - measures distance to hub center
+    - interpolates hood and rps from DIST_M tables
+    """
+    distance_m: float = shot_distance_from_pose(robot_pose)
+
+    hood_deg: float = float(np.interp(distance_m, DIST_M, HOOD_DEG))
+    rps: float = float(np.interp(distance_m, DIST_M, RPS))
+
+    return hood_deg, rps
+
+def shot_distance_from_pose(robot_pose: Pose2d) -> float:
+    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
+
+    return robot_pose.translation().distance(hub2d)
+
+#passing
+def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
+    """
+    Computes pass (hood_deg, rps) based on robot pose:
+    - chooses the correct pass target (via get_pass_setpoint)
+    - computes shooter-to-target distance using shooter_offset rotated by robot heading
+    - interpolates hood and rps from PASS_* tables
+    """
+    pass_setpoint: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
+
+    distance_m: float = robot_pose.translation().distance(pass_setpoint)
+
+    hood_deg: float = float(np.interp(distance_m, PASS_DIST_M, PASS_HOOD_DEG))
+    rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
+
+    return hood_deg, rps

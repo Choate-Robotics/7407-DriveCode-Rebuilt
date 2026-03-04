@@ -12,6 +12,8 @@ from autos import AutoRoutine
 
 from robotcontainer import RobotContainer
 from utils.alliance_flip_util import get_alliance
+from sensors import FieldOdometry
+from utils import shooter_utils
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -26,11 +28,8 @@ class MyRobot(wpilib.TimedRobot):
         initialization code.
         """
 
-        # Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-        # autonomous chooser on the dashboard.
         self.robot = RobotContainer()
         self.scheduler = commands2.CommandScheduler.getInstance()
-        
 
         self.nt_inst = NetworkTableInstance.getDefault()
         self.time_table = self.nt_inst.getTable("Timing")
@@ -39,6 +38,13 @@ class MyRobot(wpilib.TimedRobot):
 
         if wpilib.RobotBase.isSimulation():
             DriverStation.silenceJoystickConnectionWarning(True)
+
+        self.robot.telemetrize_drivetrain()
+        self.distance_pub = self.nt_inst.getTable("Shot Tuner").getDoubleTopic("distance to hub").publish()
+
+        # self.robot.field_odometry.disable()
+        
+        self.robot.configureButtonBindings()
 
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -52,6 +58,12 @@ class MyRobot(wpilib.TimedRobot):
         current_time = wpilib.Timer.getFPGATimestamp()
         self.time_pub.set(current_time - self.time)
         self.time = current_time
+
+
+        self.robot.field_odometry.update()
+        
+        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.robot.drivetrain.get_pose()))
+        
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""

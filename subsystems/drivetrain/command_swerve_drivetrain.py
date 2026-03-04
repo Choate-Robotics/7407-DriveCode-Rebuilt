@@ -249,6 +249,8 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
             self
         )
 
+        self.ready_to_shoot = False
+
     def get_pose(self) -> Pose2d:
         return self.get_state().pose
     
@@ -378,3 +380,9 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         :rtype: Pose2d | None
         """
         return TunerSwerveDrivetrain.sample_pose_at(self, utils.fpga_to_current_time(timestamp))
+
+    def snap_bump_angle(self, rotation):
+            snapped = round(rotation / 45) * 45
+            if snapped % 90 == 0:
+                snapped += 45 if rotation >= snapped else -45
+            return Rotation2d.fromDegrees(snapped)

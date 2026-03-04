@@ -18,11 +18,11 @@ class TunerConstants:
     # output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     _steer_gains = (
         configs.Slot0Configs()
-        .with_k_p(50)
+        .with_k_p(100)
         .with_k_i(0)
-        .with_k_d(0.35)
-        .with_k_s(0.16)
-        .with_k_v(0)
+        .with_k_d(0.5)
+        .with_k_s(0.1)
+        .with_k_v(2.49)
         .with_k_a(0)
         .with_static_feedforward_sign(
             signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN
@@ -57,7 +57,7 @@ class TunerConstants:
 
     # The stator current at which the wheels start to slip;
     # This needs to be tuned to your individual robot
-    _slip_current: units.ampere = 120.0
+    _slip_current: units.ampere = 80
 
     # Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     # Some configs will be overwritten; check the `with_*_initial_configs()` API documentation.
@@ -75,18 +75,18 @@ class TunerConstants:
 
     # CAN bus that the devices are located on;
     # All swerve devices must share the same CAN bus
-    canbus = CANBus("Drivetrain", "./logs/example.hoot")
+    canbus = CANBus("canivore", "./logs/example.hoot")
 
     # Theoretical free speed (m/s) at 12 V applied output;
     # This needs to be tuned to your individual robot
-    speed_at_12_volts: units.meters_per_second = 5.23
+    speed_at_12_volts: units.meters_per_second = 5.12
 
     # Every 1 rotation of the azimuth results in _couple_ratio drive motor turns;
     # This may need to be tuned to your individual robot
-    _couple_ratio = 3.125
+    _couple_ratio = 3.857142857142857
 
-    _drive_gear_ratio = 5.902777777777778
-    _steer_gear_ratio = 21.428571428571427
+    _drive_gear_ratio = 6.026785714285714
+    _steer_gear_ratio = 26.09090909090909
     _wheel_radius: units.meter = inchesToMeters(2)
 
     _invert_left_side = False
@@ -138,48 +138,48 @@ class TunerConstants:
 
 
     # Front Left
-    _front_left_drive_motor_id = 2
-    _front_left_steer_motor_id = 1
+    _front_left_drive_motor_id = 1
+    _front_left_steer_motor_id = 2
     _front_left_encoder_id = 9
-    _front_left_encoder_offset: units.rotation = 0.30126953125
-    _front_left_steer_motor_inverted = True
+    _front_left_encoder_offset: units.rotation = -0.306884765625
+    _front_left_steer_motor_inverted = False
     _front_left_encoder_inverted = False
 
-    _front_left_x_pos: units.meter = inchesToMeters(9.125)
-    _front_left_y_pos: units.meter = inchesToMeters(9.875)
+    _front_left_x_pos: units.meter = inchesToMeters(10.125)
+    _front_left_y_pos: units.meter = inchesToMeters(11.875)
 
     # Front Right
-    _front_right_drive_motor_id = 4
-    _front_right_steer_motor_id = 3
-    _front_right_encoder_id = 12
-    _front_right_encoder_offset: units.rotation = -0.050048828125
-    _front_right_steer_motor_inverted = True
+    _front_right_drive_motor_id = 3
+    _front_right_steer_motor_id = 4
+    _front_right_encoder_id = 10
+    _front_right_encoder_offset: units.rotation = -0.225830078125
+    _front_right_steer_motor_inverted = False
     _front_right_encoder_inverted = False
 
-    _front_right_x_pos: units.meter = inchesToMeters(9.125)
-    _front_right_y_pos: units.meter = inchesToMeters(-9.875)
+    _front_right_x_pos: units.meter = inchesToMeters(10.125)
+    _front_right_y_pos: units.meter = inchesToMeters(-11.875)
 
     # Back Left
-    _back_left_drive_motor_id = 8
-    _back_left_steer_motor_id = 7
-    _back_left_encoder_id = 10
-    _back_left_encoder_offset: units.rotation = -0.2412109375
-    _back_left_steer_motor_inverted = True
+    _back_left_drive_motor_id = 5
+    _back_left_steer_motor_id = 6
+    _back_left_encoder_id = 11
+    _back_left_encoder_offset: units.rotation = -0.49365234375
+    _back_left_steer_motor_inverted = False
     _back_left_encoder_inverted = False
 
-    _back_left_x_pos: units.meter = inchesToMeters(-9.125)
-    _back_left_y_pos: units.meter = inchesToMeters(9.875)
+    _back_left_x_pos: units.meter = inchesToMeters(-10.125)
+    _back_left_y_pos: units.meter = inchesToMeters(11.875)
 
     # Back Right
-    _back_right_drive_motor_id = 6
-    _back_right_steer_motor_id = 5
-    _back_right_encoder_id = 11
-    _back_right_encoder_offset: units.rotation = 0.28662109375
-    _back_right_steer_motor_inverted = True
+    _back_right_drive_motor_id = 7
+    _back_right_steer_motor_id = 8
+    _back_right_encoder_id = 12
+    _back_right_encoder_offset: units.rotation = -0.364013671875
+    _back_right_steer_motor_inverted = False
     _back_right_encoder_inverted = False
 
-    _back_right_x_pos: units.meter = inchesToMeters(-9.125)
-    _back_right_y_pos: units.meter = inchesToMeters(-9.875)
+    _back_right_x_pos: units.meter = inchesToMeters(-10.125)
+    _back_right_y_pos: units.meter = inchesToMeters(-11.875)
 
 
     front_left = _constants_creator.create_module_constants(
@@ -323,11 +323,11 @@ class TunerSwerveDrivetrain(
                                             CAN FD, and 100 Hz on CAN 2.0.
         :type odometry_update_frequency:    units.hertz
         :param odometry_standard_deviation: The standard deviation for odometry calculation
-                                            in the form [x, y, theta]ᵀ, with units in meters
+                                            in the form [x, y, theta]áµ€, with units in meters
                                             and radians
         :type odometry_standard_deviation:  tuple[float, float, float]
         :param vision_standard_deviation:   The standard deviation for vision calculation
-                                            in the form [x, y, theta]ᵀ, with units in meters
+                                            in the form [x, y, theta]áµ€, with units in meters
                                             and radians
         :type vision_standard_deviation:    tuple[float, float, float]
         :param modules:                     Constants for each specific module
