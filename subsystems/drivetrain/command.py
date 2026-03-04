@@ -27,6 +27,11 @@ class AimDrivetrain(commands2.Command):
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Shot Tuner")
         self.pose_pub = self.table.getStructTopic("Target pose", Pose2d).publish()
         self.angle_pub = self.table.getDoubleTopic("Angle").publish()
+        self.distance_pub = self.table.getDoubleTopic("distance to target").publish()
+
+        self.ready_pub = self.table.getBooleanTopic("Ready to shoot").publish()
+
+        self.target = None
 
     def initialize(self):
         pass
@@ -40,28 +45,31 @@ class AimDrivetrain(commands2.Command):
         5. If facing angle and speed is 0, apply brake
         6. Else: drive at angle
         """
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+        self.pose = self.drivetrain.get_pose()
+        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+            self.target = alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d()
             self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.drivetrain.get_pose(),
-                alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
+                self.pose,
+                self.target,
             ))
-            self.pose_pub.set(Pose2d(alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d(), Rotation2d()))
+            # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
 
         else:
+            self.target = shooter_utils.get_pass_setpoint(self.pose)
             self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.drivetrain.get_pose(),
-                shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
+                self.pose,
+                self.target
             ))
-            self.pose_pub.set(Pose2d(shooter_utils.get_pass_setpoint(self.drivetrain.get_pose()), Rotation2d()))
+            # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
 
-        self.angle_pub.set(self.target_angle.degrees())
-        
+        self.distance_pub.set(self.pose.translation().distance(self.target))
+        # self.angle_pub.set(self.target_angle.degrees())
 
         self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
-        self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
+        self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband) * max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
-        self.is_facing_angle = self.drivetrain.is_facing_angle(self.target_angle.radians())
+        self.is_facing_angle = self.drivetrain.is_facing_angle(alliance_flip_util.get_alliance(self.target_angle).radians())
 
         if self.is_facing_angle and self.cmd_speed == 0:
             self.drivetrain.set_control(self._brake)
@@ -74,12 +82,13 @@ class AimDrivetrain(commands2.Command):
             )
 
         self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
-        
+        # self.ready_pub.set(self.drivetrain.ready_to_shoot)
+
     def isFinished(self) -> bool:
         return False
     
     def end(self, interrupted: bool) -> None:
-        pass
+        self.drivetrain.ready_to_shoot = False
 
 class DriveAtAngle(commands2.Command):
     def __init__(self, subsystem: CommandSwerveDrivetrain, controller: commands2.button.CommandXboxController, target_angle: Rotation2d):
@@ -245,7 +254,6 @@ class AutoAlign(commands2.Command):
         self.closest_right = min(self.right_centers, key=lambda k: robot_translation.distance(self.right_centers[k]))
         self.left_dist = robot_translation.distance(self.left_centers[self.closest_left])
         self.right_dist = robot_translation.distance(self.right_centers[self.closest_right])
-        self.robot_rotation = self.drivetrain.get_pose().rotation().degrees()
         
         
 

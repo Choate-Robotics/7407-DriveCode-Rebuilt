@@ -26,7 +26,7 @@ horizontal_motor_configs = (
     .with_motor_output(
         configs.MotorOutputConfigs()
         .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
-        .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+        .with_neutral_mode(signals.NeutralModeValue.COAST)
     ).with_current_limits(
         configs.CurrentLimitsConfigs()
         .with_stator_current_limit(80) #placeholder

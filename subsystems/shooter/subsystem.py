@@ -45,7 +45,7 @@ class Shooter(Subsystem):
         self.right_target_velocity_pub = self.table.getDoubleTopic("right target velocity").publish()
         self.hood_angle_pub = self.table.getDoubleTopic("hood angle").publish()
         self.hood_target_angle_pub = self.table.getDoubleTopic("hood target angle").publish()
-        self.shooter_ready_pub = self.table.getDoubleTopic("shooter ready").publish()
+        self.shooter_ready_pub = self.table.getBooleanTopic("shooter ready").publish()
 
     def set_left_target_velocity(self, velocity: units.rotations_per_second):
         """
@@ -167,7 +167,8 @@ class Shooter(Subsystem):
         :param robot_pose: robot's pose on the field
         """
         if passing:
-            hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
+            # hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
+            hood_deg, rps = 30, 60
         else:
             hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 

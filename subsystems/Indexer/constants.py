@@ -6,12 +6,13 @@ NT_INDEXER = True
 indexer_motor_id = 22
 tower_motor_id = 21
 
-indexer_speed = 0.8 #TODO: placeholder
-tower_speed = 30 #TODO: placeholder
+indexer_speed = 0.8
+tower_speed = 30
+tower_duty_cycle = 1
 
 indexer_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
@@ -20,7 +21,7 @@ indexer_config = configs.TalonFXConfiguration().with_motor_output(
 
 tower_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_feedback(
      configs.FeedbackConfigs()

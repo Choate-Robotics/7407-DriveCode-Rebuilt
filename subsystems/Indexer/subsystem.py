@@ -47,7 +47,7 @@ class Indexer(Subsystem):
         Runs the tower motor
         """
         self.tower_motor.set_control(
-            self.control_velocity.with_velocity(tower_speed)
+            self.control_duty_cycle.with_output(tower_duty_cycle)
         )
 
         self.indexer_running = True
@@ -123,7 +123,7 @@ class Indexer(Subsystem):
         updates network tables
         """
 
-        # self.indexer_running_pub.set(self.indexer_running)
+        self.indexer_running_pub.set(self.indexer_running)
         # self.indexer_reversed_pub.set(self.indexer_reversed)
         self.tower_motor_current_pub.set(self.get_tower_motor_current())
         self.indexer_motor_current_pub.set(self.get_indexer_motor_current())

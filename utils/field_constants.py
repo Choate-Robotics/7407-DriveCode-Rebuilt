@@ -34,10 +34,10 @@ FIELD_LENGTH = _layout.getFieldLength()
 FIELD_WIDTH = _layout.getFieldWidth()
 
 # passing setpoints
-pass_target_1: Translation2d = Translation2d(2.0, 1.0) #placeholder values
-pass_target_2: Translation2d = Translation2d(5.0, 2.0) #placeholder values
+pass_target_1: Translation2d = Translation2d(3, 2)
+pass_target_2: Translation2d = Translation2d(1, 1)
 
-pass_offset: meters = 2 #placeholder values
+pass_offset: meters = 0.75
 
 class Hub:
     """Hub related constants"""

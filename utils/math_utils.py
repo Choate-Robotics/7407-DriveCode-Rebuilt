@@ -1,14 +1,11 @@
 import math
 
-def bounded_angle_diff(theta_from: float, theta_too: float) -> float:
+def bounded_angle_diff(a, b):
     """
-    Finds the bounded (from -π to π) angle difference between two unbounded angles
+    Returns the bounded difference (a - b) wrapped to (-π, π].
     """
-    res = math.fmod(theta_too - theta_from, 6.283185307179586)
-    if res > math.pi:
-        res -= 6.283185307179586
-    if res < -math.pi:
-        res += 6.283185307179586
+    res = (a - b + math.pi) % (2 * math.pi) - math.pi
+    print(res)
     return res
 
 def curve(x, d, c=1):

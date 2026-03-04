@@ -22,10 +22,9 @@ snake_mode_kP = 5
 snake_mode_kI = 0
 snake_mode_kD = 0
 
-drive_at_angle_tolerance: units.radian = 0.05 #placeholder value, ~2.86 degrees
-drivetrain_shooting_velocity_tolerance = 0.1 # PLACEHOLDER, percentage (0 to 1)
+drive_at_angle_tolerance: units.radian = 0.05
+drivetrain_shooting_velocity_tolerance: units.meters_per_second = 0.5
+
 autoalign_pid_p = 5
 autoalign_pid_i = 0
 autoalign_pid_d = 0
-
-drive_at_angle_tolerance: units.radian = 0.05 #placeholder value, ~2.86 degrees

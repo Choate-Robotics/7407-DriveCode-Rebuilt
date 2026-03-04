@@ -32,11 +32,11 @@ front_cam_transform = Transform3d(
 odometry_tag_distance = 3
 
 tower_drivetrain_angle = Rotation2d(0)
-tower_flywheel_velocity = 53
-tower_hood_angle = 22/360
+tower_flywheel_velocity = 43
+tower_hood_angle = 28/360
 
 hub_drivetrain_angle = Rotation2d(0)
-hub_flywheel_velocity = 45
+hub_flywheel_velocity = 38
 hub_hood_angle = 15/360
 
 leftpass_drivetrain_angle = Rotation2d(-160) # PLACEHOLDER
