@@ -6,6 +6,7 @@ from utils.phoenix_util import apply_config
 from wpimath.geometry import Pose2d
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
+from wpimath.kinematics import ChassisSpeeds
 
 class Shooter(Subsystem):
     def __init__(self):
@@ -176,6 +177,16 @@ class Shooter(Subsystem):
             hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
         else:
             hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
+
+        self.set_hood_angle(hood_deg/360)
+        self.set_left_target_velocity(rps)
+        self.set_right_target_velocity(rps)
+
+    def target_moving(self, robot_pose: Pose2d, speeds: ChassisSpeeds, passing: bool):
+        if passing:
+            hood_deg, rps = shooter_utils.SOM_pass_setpoints(robot_pose, speeds)
+        else:
+            hood_deg, rps = shooter_utils.SOM_hub_setpoints(robot_pose, speeds)
 
         self.set_hood_angle(hood_deg/360)
         self.set_left_target_velocity(rps)

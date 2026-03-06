@@ -1,10 +1,13 @@
 from wpimath.geometry import Pose2d, Pose3d, Translation2d, Translation3d, Rotation2d
+from wpimath.kinematics import ChassisSpeeds
 from utils import alliance_flip_util, field_constants
 import math
 
-from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS
+from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS, TOF_DIST_M, TOF, lead_constant, tof_convergence_threshold_m, tof_iterations
 from utils.field_constants import Hub
 import numpy as np
+
+hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
 
 def angle_aim_to_target(robot_pose: Pose2d, target: Pose2d | Pose3d | Translation2d | Translation3d) -> Rotation2d:
     """
@@ -56,10 +59,8 @@ def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
 
     return hood_deg, rps
 
-def shot_distance_from_pose(robot_pose: Pose2d) -> float:
-    hub2d: Translation2d = alliance_flip_util.get_alliance(Translation2d(Hub.INNER_CENTER_POINT.x, Hub.INNER_CENTER_POINT.y))
-
-    return robot_pose.translation().distance(hub2d)
+def shot_distance_from_pose(robot_pose: Pose2d, target=hub2d) -> float:
+    return robot_pose.translation().distance(target)
 
 #passing
 def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
@@ -76,4 +77,74 @@ def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     hood_deg: float = float(np.interp(distance_m, PASS_DIST_M, PASS_HOOD_DEG))
     rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
 
+    return hood_deg, rps
+
+def get_tof_from_distance(distance_m: float) -> float:
+    """
+    Computes time of flight based on distance:
+    - interpolates time of flight from TOF tables
+    """
+    tof: float = float(np.interp(distance_m, TOF_DIST_M, TOF))
+
+    return tof
+
+def SOM_hub_setpoints(robot_pose: Pose2d, speeds: ChassisSpeeds) -> tuple[float, float]:
+
+    field_relative_speeds: ChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+        speeds.vx, speeds.vy, speeds.omega, robot_pose.rotation()
+    )
+    field_relative_velocity: Translation2d = Translation2d(field_relative_speeds.vx, field_relative_speeds.vy)
+
+    # initial guesses
+    distance = robot_pose.translation().distance(hub2d)
+    virtual_hub: Translation2d = hub2d
+
+    # iterate
+    for _ in range(tof_iterations):
+        tof = get_tof_from_distance(distance)
+
+        shift: Translation2d = lead_constant * tof * Translation2d(field_relative_velocity.X(), field_relative_velocity.Y())
+        virtual_hub: Translation2d = hub2d - shift
+
+        # update distance
+        prev = distance
+        distance = robot_pose.translation().distance(virtual_hub)
+
+        # check convergence        
+        if abs(distance - prev) < tof_convergence_threshold_m:
+            break
+
+    return shot_setpoints_from_pose(robot_pose, virtual_hub)
+
+def SOM_pass_setpoints(robot_pose: Pose2d, speeds: ChassisSpeeds) -> tuple[float, float]:
+
+    pass_target: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
+
+    field_relative_speeds: ChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+        speeds.vx, speeds.vy, speeds.omega, robot_pose.rotation()
+    )
+    field_relative_velocity: Translation2d = Translation2d(field_relative_speeds.vx, field_relative_speeds.vy)
+    
+    # initial guesses
+    distance = robot_pose.translation().distance(pass_target)
+    virtual_target: Translation2d = pass_target
+
+    # iterate
+    for _ in range(tof_iterations):
+        tof = get_tof_from_distance(distance)
+
+        shift: Translation2d = lead_constant * tof * Translation2d(field_relative_velocity.X(), field_relative_velocity.Y())
+        virtual_target: Translation2d = pass_target - shift
+
+        # update distance
+        prev = distance
+        distance = robot_pose.translation().distance(virtual_target)
+
+        # check convergence        
+        if abs(distance - prev) < tof_convergence_threshold_m:
+            break
+
+    hood_deg: float = float(np.interp(distance, PASS_DIST_M, PASS_HOOD_DEG))
+    rps: float = float(np.interp(distance, PASS_DIST_M, PASS_RPS))
+    
     return hood_deg, rps
