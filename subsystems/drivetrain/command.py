@@ -24,9 +24,22 @@ class AimDrivetrain(commands2.Command):
 
         self.addRequirements(self.drivetrain)
 
+        self.drivetrain.SOM_enabled = False
+        self.drivetrain.virtual_target = None
+
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("Shot Tuning")
         self.pose_pub = self.table.getStructTopic("Target pose", Translation2d).publish()
         self.angle_pub = self.table.getDoubleTopic("Angle").publish()
+
+    def update_SOM_status(self, current_speed: float) -> None:
+        if not self.drivetrain.SOM_enabled:
+            # OFF -> ON only if clearly moving
+            if current_speed >= SOM_on_speed:
+                self.drivetrain.SOM_enabled = True
+        else:
+            # ON -> OFF only if clearly slow
+            if current_speed <= SOM_off_speed:
+                self.drivetrain.SOM_enabled = False
 
     def initialize(self):
         pass
@@ -40,32 +53,44 @@ class AimDrivetrain(commands2.Command):
         5. If facing angle and speed is 0, apply brake
         6. Else: drive at angle
         """
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
-            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.drivetrain.get_pose(),
-                alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT),
-            ))
-            self.pose_pub.set(alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d())
-
-        else:
-            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.drivetrain.get_pose(),
-                shooter_utils.get_pass_setpoint(self.drivetrain.get_pose())
-            ))
-            self.pose_pub.set(shooter_utils.get_pass_setpoint(self.drivetrain.get_pose()))
-
-        self.angle_pub.set(self.target_angle.degrees())
-        
-
         self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
         self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
 
+        self.pose: Pose2d = self.drivetrain.get_pose()
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
+        self.chassis_speeds = self.drivetrain.get_speeds()
+        self.current_speed = math.hypot(self.chassis_speeds.vx, self.chassis_speeds.vy)
+
+        self.drivetrain.SOM_enabled = self.update_SOM_status(self.current_speed)
+
+        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+            if self.drivetrain.SOM_enabled:
+                self.target_point: Translation2d = shooter_utils.compute_virtual_target(
+                    self.pose,
+                    self.chassis_speeds,
+                    alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT)
+                )
+                self.drivetrain.virtual_target = self.target_point
+                
+            else:
+                self.target_point: Translation2d = alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT)
+
+        else:
+            self.target_point: Translation2d = shooter_utils.get_pass_setpoint(self.pose)
+
+        self.target_angle = shooter_utils.angle_aim_to_target(
+            self.pose,
+            self.target_point
+        )
+
+        self.pose_pub.set(self.target_point)
+        self.angle_pub.set(self.target_angle.degrees())
+
         self.is_facing_angle = self.drivetrain.is_facing_angle(self.target_angle.radians())
 
         if self.is_facing_angle and self.cmd_speed == 0:
             self.drivetrain.set_control(self._brake)
-
+            
         else:
             self.drivetrain.set_control(
                 self._aim_at.with_target_direction(self.target_angle)
@@ -73,7 +98,10 @@ class AimDrivetrain(commands2.Command):
                 .with_velocity_y(self.v_y)
             )
 
-        self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
+        if self.drivetrain.SOM_enabled:
+            self.drivetrain.ready_to_shoot = self.is_facing_angle
+        else:
+            self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
         
     def isFinished(self) -> bool:
         return False

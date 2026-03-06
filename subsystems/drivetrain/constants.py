@@ -29,3 +29,6 @@ autoalign_pid_i = 0
 autoalign_pid_d = 0
 
 drive_at_angle_tolerance: units.radian = 0.05 #placeholder value, ~2.86 degrees
+
+SOM_on_speed = 0.45   # m/s (enable when above this)
+SOM_off_speed = 0.25  # m/s (disable when below this)

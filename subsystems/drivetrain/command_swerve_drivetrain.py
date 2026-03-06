@@ -250,6 +250,8 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         )
 
         self.ready_to_shoot = False
+        self.SOM_enabled = False
+        self.virtual_target: Translation2d | None = None
 
     def get_pose(self) -> Pose2d:
         return self.get_state().pose

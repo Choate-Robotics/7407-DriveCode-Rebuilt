@@ -172,6 +172,7 @@ class Shooter(Subsystem):
         gets the target hood angle and flywheel velocity shooting when stationary
         
         :param robot_pose: robot's pose on the field
+        :param passing: True -> passing setpoints, False -> shooting setpoints
         """
         if passing:
             hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
@@ -182,13 +183,19 @@ class Shooter(Subsystem):
         self.set_left_target_velocity(rps)
         self.set_right_target_velocity(rps)
 
-    def target_moving(self, robot_pose: Pose2d, speeds: ChassisSpeeds, passing: bool):
-        if passing:
-            hood_deg, rps = shooter_utils.SOM_pass_setpoints(robot_pose, speeds)
-        else:
-            hood_deg, rps = shooter_utils.SOM_hub_setpoints(robot_pose, speeds)
 
-        self.set_hood_angle(hood_deg/360)
+    def target_moving(self, robot_pose: Pose2d, target: Translation2d, passing: bool):
+        """
+        Moving target logic:
+        - Passing: no compensation for now (use normal pass setpoints)
+        - Hub shot: use SOM hub setpoints (lead-adjusted distance)
+        """
+        if passing:
+            hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
+        else:
+            hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose, target)
+
+        self.set_hood_angle(hood_deg / 360.0)
         self.set_left_target_velocity(rps)
         self.set_right_target_velocity(rps)
         

@@ -10,7 +10,7 @@ from ntcore import NetworkTableInstance
 
 class AimShooter(commands2.Command):
     """
-    uses target_stationary function to set left and right flywheels to specified velocity and set hood to specified angle.
+    sets left and right flywheels to specified velocity and set hood to specified angle.
     never ends
     
     Args:
@@ -32,10 +32,13 @@ class AimShooter(commands2.Command):
         if you are in passing zone, set shooter to passing setpoints
         else, set shooter to shooting setpoints
         """
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.NEUTRAL_ZONE_NEAR:
-            self.subsystem.target_stationary(self.drivetrain.get_pose(), False)
+        self.pose = self.drivetrain.get_pose()
+        self.passing = alliance_flip_util.get_x(self.pose.X()) >= field_constants.LinesVertical.NEUTRAL_ZONE_NEAR
+
+        if self.drivetrain.SOM_enabled:
+            self.subsystem.target_moving(self.pose, self.drivetrain.virtual_target, self.passing)
         else:
-            self.subsystem.target_stationary(self.drivetrain.get_pose(), True)
+            self.subsystem.target_stationary(self.pose, self.passing)
 
     def isFinished(self):
         return False

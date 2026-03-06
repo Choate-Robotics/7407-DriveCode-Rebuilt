@@ -88,53 +88,33 @@ def get_tof_from_distance(distance_m: float) -> float:
 
     return tof
 
-def SOM_hub_setpoints(robot_pose: Pose2d, speeds: ChassisSpeeds) -> tuple[float, float]:
-
-    field_relative_speeds: ChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+def get_field_relative_velocity(robot_pose: Pose2d, speeds: ChassisSpeeds) -> Translation2d:
+    """
+    Convert robot-relative chassis speeds to field-relative translation velocity (vx, vy).
+    """
+    field = ChassisSpeeds.fromRobotRelativeSpeeds(
         speeds.vx, speeds.vy, speeds.omega, robot_pose.rotation()
     )
-    field_relative_velocity: Translation2d = Translation2d(field_relative_speeds.vx, field_relative_speeds.vy)
+    return Translation2d(field.vx, field.vy)
+
+def compute_virtual_target(robot_pose: Pose2d, speeds: ChassisSpeeds, target: Translation2d) -> Translation2d:
+    """
+    Computes a virtual target position that accounts for the robot's movement during the time of flight of the ball.
+    - uses an iterative approach to account for the fact that the time of flight depends on the distance to the target, which changes as we shift the target
+    """
+    field_relative_velocity: Translation2d = get_field_relative_velocity(robot_pose, speeds)
 
     # initial guesses
-    distance = robot_pose.translation().distance(hub2d)
-    virtual_hub: Translation2d = hub2d
+    distance = robot_pose.translation().distance(target)
 
     # iterate
     for _ in range(tof_iterations):
         tof = get_tof_from_distance(distance)
 
-        shift: Translation2d = lead_constant * tof * Translation2d(field_relative_velocity.X(), field_relative_velocity.Y())
-        virtual_hub: Translation2d = hub2d - shift
+        shift_x = field_relative_velocity.X() * tof * lead_constant
+        shift_y = field_relative_velocity.Y() * tof * lead_constant
 
-        # update distance
-        prev = distance
-        distance = robot_pose.translation().distance(virtual_hub)
-
-        # check convergence        
-        if abs(distance - prev) < tof_convergence_threshold_m:
-            break
-
-    return shot_setpoints_from_pose(robot_pose, virtual_hub)
-
-def SOM_pass_setpoints(robot_pose: Pose2d, speeds: ChassisSpeeds) -> tuple[float, float]:
-
-    pass_target: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
-
-    field_relative_speeds: ChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-        speeds.vx, speeds.vy, speeds.omega, robot_pose.rotation()
-    )
-    field_relative_velocity: Translation2d = Translation2d(field_relative_speeds.vx, field_relative_speeds.vy)
-    
-    # initial guesses
-    distance = robot_pose.translation().distance(pass_target)
-    virtual_target: Translation2d = pass_target
-
-    # iterate
-    for _ in range(tof_iterations):
-        tof = get_tof_from_distance(distance)
-
-        shift: Translation2d = lead_constant * tof * Translation2d(field_relative_velocity.X(), field_relative_velocity.Y())
-        virtual_target: Translation2d = pass_target - shift
+        virtual_target: Translation2d = Translation2d(target.X() - shift_x, target.Y() - shift_y)
 
         # update distance
         prev = distance
@@ -144,7 +124,4 @@ def SOM_pass_setpoints(robot_pose: Pose2d, speeds: ChassisSpeeds) -> tuple[float
         if abs(distance - prev) < tof_convergence_threshold_m:
             break
 
-    hood_deg: float = float(np.interp(distance, PASS_DIST_M, PASS_HOOD_DEG))
-    rps: float = float(np.interp(distance, PASS_DIST_M, PASS_RPS))
-    
-    return hood_deg, rps
+    return virtual_target
