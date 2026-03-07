@@ -31,6 +31,8 @@ class MyRobot(wpilib.TimedRobot):
         self.robot = RobotContainer()
         self.scheduler = commands2.CommandScheduler.getInstance()
 
+        self.scheduler._watchdog.disable()
+
         self.nt_inst = NetworkTableInstance.getDefault()
         self.time_table = self.nt_inst.getTable("Timing")
         self.time_pub = self.time_table.getDoubleTopic("Loop time").publish()
@@ -40,7 +42,6 @@ class MyRobot(wpilib.TimedRobot):
             DriverStation.silenceJoystickConnectionWarning(True)
 
         self.robot.telemetrize_drivetrain()
-        self.distance_pub = self.nt_inst.getTable("Shot Tuner").getDoubleTopic("distance to hub").publish()
 
         # self.robot.field_odometry.disable()
         
@@ -62,8 +63,6 @@ class MyRobot(wpilib.TimedRobot):
 
         self.robot.field_odometry.update()
         
-        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.robot.drivetrain.get_pose()))
-        
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -78,8 +77,8 @@ class MyRobot(wpilib.TimedRobot):
         auto: AutoRoutine = self.robot.getAutonomousCommand()(self.robot)
         starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
+        self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))
         self.scheduler.schedule(commands2.SequentialCommandGroup(
-            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))),
             auto.command,
         ))
         

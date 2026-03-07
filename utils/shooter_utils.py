@@ -36,10 +36,10 @@ def get_pass_setpoint(robot_pose: Pose2d) -> Translation2d:
     else:
         # from upper quadrant
         if alliance_flip_util.get_y(robot_pose.Y()) > (field_constants.LinesHorizontal.CENTER + field_constants.pass_offset):
-            return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_2.X(), field_constants.LinesHorizontal.CENTER + field_constants.pass_target_2.Y()))
+            return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_2.X(), field_constants.FIELD_WIDTH - field_constants.pass_target_2.Y()))
         # from middle-upper quadrant
         else:
-            return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_1.X(), field_constants.LinesHorizontal.CENTER + field_constants.pass_target_1.Y()))
+            return alliance_flip_util.get_alliance(Translation2d(field_constants.pass_target_1.X(), field_constants.FIELD_WIDTH - field_constants.pass_target_1.Y()))
         
 #shooting        
 def shot_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
@@ -69,7 +69,7 @@ def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     - computes shooter-to-target distance using shooter_offset rotated by robot heading
     - interpolates hood and rps from PASS_* tables
     """
-    pass_setpoint: Translation2d = alliance_flip_util.get_alliance(get_pass_setpoint(robot_pose))
+    pass_setpoint: Translation2d = get_pass_setpoint(robot_pose)
 
     distance_m: float = robot_pose.translation().distance(pass_setpoint)
 

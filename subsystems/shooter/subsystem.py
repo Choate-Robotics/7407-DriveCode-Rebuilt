@@ -167,8 +167,7 @@ class Shooter(Subsystem):
         :param robot_pose: robot's pose on the field
         """
         if passing:
-            # hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
-            hood_deg, rps = 30, 60
+            hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
         else:
             hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 

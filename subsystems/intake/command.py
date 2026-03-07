@@ -100,6 +100,13 @@ class SetPivotIn(commands2.Command):
         if interrupted:
             log.message("intake pivot interrupted")
 
+class IntakeIndex(SetPivot):
+    """
+    Fully retract the intake
+    """
+    def __init__(self, subsystem: Intake):
+        super().__init__(subsystem, intake_retract_rotation)
+
 class RetractIntake(SetPivot):
     """
     Fully retract the intake
@@ -114,10 +121,10 @@ class DeployIntake(SetPivot):
     def __init__(self, subsystem: Intake):
         super().__init__(subsystem, intake_deploy_rotation)
 
-class IntakeIndex(SetPivotIn):
-    """
-    Index with the intake by setting pivot to specified angle with voltagein
-    """
-    def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_retract_rotation)
+# class IntakeIndex(SetPivotIn):
+#     """
+#     Index with the intake by setting pivot to specified angle with voltagein
+#     """
+#     def __init__(self, subsystem: Intake):
+#         super().__init__(subsystem, intake_retract_rotation)
 

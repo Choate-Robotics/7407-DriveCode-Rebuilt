@@ -46,7 +46,7 @@ class AimDrivetrain(commands2.Command):
         6. Else: drive at angle
         """
         self.pose = self.drivetrain.get_pose()
-        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.NEUTRAL_ZONE_NEAR:
             self.target = alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d()
             self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
                 self.pose,
@@ -83,6 +83,74 @@ class AimDrivetrain(commands2.Command):
 
         self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
         # self.ready_pub.set(self.drivetrain.ready_to_shoot)
+
+    def isFinished(self) -> bool:
+        return False
+    
+    def end(self, interrupted: bool) -> None:
+        self.drivetrain.ready_to_shoot = False
+
+class AimDrivetrainAuto(commands2.Command):
+    def __init__(self, subsystem: CommandSwerveDrivetrain):
+        super().__init__()
+
+        self.drivetrain = subsystem
+        self._brake = swerve.requests.SwerveDriveBrake()
+        self._aim_at = swerve.requests.FieldCentricFacingAngle().with_heading_pid(
+            aiming_kP,
+            aiming_kI,
+            aiming_kD
+        )
+
+        self.addRequirements(self.drivetrain)
+
+        # self.table = ntcore.NetworkTableInstance.getDefault().getTable("Shot Tuner")
+        # self.pose_pub = self.table.getStructTopic("Target pose", Pose2d).publish()
+        # self.angle_pub = self.table.getDoubleTopic("Angle").publish()
+        # self.distance_pub = self.table.getDoubleTopic("distance to target").publish()
+
+        # self.ready_pub = self.table.getBooleanTopic("Ready to shoot").publish()
+
+        self.target = None
+
+    def initialize(self):
+        pass
+
+    def execute(self):
+        """
+        1. Calculate target angle based on ROBOT POSE and position on field -> determine passing or shooting
+        2. Calculate v_x and v_y based on controller inputs
+        3. If speed is too high, drive at angle
+        4. Check if drivetrain is facing angle within tolerance
+        5. If facing angle and speed is 0, apply brake
+        6. Else: drive at angle
+        """
+        self.pose = self.drivetrain.get_pose()
+        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+            self.target = alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d()
+            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
+                self.pose,
+                self.target,
+            ))
+            # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
+
+        else:
+            self.target = shooter_utils.get_pass_setpoint(self.pose)
+            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
+                self.pose,
+                self.target
+            ))
+            # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
+
+        self.is_facing_angle = self.drivetrain.is_facing_angle(alliance_flip_util.get_alliance(self.target_angle).radians())
+
+        self.drivetrain.set_control(
+            self._aim_at.with_target_direction(self.target_angle)
+            .with_velocity_x(0)
+            .with_velocity_y(0)
+        )
+
+        self.drivetrain.ready_to_shoot = self.is_facing_angle
 
     def isFinished(self) -> bool:
         return False

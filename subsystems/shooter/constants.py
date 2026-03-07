@@ -12,8 +12,8 @@ right_follow_id: int = 19
 hood_id: int = 20
 hood_cancoder_id: int = 23
 
-flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
-hood_angle_threshold: units.rotation = 1.5 / 360 # placeholder
+flywheel_velocity_threshold: units.rotations_per_second = 4.0
+hood_angle_threshold: units.rotation = 2 / 360
 
 hood_gear_ratio = 69 # 69:1
 max_hood_angle: units.rotation = 50 / 360
@@ -45,9 +45,9 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(40)
+    .with_stator_current_limit(80)
     .with_stator_current_limit_enable(True)
-    .with_supply_current_limit(40)
+    .with_supply_current_limit(80)
     .with_supply_current_limit_enable(True)
 )
 
@@ -65,9 +65,9 @@ right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(40)
+    .with_stator_current_limit(80)
     .with_stator_current_limit_enable(True)
-    .with_supply_current_limit(40)
+    .with_supply_current_limit(80)
     .with_supply_current_limit_enable(True)
 )
         
@@ -131,6 +131,6 @@ RPS = SHOT_TABLE[:, 1]
 # robot distance to pass, hood angle, and RPS
 PASS_TABLE = load_shooter_table_csv("pass_table.csv")
 
-PASS_DIST_M = SHOT_TABLE[:, 0]
-PASS_HOOD_DEG = SHOT_TABLE[:, 2]
-PASS_RPS = SHOT_TABLE[:, 1]
+PASS_DIST_M = PASS_TABLE[:, 0]
+PASS_HOOD_DEG = PASS_TABLE[:, 2]
+PASS_RPS = PASS_TABLE[:, 1]

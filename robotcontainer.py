@@ -71,6 +71,8 @@ class RobotContainer:
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
+        self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right)
+        self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left)
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
@@ -162,16 +164,16 @@ class RobotContainer:
         )
 
         # command used to tune the shooter by taking in a value from networktables
-        # self.driver_controller.rightTrigger().whileTrue(
-        #     ParallelCommandGroup(
-        #         TuneShooter(self.shooter, self.drivetrain),
-        #         AimDrivetrain(self.drivetrain, self.driver_controller)
-        #     )
-        # )
-
-        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-            Index(self.indexer, self.intake)
+        self.driver_controller.leftTrigger().whileTrue(
+            ParallelCommandGroup(
+                TuneShooter(self.shooter, self.drivetrain),
+                AimDrivetrain(self.drivetrain, self.driver_controller)
+            )
         )
+
+        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+        #     Index(self.indexer, self.intake)
+        # )
 
         # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
@@ -185,8 +187,8 @@ class RobotContainer:
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-            Index(self.indexer, self.intake)
-            # RunIndexer(self.indexer)
+            # Index(self.indexer, self.intake)
+            RunIndexer(self.indexer)
         )
 
         # reverse the indexer
@@ -207,10 +209,13 @@ class RobotContainer:
             ReverseIntake(self.intake)
         )
 
-        # retract intake
-        self.operator_controller.leftBumper().onTrue(
+        self.operator_controller.rightBumper().whileTrue(
             RetractIntake(self.intake)
         )
+
+        self.operator_controller.leftBumper().onTrue(
+            IntakeIndex(self.intake)
+        ).onFalse(DeployIntake(self.intake))
 
         # deploy climb
         self.operator_controller.start().onTrue(
