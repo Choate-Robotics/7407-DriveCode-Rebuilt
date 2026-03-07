@@ -10,7 +10,7 @@ from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantComma
 
 
 path_name = "OneLoopTopClimb" or "OneLoopBottomClimb"
-paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(8)]
+paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(3)]
 def auto(robot_container: RobotContainer) -> AutoRoutine:
     command = SequentialCommandGroup(
         ParallelCommandGroup(
