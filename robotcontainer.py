@@ -51,6 +51,9 @@ class RobotContainer:
 
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
+        self.auto_selection.addOption("Preload Climb", autos.preloadClimb)
+        self.auto_selection.addOption("Only Preloads", autos.onlyPreloads)
+
 
         SmartDashboard.putData("Auto", self.auto_selection)
         

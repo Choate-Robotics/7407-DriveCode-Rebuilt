@@ -16,12 +16,6 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         ParallelCommandGroup(
             SetShooterAuto(robot_container.shooter, robot_container.drivetrain.get_pose()),
             Index(robot_container.indexer, robot_container.intake).withTimeout(5),
-        ),
-        ParallelCommandGroup(
-            AutoBuilder.followPath(paths[0]),
-            DeployClimbL1(robot_container.climber)
-        ),
-
-        RetractClimb(robot_container.climber)
-    )  
+        )
+        )
     return AutoRoutine(command, paths[0].getStartingHolonomicPose()) 
