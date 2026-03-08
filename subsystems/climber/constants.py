@@ -7,7 +7,7 @@ NT_CLIMBER = True
 left_motor_id = 24
 
 # other constants
-climber_retract_voltage = -9 #placeholder
+climber_retract_voltage = -12 #placeholder
 climber_extend_voltage = 12 #placeholder
 climber_lower_bound = 0
 climber_upper_bound = 220

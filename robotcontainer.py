@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand
+from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand, InstantCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -151,9 +151,9 @@ class RobotContainer:
             SelectCommand(
                 {
                     0: self.hub,
-                    90: self.pass_right,
+                    # 90: self.pass_right,
                     180: self.tower,
-                    270: self.pass_left,
+                    # 270: self.pass_left,
                     -1: ParallelCommandGroup(
                         AimShooter(self.shooter, self.drivetrain),
                         AimDrivetrain(self.drivetrain, self.driver_controller)
@@ -164,12 +164,12 @@ class RobotContainer:
         )
 
         # command used to tune the shooter by taking in a value from networktables
-        self.driver_controller.leftTrigger().whileTrue(
-            ParallelCommandGroup(
-                TuneShooter(self.shooter, self.drivetrain),
-                AimDrivetrain(self.drivetrain, self.driver_controller)
-            )
-        )
+        # self.driver_controller.leftTrigger().whileTrue(
+        #     ParallelCommandGroup(
+        #         TuneShooter(self.shooter, self.drivetrain),
+        #         AimDrivetrain(self.drivetrain, self.driver_controller)
+        #     )
+        # )
 
         # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
         #     Index(self.indexer, self.intake)
@@ -181,9 +181,9 @@ class RobotContainer:
         )
 
         #Auto aligns the robot depending on which field element is closer (trenches or bumps)
-        self.driver_controller.leftBumper().whileTrue(
-            AutoAlign(self.drivetrain, self.driver_controller)
-        )
+        # self.driver_controller.leftBumper().whileTrue(
+        #     AutoAlign(self.drivetrain, self.driver_controller)
+        # )
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
@@ -209,8 +209,20 @@ class RobotContainer:
             ReverseIntake(self.intake)
         )
 
-        self.operator_controller.rightBumper().whileTrue(
+        self.operator_controller.rightStick().whileTrue(
             RetractIntake(self.intake)
+        )
+
+        self.operator_controller.povRight().onTrue(
+            InstantCommand(lambda: self.intake.set_pivot_motor_in(3))
+        ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
+
+        self.operator_controller.povLeft().onTrue(
+            InstantCommand(lambda: self.intake.set_pivot_motor_out(3))
+        ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
+
+        self.operator_controller.leftStick().onTrue(
+            InstantCommand(lambda: self.intake.pivot_motor.set_position(0))
         )
 
         self.operator_controller.leftBumper().onTrue(

@@ -114,12 +114,30 @@ class RetractIntake(SetPivot):
     def __init__(self, subsystem: Intake):
         super().__init__(subsystem, intake_maximum_rotation)
 
-class DeployIntake(SetPivot):
-    """
-    Fully deploy intake
-    """
-    def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_deploy_rotation)
+class DeployIntake(commands2.Command):
+    def __init__(self, subsystem: Intake, angle: units.rotation=intake_deploy_rotation):
+        super().__init__()
+        self.subsystem = subsystem
+        self.angle = angle
+        self.addRequirements(self.subsystem)
+
+    def initialize(self):
+        self.subsystem.set_pivot(self.angle)
+        self.subsystem.intake_fuel()
+        self.subsystem.pivot_running = True
+
+    def execute(self):
+        pass
+
+    def isFinished(self) -> bool:
+        return self.subsystem.is_at_angle(self.angle)
+    
+    def end(self, interrupted: bool):
+        self.subsystem.stop_intake()
+        if not interrupted:
+            self.subsystem.pivot_running = False
+        else:
+            log.message("intake pivot interrupted")
 
 # class IntakeIndex(SetPivotIn):
 #     """

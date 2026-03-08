@@ -96,6 +96,13 @@ class Intake(commands2.Subsystem):
         """
         self.output = output
         self.pivot_motor.set_control(self.pivot_voltage.with_output(self.output))
+
+    def set_pivot_motor_out(self, output: units.volt):
+        """
+        set pivot motor voltage
+        """
+        self.output = output
+        self.pivot_motor.set_control(self.pivot_voltage.with_output(-self.output))
     
     def is_at_angle(self, angle: units.rotation):
         """
