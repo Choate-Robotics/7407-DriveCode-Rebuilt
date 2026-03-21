@@ -5,7 +5,6 @@ def bounded_angle_diff(a, b):
     Returns the bounded difference (a - b) wrapped to (-π, π].
     """
     res = (a - b + math.pi) % (2 * math.pi) - math.pi
-    print(res)
     return res
 
 def curve(x, d, c=1):
