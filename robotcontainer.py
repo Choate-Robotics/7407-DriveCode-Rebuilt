@@ -73,6 +73,7 @@ class RobotContainer:
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
         self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right)
         self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left)
+        self.auto_selection.addOption("Elims right", autos.elims_right)
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
