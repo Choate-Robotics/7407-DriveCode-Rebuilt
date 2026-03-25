@@ -22,9 +22,11 @@ class Intake(commands2.Subsystem):
         self.slide_voltage = controls.VoltageOut(0)
 
         apply_config(self.drive_motor_left, drive_motor_configs)
+        apply_config(self.drive_motor_right, drive_motor_configs)
         self.drive_motor_right.set_control(controls.Follower(drive_motor_left_id, signals.MotorAlignmentValue.OPPOSED))
 
         apply_config(self.slide_motor_left, slide_motor_configs)
+        apply_config(self.slide_motor_right, slide_motor_configs)
         self.slide_motor_right.set_control(controls.Follower(slide_motor_left_id, signals.MotorAlignmentValue.OPPOSED))
 
 

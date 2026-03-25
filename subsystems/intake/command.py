@@ -100,30 +100,31 @@ class SetPivotIn(commands2.Command):
         if interrupted:
             log.message("intake pivot interrupted")
 
-class IntakeIndex(SetPivot):
+class IntakeIndex(SetPivotIn):
     """
     Fully retract the intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_retract_position)
+        super().__init__(subsystem, intake_retract_position, index_speed)
 
 class RetractIntake(SetPivot):
     """
     Fully retract the intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_initial_position)
+        super().__init__(subsystem, intake_retract_position)
 
 class DeployIntake(commands2.Command):
-    def __init__(self, subsystem: Intake, angle: units.inch=intake_deploy_position):
+    def __init__(self, subsystem: Intake, angle: units.inch=intake_deploy_position, speed=fuel_speed):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
+        self.speed = speed
         self.addRequirements(self.subsystem)
 
     def initialize(self):
         self.subsystem.set_pivot(self.angle)
-        self.subsystem.intake_fuel()
+        self.subsystem.intake_fuel(self.speed)
         self.subsystem.pivot_running = True
 
     def execute(self):
