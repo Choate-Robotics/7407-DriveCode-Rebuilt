@@ -132,10 +132,10 @@ class Intake(commands2.Subsystem):
         """
         self.pospub.set(self.get_pivot_angle())
         self.targetpub.set(self.target_position)
-        # self.pivot_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
+        self.slide_supply_currentpub.set(self.get_pivot_motor_supply_current().value)
         self.intake_runningpub.set(self.intake_running)
         self.drive_motor_currentpub.set(self.get_horizontal_motor_supply_current().value)
-        # self.pivot_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
+        self.slide_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
 
     def periodic(self):
         if NT_INTAKE:

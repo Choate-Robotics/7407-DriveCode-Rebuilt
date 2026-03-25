@@ -20,7 +20,7 @@ index_speed = 0.25 # duty cycle
 voltage_out: units.volts = 3
 intake_index_time = 0.75 # seconds
 
-intake_retract_position: units.inches = 1.5
+intake_retract_position: units.inches = 2.5
 intake_deploy_position: units.inches = 12.4
 intake_initial_position: units.inches = 0
 
