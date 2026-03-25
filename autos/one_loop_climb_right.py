@@ -28,7 +28,7 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         ParallelCommandGroup(
             SetShooterAuto(robot_container.shooter, robot_container.drivetrain),
             AimDrivetrainAuto(robot_container.drivetrain),
-            DeployClimbL1(robot_container.climber),
+            # DeployClimbL1(robot_container.climber),
             RunIndexer(robot_container.indexer),
             WaitCommand(1.5).andThen(RepeatCommand(
                 IntakeIndex(robot_container.intake).withTimeout(0.5).andThen(DeployIntake(robot_container.intake))   
@@ -37,7 +37,7 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
         
         AutoBuilder.followPath(paths[1]).deadlineWith(DeployIntake(robot_container.intake)),
 
-        RetractClimb(robot_container.climber)
+        # RetractClimb(robot_container.climber)
     )  
         # AutoBuilder.followPath(path),
         # AutoBuilder.followPath(paths[0]),

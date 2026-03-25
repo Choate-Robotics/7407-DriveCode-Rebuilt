@@ -50,7 +50,7 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
-        self.climber = Climber()
+        # self.climber = Climber()
         self.indexer = Indexer()
         self.intake = Intake()
 
@@ -154,9 +154,9 @@ class RobotContainer:
             SelectCommand(
                 {
                     0: self.hub,
-                    # 90: self.pass_right,
+                    90: self.pass_right,
                     180: self.tower,
-                    # 270: self.pass_left,
+                    270: self.pass_left,
                     -1: ParallelCommandGroup(
                         AimShooter(self.shooter, self.drivetrain),
                         AimDrivetrain(self.drivetrain, self.driver_controller)
@@ -212,35 +212,35 @@ class RobotContainer:
             ReverseIntake(self.intake)
         )
 
-        self.operator_controller.rightStick().whileTrue(
+        self.operator_controller.rightBumper().onTrue(
             RetractIntake(self.intake)
         )
 
-        self.operator_controller.povRight().onTrue(
-            InstantCommand(lambda: self.intake.set_pivot_motor_in(3))
+        self.operator_controller.start().onTrue(
+            InstantCommand(lambda: self.intake.set_slide_motor_voltage(-3))
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
-        self.operator_controller.povLeft().onTrue(
-            InstantCommand(lambda: self.intake.set_pivot_motor_out(3))
+        self.operator_controller.back().onTrue(
+            InstantCommand(lambda: self.intake.set_slide_motor_voltage(3))
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
         self.operator_controller.leftStick().onTrue(
-            InstantCommand(lambda: self.intake.pivot_motor.set_position(0))
+            InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio))
         )
 
         self.operator_controller.leftBumper().onTrue(
-            IntakeIndex(self.intake)
-        ).onFalse(DeployIntake(self.intake))
+            IntakeIndex(self.intake).andThen(RunIntake(self.intake, index_speed))
+        ).onFalse(DeployIntake(self.intake, speed=0))
 
         # deploy climb
-        self.operator_controller.start().onTrue(
-            DeployClimbL1(self.climber)
-        )
+        # self.operator_controller.start().onTrue(
+        #     DeployClimbL1(self.climber)
+        # )
         
         # climb
-        self.operator_controller.back().whileTrue(
-            RetractClimb(self.climber)
-        )
+        # self.operator_controller.back().whileTrue(
+        #     RetractClimb(self.climber)
+        # )
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
