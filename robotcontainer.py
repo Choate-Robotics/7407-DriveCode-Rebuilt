@@ -50,7 +50,7 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
-        self.climber = Climber()
+        # self.climber = Climber()
         self.indexer = Indexer()
         self.intake = Intake()
 
@@ -215,15 +215,15 @@ class RobotContainer:
         )
 
         self.operator_controller.povRight().onTrue(
-            InstantCommand(lambda: self.intake.set_pivot_motor_in(3))
+            InstantCommand(lambda: self.intake.set_slide_motor_voltage(-3))
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
         self.operator_controller.povLeft().onTrue(
-            InstantCommand(lambda: self.intake.set_pivot_motor_out(3))
+            InstantCommand(lambda: self.intake.set_slide_motor_voltage(3))
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
         self.operator_controller.leftStick().onTrue(
-            InstantCommand(lambda: self.intake.pivot_motor.set_position(0))
+            InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position))
         )
 
         self.operator_controller.leftBumper().onTrue(
@@ -231,14 +231,14 @@ class RobotContainer:
         ).onFalse(DeployIntake(self.intake))
 
         # deploy climb
-        self.operator_controller.start().onTrue(
-            DeployClimbL1(self.climber)
-        )
+        # self.operator_controller.start().onTrue(
+        #     DeployClimbL1(self.climber)
+        # )
         
         # climb
-        self.operator_controller.back().whileTrue(
-            RetractClimb(self.climber)
-        )
+        # self.operator_controller.back().whileTrue(
+        #     RetractClimb(self.climber)
+        # )
 
         # Run SysId routines when holding back/start and X/Y.
         # Note that each routine should be run exactly once in a single log.
