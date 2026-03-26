@@ -5,7 +5,7 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 import wpilib
-from wpilib import DriverStation
+from wpilib import DriverStation, RobotController
 import commands2
 from ntcore import NetworkTableInstance
 from autos import AutoRoutine
@@ -27,6 +27,7 @@ class MyRobot(wpilib.TimedRobot):
         This function is run when the robot is first started up and should be used for any
         initialization code.
         """
+        RobotController.setBrownoutVoltage(6.0)
 
         self.robot = RobotContainer()
         self.scheduler = commands2.CommandScheduler.getInstance()
