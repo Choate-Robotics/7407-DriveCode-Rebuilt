@@ -75,7 +75,7 @@ class RobotContainer:
         self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left(self))
         self.auto_selection.addOption("Elims right", autos.elims_right(self))
         self.auto_selection.addOption("Double swipe left", autos.double_swipe(self, "DoubleSwipeLeft"))
-        # self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
+        self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
