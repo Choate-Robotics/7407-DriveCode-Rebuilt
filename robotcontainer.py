@@ -167,12 +167,12 @@ class RobotContainer:
         )
 
         # command used to tune the shooter by taking in a value from networktables
-        # self.driver_controller.leftTrigger().whileTrue(
-        #     ParallelCommandGroup(
-        #         TuneShooter(self.shooter, self.drivetrain),
-        #         AimDrivetrain(self.drivetrain, self.driver_controller)
-        #     )
-        # )
+        self.driver_controller.leftTrigger().whileTrue(
+            ParallelCommandGroup(
+                TuneShooter(self.shooter, self.drivetrain),
+                AimDrivetrain(self.drivetrain, self.driver_controller)
+            )
+        )
 
         # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
         #     Index(self.indexer, self.intake)

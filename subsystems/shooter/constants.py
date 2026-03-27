@@ -27,7 +27,7 @@ slow_velocity: units.rotations_per_second = 10
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
     .with_absolute_sensor_discontinuity_point(1)
-    .with_magnet_offset(-0.04)
+    .with_magnet_offset(-0.0114)
     .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
