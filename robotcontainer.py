@@ -71,11 +71,13 @@ class RobotContainer:
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
-        self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right(self))
-        self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left(self))
-        self.auto_selection.addOption("Elims right", autos.elims_right(self))
+        # self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right(self))
+        # self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left(self))
+        # self.auto_selection.addOption("Elims right", autos.elims_right(self))
         self.auto_selection.addOption("Double swipe left", autos.double_swipe(self, "DoubleSwipeLeft"))
         self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
+        self.auto_selection.addOption("Double swipe left greedy", autos.double_swipe(self, "DoubleSwipeLeftGreedy"))
+        self.auto_selection.addOption("Double swipe right greedy", autos.double_swipe(self, "DoubleSwipeRightGreedy"))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
