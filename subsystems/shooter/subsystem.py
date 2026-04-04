@@ -154,8 +154,8 @@ class Shooter(Subsystem):
             pose = Pose2d(virtual_translation, robot_pose.rotation())
             hood_deg, rps = shooter_utils.shot_setpoints_from_pose(pose)
 
-        self.set_hood_angle(hood_deg / 360.0) # doesn't phoenix6 handle gear ratio math automatically? ill keep this in anyway
-        
+        self.set_hood_angle(hood_deg / 360.0)
+                
     def update_table(self):
         table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
 
