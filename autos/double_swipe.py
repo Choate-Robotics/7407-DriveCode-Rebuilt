@@ -14,7 +14,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
     command = SequentialCommandGroup(
         ParallelDeadlineGroup(
             AutoBuilder.followPath(paths[0]),
-            DeployIntake(robot_container.intake).andThen(RunIntake(robot_container.intake))
+            WaitCommand(0.75).andThen(DeployIntake(robot_container.intake).andThen(RunIntake(robot_container.intake)))
         ),
         InstantCommand(robot_container.drivetrain.set_control(requests.Idle())),
         WaitCommand(0.3),
