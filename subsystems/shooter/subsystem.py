@@ -7,6 +7,7 @@ from wpimath.geometry import Pose2d
 from commands2 import Subsystem
 from phoenix6 import hardware, controls, configs, signals
 from wpimath.kinematics import ChassisSpeeds
+from drivetrain import CommandSwerveDrivetrain
 
 class Shooter(Subsystem):
     def __init__(self):
@@ -183,27 +184,28 @@ class Shooter(Subsystem):
         self.set_left_target_velocity(rps)
         self.set_right_target_velocity(rps)
 
-
-    def target_moving(self, robot_pose: Pose2d, target: Translation2d, passing: bool):
+    def target_moving(self, robot_pose: Pose2d, target: Translation2d, passing: bool, drivetrain: CommandSwerveDrivetrain):
         """
         Moving target logic:
         - Passing: no compensation for now (use normal pass setpoints)
         - Hub shot: use SOM hub setpoints (lead-adjusted distance)
         """
+        self.drivetrain = drivetrain
+        
         if passing:
             hood_deg, rps = shooter_utils.pass_setpoints_from_pose(robot_pose)
         else:
-            hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose, target)
+            virtual_translation = shooter_utils.compute_virtual_target(robot_pose, drivetrain.get_speeds(), target)
+            pose = Pose2d(virtual_translation, robot_pose.rotation())
+            hood_deg, rps = shooter_utils.shot_setpoints_from_pose(pose)
 
-        self.set_hood_angle(hood_deg / 360.0)
+        self.set_hood_angle(hood_deg / 360.0) # doesn't phoenix6 handle gear ratio math automatically? ill keep this in anyway
         self.set_left_target_velocity(rps)
         self.set_right_target_velocity(rps)
         
     def update_table(self):
         table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
 
-        self.left_velocity_pub.set(self.get_left_velocity())
-        self.right_velocity_pub.set(self.get_right_velocity())
         self.left_target_velocity_pub.set(self.left_target_velocity)
         self.right_target_velocity_pub.set(self.right_target_velocity)
         self.hood_angle_pub.set(self.get_hood_angle().value * 360)

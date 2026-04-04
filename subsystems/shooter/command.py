@@ -36,7 +36,7 @@ class AimShooter(commands2.Command):
         self.passing = alliance_flip_util.get_x(self.pose.X()) >= field_constants.LinesVertical.NEUTRAL_ZONE_NEAR
 
         if self.drivetrain.SOM_enabled:
-            self.subsystem.target_moving(self.pose, self.drivetrain.virtual_target, self.passing)
+            self.subsystem.target_moving(self.pose, self.drivetrain.virtual_target, self.passing, self.drivetrain)
         else:
             self.subsystem.target_stationary(self.pose, self.passing)
 
