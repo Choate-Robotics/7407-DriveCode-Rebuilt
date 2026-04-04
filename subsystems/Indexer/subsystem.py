@@ -47,7 +47,7 @@ class Indexer(Subsystem):
         Runs the tower motor
         """
         self.tower_motor.set_control(
-            self.control_velocity.with_velocity(tower_speed)
+            self.control_duty_cycle.with_output(tower_duty_cycle)
         )
 
         self.indexer_running = True
@@ -58,7 +58,7 @@ class Indexer(Subsystem):
         Runs the indexer motor in reverse
         """
         self.indexer_motor.set_control(
-            self.control_duty_cycle.with_output(-indexer_speed)
+            self.control_velocity.with_velocity(tower_speed)
         )
 
         self.indexer_running = True
@@ -97,13 +97,13 @@ class Indexer(Subsystem):
         """
         gets tower motor (supply) current
         """
-        return self.tower_motor.get_supply_current()
+        return self.tower_motor.get_supply_current().value
 
     def get_indexer_motor_current(self) -> float:
         """
         gets indexer motor (supply) current
         """
-        return self.indexer_motor.get_supply_current()
+        return self.indexer_motor.get_supply_current().value
     
 
     def get_indexer_motor_velocity(self) -> float:
@@ -122,11 +122,14 @@ class Indexer(Subsystem):
         """
         updates network tables
         """
-        table = ntcore.NetworkTableInstance.getDefault().getTable("Indexer")
 
         self.indexer_running_pub.set(self.indexer_running)
-        self.indexer_reversed_pub.set(self.indexer_reversed)
+        # self.indexer_reversed_pub.set(self.indexer_reversed)
         self.tower_motor_current_pub.set(self.get_tower_motor_current())
         self.indexer_motor_current_pub.set(self.get_indexer_motor_current())
         self.indexer_motor_velocity_pub.set(self.get_indexer_motor_velocity())
         self.tower_motor_velocity_pub.set(self.get_tower_motor_velocity())
+
+    def periodic(self):
+        if NT_INDEXER:
+            self.update_table()

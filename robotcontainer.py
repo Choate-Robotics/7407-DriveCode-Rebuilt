@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand
+from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand, InstantCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -50,7 +50,7 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.shooter = Shooter()
-        self.climber = Climber()
+        # self.climber = Climber()
         self.indexer = Indexer()
         self.intake = Intake()
 
@@ -70,7 +70,12 @@ class RobotContainer:
 
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
-        self.auto_selection.setDefaultOption("Drive Forward", autos.leave)
+        self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
+        self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right(self))
+        self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left(self))
+        self.auto_selection.addOption("Elims right", autos.elims_right(self))
+        self.auto_selection.addOption("Double swipe left", autos.double_swipe(self, "DoubleSwipeLeft"))
+        self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
@@ -162,16 +167,16 @@ class RobotContainer:
         )
 
         # command used to tune the shooter by taking in a value from networktables
-        # self.driver_controller.rightTrigger().whileTrue(
-        #     ParallelCommandGroup(
-        #         TuneShooter(self.shooter, self.drivetrain),
-        #         AimDrivetrain(self.drivetrain, self.driver_controller)
-        #     )
-        # )
-
-        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-            Index(self.indexer, self.intake)
+        self.driver_controller.leftTrigger().whileTrue(
+            ParallelCommandGroup(
+                TuneShooter(self.shooter, self.drivetrain),
+                AimDrivetrain(self.drivetrain, self.driver_controller)
+            )
         )
+
+        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
+        #     Index(self.indexer, self.intake)
+        # )
 
         # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
@@ -179,13 +184,14 @@ class RobotContainer:
         )
 
         #Auto aligns the robot depending on which field element is closer (trenches or bumps)
-        self.driver_controller.leftBumper().whileTrue(
-            AutoAlign(self.drivetrain, self.driver_controller)
-        )
+        # self.driver_controller.leftBumper().whileTrue(
+        #     AutoAlign(self.drivetrain, self.driver_controller)
+        # )
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
-            Index(self.indexer, self.intake)
+            # Index(self.indexer, self.intake)
+            RunIndexer(self.indexer)
         )
 
         # reverse the indexer
@@ -206,17 +212,32 @@ class RobotContainer:
             ReverseIntake(self.intake)
         )
 
-        # retract intake
-        self.operator_controller.leftBumper().onTrue(
+        self.operator_controller.rightBumper().onTrue(
             RetractIntake(self.intake)
         )
 
-        # # deploy climb
+        self.operator_controller.start().onTrue(
+            InstantCommand(lambda: self.intake.set_slide_motor_voltage(-3))
+        ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
+
+        self.operator_controller.back().onTrue(
+            InstantCommand(lambda: self.intake.set_slide_motor_voltage(3))
+        ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
+
+        self.operator_controller.leftStick().onTrue(
+            InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio))
+        )
+
+        self.operator_controller.leftBumper().onTrue(
+            IntakeIndex(self.intake).andThen(RunIntake(self.intake, index_speed))
+        ).onFalse(DeployIntake(self.intake, speed=0))
+
+        # deploy climb
         # self.operator_controller.start().onTrue(
         #     DeployClimbL1(self.climber)
         # )
         
-        # # climb
+        # climb
         # self.operator_controller.back().whileTrue(
         #     RetractClimb(self.climber)
         # )
@@ -236,7 +257,7 @@ class RobotContainer:
         #     self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
         # )
 
-    def getAutonomousCommand(self) -> Callable[[RobotContainer], autos.AutoRoutine]:
+    def getAutonomousCommand(self) -> autos.AutoRoutine:
         """
         Use this to pass the autonomous command to the main {@link Robot} class.
 

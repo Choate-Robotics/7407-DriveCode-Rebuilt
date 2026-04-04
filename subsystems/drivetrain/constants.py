@@ -14,17 +14,18 @@ deadband = 0.05  # deadband for controller inputs
 curve = 2  # curve exponent for controller inputs
 
 #heading pid tolerance ALL PLACEHOLDERS
-aiming_kP = 10
+aiming_kP = 7
 aiming_kI = 0
-aiming_kD = 0
+aiming_kD = 0.25
 
-snake_mode_kP = 10
+snake_mode_kP = 5
 snake_mode_kI = 0
 snake_mode_kD = 0
 
-drive_at_angle_tolerance: units.radian = 0.05 #placeholder value, ~2.86 degrees
-drivetrain_shooting_velocity_tolerance = 0.1 # PLACEHOLDER, percentage (0 to 1)
-autoalign_pid_p = 10
+drive_at_angle_tolerance: units.radian = 0.035
+drivetrain_shooting_velocity_tolerance: units.meters_per_second = 0.5
+
+autoalign_pid_p = 5
 autoalign_pid_i = 0
 autoalign_pid_d = 0
 

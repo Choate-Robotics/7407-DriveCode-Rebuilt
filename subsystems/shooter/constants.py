@@ -3,6 +3,8 @@ from wpimath.geometry import Translation2d
 import wpilib
 import numpy as np
 
+NT_SHOOTER: bool = True
+
 left_lead_id: int = 16
 left_follower_id: int = 17
 right_lead_id: int = 18
@@ -10,8 +12,8 @@ right_follow_id: int = 19
 hood_id: int = 20
 hood_cancoder_id: int = 23
 
-flywheel_velocity_threshold: units.rotations_per_second = 4.0 # placeholder
-hood_angle_threshold: units.rotation = 1.5 / 360 # placeholder
+flywheel_velocity_threshold: units.rotations_per_second = 4.0
+hood_angle_threshold: units.rotation = 2 / 360
 
 hood_gear_ratio = 69 # 69:1
 max_hood_angle: units.rotation = 50 / 360
@@ -22,21 +24,17 @@ hood_clear_angle = 40 / 360
 idle_velocity: units.rotations_per_second = 0
 slow_velocity: units.rotations_per_second = 10
 
-NT_SHOOTER: bool = True
-
-left_direction = signals.InvertedValue.CLOCKWISE_POSITIVE
-right_direction = signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE
-
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
     .with_absolute_sensor_discontinuity_point(1)
-    .with_magnet_offset(0.03)
+    .with_magnet_offset(-0.0114)
     .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
-flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+    .with_neutral_mode(signals.NeutralModeValue.COAST)
+    .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_slot0(
     configs.Slot0Configs()
     .with_k_p(10)
@@ -47,8 +45,31 @@ flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(80) # placeholder
+    .with_stator_current_limit(80)
+    .with_stator_current_limit_enable(True)
+    .with_supply_current_limit(80)
+    .with_supply_current_limit_enable(True)
 )
+
+# right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+#     configs.MotorOutputConfigs()
+#     .with_neutral_mode(signals.NeutralModeValue.COAST)
+#     .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+# ).with_slot0(
+#     configs.Slot0Configs()
+#     .with_k_p(15)
+#     .with_k_i(0)
+#     .with_k_d(0)
+#     .with_k_s(8.5)
+#     .with_k_v(0.095)
+#     .with_k_a(0)
+# ).with_current_limits(
+#     configs.CurrentLimitsConfigs()
+#     .with_stator_current_limit(80)
+#     .with_stator_current_limit_enable(True)
+#     .with_supply_current_limit(80)
+#     .with_supply_current_limit_enable(True)
+# )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
@@ -110,6 +131,9 @@ RPS = SHOT_TABLE[:, 1]
 # robot distance to pass, hood angle, and RPS
 PASS_TABLE = load_shooter_table_csv("pass_table.csv", 3)
 
+PASS_DIST_M = PASS_TABLE[:, 0]
+PASS_HOOD_DEG = PASS_TABLE[:, 2]
+PASS_RPS = PASS_TABLE[:, 1]
 PASS_DIST_M = PASS_TABLE[:, 0]
 PASS_HOOD_DEG = PASS_TABLE[:, 2]
 PASS_RPS = PASS_TABLE[:, 1]

@@ -5,7 +5,7 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 import wpilib
-from wpilib import DriverStation
+from wpilib import DriverStation, RobotController
 import commands2
 from ntcore import NetworkTableInstance
 from autos import AutoRoutine
@@ -27,9 +27,12 @@ class MyRobot(wpilib.TimedRobot):
         This function is run when the robot is first started up and should be used for any
         initialization code.
         """
+        RobotController.setBrownoutVoltage(6.0)
 
         self.robot = RobotContainer()
         self.scheduler = commands2.CommandScheduler.getInstance()
+
+        self.scheduler._watchdog.disable()
 
         self.nt_inst = NetworkTableInstance.getDefault()
         self.time_table = self.nt_inst.getTable("Timing")
@@ -40,7 +43,10 @@ class MyRobot(wpilib.TimedRobot):
             DriverStation.silenceJoystickConnectionWarning(True)
 
         self.robot.telemetrize_drivetrain()
-        self.distance_pub = self.nt_inst.getTable("Shot Tuner").getDoubleTopic("distance to hub").publish()
+
+        # self.robot.field_odometry.disable()
+        
+        self.robot.configureButtonBindings()
 
     def robotPeriodic(self) -> None:
         """This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -58,8 +64,6 @@ class MyRobot(wpilib.TimedRobot):
 
         self.robot.field_odometry.update()
         
-        self.distance_pub.set(shooter_utils.shot_distance_from_pose(self.robot.drivetrain.get_pose()))
-        
 
     def disabledInit(self) -> None:
         """This function is called once each time the robot enters Disabled mode."""
@@ -71,11 +75,11 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self) -> None:
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
-        auto: AutoRoutine = self.robot.getAutonomousCommand()(self.robot)
+        auto: AutoRoutine = self.robot.getAutonomousCommand()
         starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
+        self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))
         self.scheduler.schedule(commands2.SequentialCommandGroup(
-            commands2.InstantCommand(lambda: self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))),
             auto.command,
         ))
         
@@ -87,7 +91,7 @@ class MyRobot(wpilib.TimedRobot):
         self.scheduler.cancelAll()
 
     def teleopInit(self) -> None:
-        self.robot.configureButtonBindings()
+        pass
 
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""

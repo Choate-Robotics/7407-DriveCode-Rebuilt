@@ -272,7 +272,7 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         :rtype: bool
         """
         self.current_yaw = self.get_pose().rotation().radians()
-        self.tolerance = drive_at_angle_tolerance  # 0.05 radian tolerance (~2.86 degrees)
+        self.tolerance = drive_at_angle_tolerance
         return abs(bounded_angle_diff(self.current_yaw, angle)) <= self.tolerance
 
     def apply_request(

@@ -46,8 +46,6 @@ class FieldOdometry:
 
         # total_tag_area = sum([tag.getArea() for tag in tags])
 
-        
-
         if tag_count == 1:
             if distance_to_target > robot_constants.odometry_tag_distance or tags[0].poseAmbiguity > 0.2:
                 return
@@ -65,6 +63,7 @@ class FieldOdometry:
             std_dev = 0.2
             if primary_id in self.get_alliance_hub_tags():
                 std_dev = 0.1
+                std_dev_rot = 5
 
         self.drivetrain.add_vision_measurement(self.pose, self.time, (std_dev, std_dev, std_dev_rot))
 
@@ -76,7 +75,4 @@ class FieldOdometry:
             est = cam.get_result()
             if est:
                 self.add_vision_measure(cam, est)
-                cam.update_tables()
-                    
-
-
+                # cam.update_tables()

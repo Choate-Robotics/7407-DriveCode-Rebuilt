@@ -55,25 +55,24 @@ class SetShooterAuto(commands2.Command):
             pose: robot Pose2d
     """
 
-    def __init__(self, subsystem: Shooter, pose: Pose2d):
+    def __init__(self, subsystem: Shooter, drivetrain: CommandSwerveDrivetrain):
         super().__init__()
-       
-       
+
+        self.drivetrain = drivetrain
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
-        self.pose = pose
 
     def initialize(self):
-        self.subsystem.target_stationary(self.pose, False)
+        pass
 
     def execute(self):
-        pass
+        self.subsystem.target_stationary(self.drivetrain.get_pose(), False)
 
     def isFinished(self) -> bool:
         """
         End command for autonomous purposes
         """
-        return self.subsystem.ready_to_shoot()
+        return False
 
     def end(self, interrupted):
         pass

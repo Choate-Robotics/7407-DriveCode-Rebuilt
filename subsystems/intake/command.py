@@ -11,7 +11,7 @@ class SetPivot(commands2.Command):
     """
     Setpivot to specificed angle 
     """
-    def __init__(self, subsystem: Intake, angle: units.rotation):
+    def __init__(self, subsystem: Intake, angle: units.inch):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
@@ -37,13 +37,14 @@ class RunIntake(commands2.Command):
     """
     Run intake
     """
-    def __init__(self, subsystem: Intake):
+    def __init__(self, subsystem: Intake, speed=fuel_speed):
         super().__init__()
         self.subsystem = subsystem
         self.addRequirements(self.subsystem)
+        self.speed = speed
 
     def initialize(self):
-        self.subsystem.intake_fuel()
+        self.subsystem.intake_fuel(self.speed)
 
     def isFinished(self) -> bool:
         "command expected to be interrupted"
@@ -75,47 +76,74 @@ class SetPivotIn(commands2.Command):
     """
     Set pivot motor to specified angle with voltage in
     """
-    def __init__(self, subsystem: Intake, angle: units.rotation):
+    def __init__(self, subsystem: Intake, angle: units.inch, speed=index_speed):
         super().__init__()
         self.subsystem = subsystem
         self.angle = angle
+        self.speed = speed
 
     def initialize(self):
-        self.subsystem.intake_fuel()
-        self.subsystem.set_pivot_motor_in(voltage_out)
+        self.subsystem.intake_fuel(self.speed)
+        self.subsystem.set_slide_motor_voltage(-voltage_out)
         self.subsystem.pivot_running = True
 
     def execute(self):
         pass
 
     def isFinished(self) -> bool:
-        return self.subsystem.get_pivot_angle() >= self.angle
+        return self.subsystem.get_pivot_angle() <= self.angle
     
     def end(self, interrupted: bool):
         self.subsystem.stop_intake()
-        self.subsystem.stop_pivot()
+        self.subsystem.set_pivot(self.angle)
         self.subsystem.pivot_running = False
         if interrupted:
             log.message("intake pivot interrupted")
+
+class IntakeIndex(SetPivotIn):
+    """
+    Fully retract the intake
+    """
+    def __init__(self, subsystem: Intake):
+        super().__init__(subsystem, intake_retract_position, index_speed)
 
 class RetractIntake(SetPivot):
     """
     Fully retract the intake
     """
     def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_maximum_rotation)
+        super().__init__(subsystem, intake_retract_position)
 
-class DeployIntake(SetPivot):
-    """
-    Fully deploy intake
-    """
-    def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_deploy_rotation)
+class DeployIntake(commands2.Command):
+    def __init__(self, subsystem: Intake, angle: units.inch=intake_deploy_position, speed=fuel_speed):
+        super().__init__()
+        self.subsystem = subsystem
+        self.angle = angle
+        self.speed = speed
+        self.addRequirements(self.subsystem)
 
-class IntakeIndex(SetPivotIn):
-    """
-    Index with the intake by setting pivot to specified angle with voltagein
-    """
-    def __init__(self, subsystem: Intake):
-        super().__init__(subsystem, intake_retract_rotation)
+    def initialize(self):
+        self.subsystem.set_pivot(self.angle)
+        self.subsystem.intake_fuel(self.speed)
+        self.subsystem.pivot_running = True
+
+    def execute(self):
+        pass
+
+    def isFinished(self) -> bool:
+        return self.subsystem.is_at_angle(self.angle)
+    
+    def end(self, interrupted: bool):
+        self.subsystem.stop_intake()
+        if not interrupted:
+            self.subsystem.pivot_running = False
+        else:
+            log.message("intake pivot interrupted")
+
+# class IntakeIndex(SetPivotIn):
+#     """
+#     Index with the intake by setting pivot to specified angle with voltagein
+#     """
+#     def __init__(self, subsystem: Intake):
+#         super().__init__(subsystem, intake_retract_rotation)
 
