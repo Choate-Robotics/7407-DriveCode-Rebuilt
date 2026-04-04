@@ -51,25 +51,25 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_supply_current_limit_enable(True)
 )
 
-right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
-    configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.COAST)
-    .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
-).with_slot0(
-    configs.Slot0Configs()
-    .with_k_p(15)
-    .with_k_i(0)
-    .with_k_d(0)
-    .with_k_s(8.5)
-    .with_k_v(0.095)
-    .with_k_a(0)
-).with_current_limits(
-    configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(80)
-    .with_stator_current_limit_enable(True)
-    .with_supply_current_limit(80)
-    .with_supply_current_limit_enable(True)
-)
+# right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+#     configs.MotorOutputConfigs()
+#     .with_neutral_mode(signals.NeutralModeValue.COAST)
+#     .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+# ).with_slot0(
+#     configs.Slot0Configs()
+#     .with_k_p(15)
+#     .with_k_i(0)
+#     .with_k_d(0)
+#     .with_k_s(8.5)
+#     .with_k_v(0.095)
+#     .with_k_a(0)
+# ).with_current_limits(
+#     configs.CurrentLimitsConfigs()
+#     .with_stator_current_limit(80)
+#     .with_stator_current_limit_enable(True)
+#     .with_supply_current_limit(80)
+#     .with_supply_current_limit_enable(True)
+# )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
