@@ -70,9 +70,17 @@ class FieldOdometry:
     def update(self):
         if not self.use_vision:
             return
+        
+        cam_results = []
 
         for cam in self.cams:
             est = cam.get_result()
-            if est:
-                self.add_vision_measure(cam, est)
+            if est is not None:
+                tag_count = len(est.targetsUsed)
+                pose_ambiguity = cam.get_estimated_robot_pose
+                cam_results.append((cam, est, tag_count))
                 # cam.update_tables()
+
+        cam_results.sort(key=lambda x: x[2], reverse=True)
+        for cam, est, i in cam_results[:2]:
+            self.add_vision_measure(cam,est)

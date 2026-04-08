@@ -76,20 +76,3 @@ class PhotonCamCustom:
             return est_pose
         return None
 
-
-class PhotonController:
-    def __init__(self, cams: list[PhotonCamCustom]):
-        self.cams = cams
-
-    def init(self):
-        pass
-
-    def update_tables(self):
-        for cam in self.cams:
-            cam.update_tables()
-
-    def get_results(self) -> list[EstimatedRobotPose | None]:
-        return [cam.get_result() for cam in self.cams]
-    
-    def get_individual_result(self, index: int):
-        return self.cams[index].get_result()
