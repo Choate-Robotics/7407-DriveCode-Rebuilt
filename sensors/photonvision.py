@@ -3,6 +3,7 @@ import ntcore
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator
+from photonlibpy.targeting import PhotonPipelineResult
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 from wpimath.geometry import Transform3d, Pose3d, Translation2d, Pose2d
 from wpilib import TimedRobot
@@ -74,5 +75,22 @@ class PhotonCamCustom:
                 est_pose = self.estimator.estimateLowestAmbiguityPose(result)
 
             return est_pose
+        return None
+    
+    def get_unread_results(self) -> list[EstimatedRobotPose] | None:
+        """
+        Returns a list of EstimatedRobotPose from unread results
+        """
+        unread_results = self.cam.getAllUnreadResults()
+        if unread_results:
+            poses = list()
+            for result in unread_results:
+                est_pose = self.estimator.estimateCoprocMultiTagPose(result)
+                if est_pose is None:
+                    est_pose = self.estimator.estimateLowestAmbiguityPose(result)
+                if est_pose is None:
+                    poses.append(est_pose)
+
+            return poses
         return None
 

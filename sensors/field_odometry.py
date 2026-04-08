@@ -1,5 +1,6 @@
 from .photonvision import PhotonCamCustom
 from subsystems import CommandSwerveDrivetrain
+from wpilib import Timer
 from utils.field_constants import *
 import robot_constants
 
@@ -11,7 +12,7 @@ class FieldOdometry:
     def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom]):
         self.drivetrain = drivetrain
         self.cams = cams
-
+        self.last_update = 0.0
         self.use_vision = True
 
     def enable(self):
@@ -71,16 +72,15 @@ class FieldOdometry:
         if not self.use_vision:
             return
         
-        cam_results = []
+        now = Timer.getFPGATimestamp()
+        if now - self.last_update < 0.1:
+            return
+        self.last_update = now
 
-        for cam in self.cams:
+        for cam in self.cams[::2]:
             est = cam.get_result()
-            if est is not None:
-                tag_count = len(est.targetsUsed)
-                pose_ambiguity = cam.get_estimated_robot_pose
-                cam_results.append((cam, est, tag_count))
-                # cam.update_tables()
+            if est:
+                self.add_vision_measure(cam, est)
 
-        cam_results.sort(key=lambda x: x[2], reverse=True)
-        for cam, est, i in cam_results[:2]:
-            self.add_vision_measure(cam,est)
+
+        
