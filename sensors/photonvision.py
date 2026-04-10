@@ -3,7 +3,6 @@ import ntcore
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.estimatedRobotPose import EstimatedRobotPose
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator
-from photonlibpy.targeting import PhotonPipelineResult
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 from wpimath.geometry import Transform3d, Pose3d, Translation2d, Pose2d
 from wpilib import TimedRobot
