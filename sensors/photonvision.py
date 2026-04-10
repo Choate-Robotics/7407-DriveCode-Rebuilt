@@ -87,7 +87,7 @@ class PhotonCamCustom:
                 est_pose = self.estimator.estimateCoprocMultiTagPose(result)
                 if est_pose is None:
                     est_pose = self.estimator.estimateLowestAmbiguityPose(result)
-                if est_pose is None:
+                if est_pose is not None:
                     poses.append(est_pose)
 
             return poses

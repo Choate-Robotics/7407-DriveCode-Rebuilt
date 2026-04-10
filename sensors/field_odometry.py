@@ -85,8 +85,9 @@ class FieldOdometry:
             if cam.name == robot_constants.front_cam_name and self.loop_counter % 3 == 0:
                 ests = cam.get_unread_results()
                 if ests:
-                    self.add_vision_measure(cam, ests) 
-                    self.cam_last_update_times[i] = (cam, now)
+                    for i in ests:
+                        self.add_vision_measure(cam, ests[i]) 
+                        self.cam_last_update_times[i] = (cam, now)
             else:
                 if last_update == now:
                     est = cam.get_results()
