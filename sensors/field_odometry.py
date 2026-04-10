@@ -76,7 +76,7 @@ class FieldOdometry:
             return
         
         now = Timer.getFPGATimestamp()
-        if now - self.last_update < 0.01:
+        if now - self.last_update < 0.01: # 10 hz
             return
         self.last_update = now
         self.loop_counter += 1
