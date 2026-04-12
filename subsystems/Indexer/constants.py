@@ -7,6 +7,7 @@ indexer_motor_id = 22
 tower_motor_id = 21
 
 indexer_speed = 0.8
+indexer_velocity = 85
 tower_speed = 30
 tower_duty_cycle = 1
 
@@ -17,6 +18,14 @@ indexer_config = configs.TalonFXConfiguration().with_motor_output(
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
     .with_stator_current_limit(60)
+).with_slot0(
+    configs.Slot0Configs()
+    .with_k_p(12)
+    .with_k_i(0)
+    .with_k_d(0)
+    .with_k_s(14)
+    .with_k_v(0.035)
+    .with_k_a(0)
 )
 
 tower_config = configs.TalonFXConfiguration().with_motor_output(

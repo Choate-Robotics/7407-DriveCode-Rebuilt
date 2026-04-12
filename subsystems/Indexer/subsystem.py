@@ -58,7 +58,7 @@ class Indexer(Subsystem):
         Runs the indexer motor in reverse
         """
         self.indexer_motor.set_control(
-            self.control_velocity.with_velocity(tower_speed)
+            self.control_velocity.with_velocity(indexer_velocity)
         )
 
         self.indexer_running = True

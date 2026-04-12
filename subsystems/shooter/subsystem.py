@@ -39,7 +39,6 @@ class Shooter(Subsystem):
 
         self.table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
         self.left_velocity_pub = self.table.getDoubleTopic("left velocity").publish()
-        self.right_velocity_pub = self.table.getDoubleTopic("right velocity").publish()
         self.left_target_velocity_pub = self.table.getDoubleTopic("left target velocity").publish()
         self.hood_angle_pub = self.table.getDoubleTopic("hood angle").publish()
         self.hood_target_angle_pub = self.table.getDoubleTopic("hood target angle").publish()
@@ -139,8 +138,7 @@ class Shooter(Subsystem):
     def update_table(self):
         table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
 
-        self.left_velocity_pub.set(self.get_left_velocity())
-        self.right_velocity_pub.set(self.get_right_velocity())
+        self.left_velocity_pub.set(self.get_velocity())
         self.left_target_velocity_pub.set(self.left_target_velocity)
         self.hood_angle_pub.set(self.get_hood_angle().value * 360)
         self.hood_target_angle_pub.set(self.hood_target_angle * 360)
