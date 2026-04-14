@@ -29,9 +29,18 @@ class AimShooter(commands2.Command):
 
     def execute(self):
         pose = self.drivetrain.get_pose()
+        speeds = self.drivetrain.get_speeds()
+
         passing = alliance_flip_util.get_x(pose.X()) >= field_constants.LinesVertical.NEUTRAL_ZONE_NEAR
 
-        self.subsystem.target_stationary(pose, passing)
+        if passing and abs(speeds.vx) > SOM_VELOCITY_THRESHOLD:
+            shifted_target = shooter_utils.get_pass_on_move_target(pose, speeds)
+            hood_deg, rps = shooter_utils.pass_setpoints_from_target(pose, shifted_target)
+
+            self.subsystem.set_hood_angle(hood_deg / 360)
+            self.subsystem.set_target_velocity(rps)
+        else:
+            self.subsystem.target_stationary(pose, passing)
 
     def isFinished(self):
         return False

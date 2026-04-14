@@ -66,18 +66,11 @@ def shot_distance_from_pose(robot_pose: Pose2d) -> float:
 def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     """
     Computes pass (hood_deg, rps) based on robot pose:
-    - chooses the correct pass target (via get_pass_setpoint)
-    - computes shooter-to-target distance using shooter_offset rotated by robot heading
+    - chooses the correct pass target
     - interpolates hood and rps from PASS_* tables
     """
     pass_setpoint: Translation2d = get_pass_setpoint(robot_pose)
-
-    distance_m: float = robot_pose.translation().distance(pass_setpoint)
-
-    hood_deg: float = float(np.interp(distance_m, PASS_DIST_M, PASS_HOOD_DEG))
-    rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
-
-    return hood_deg, rps
+    return pass_setpoints_from_target(robot_pose, pass_setpoint)
 
 def get_field_relative_velocity(robot_pose: Pose2d, speeds: ChassisSpeeds) -> Translation2d:
     """
@@ -105,3 +98,15 @@ def get_pass_on_move_target(robot_pose: Pose2d, speeds: ChassisSpeeds) -> Transl
         pass_target.X() - shift_x,
         pass_target.Y(),
     )
+
+def pass_setpoints_from_target(robot_pose: Pose2d, target: Translation2d) -> tuple[float, float]:
+    """
+    Computes pass (hood_deg, rps) from robot pose to a provided target.
+    This lets us use either the normal pass target or a shifted pass-on-move target.
+    """
+    distance_m: float = robot_pose.translation().distance(target)
+
+    hood_deg: float = float(np.interp(distance_m, PASS_DIST_M, PASS_HOOD_DEG))
+    rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
+
+    return hood_deg, rps
