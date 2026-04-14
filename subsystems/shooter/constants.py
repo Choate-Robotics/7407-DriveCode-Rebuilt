@@ -27,7 +27,7 @@ slow_velocity: units.rotations_per_second = 10
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
     .with_absolute_sensor_discontinuity_point(1)
-    .with_magnet_offset(-0.0114)
+    .with_magnet_offset(-0.44)
     .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 
@@ -37,11 +37,11 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(10)
+    .with_k_p(9)
     .with_k_i(0)
     .with_k_d(0)
-    .with_k_s(6.25)
-    .with_k_v(0.028)
+    .with_k_s(7.1)
+    .with_k_v(0.018)
     .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
@@ -51,25 +51,25 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_supply_current_limit_enable(True)
 )
 
-right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
-    configs.MotorOutputConfigs()
-    .with_neutral_mode(signals.NeutralModeValue.COAST)
-    .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
-).with_slot0(
-    configs.Slot0Configs()
-    .with_k_p(15)
-    .with_k_i(0)
-    .with_k_d(0)
-    .with_k_s(8.5)
-    .with_k_v(0.095)
-    .with_k_a(0)
-).with_current_limits(
-    configs.CurrentLimitsConfigs()
-    .with_stator_current_limit(80)
-    .with_stator_current_limit_enable(True)
-    .with_supply_current_limit(80)
-    .with_supply_current_limit_enable(True)
-)
+# right_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
+#     configs.MotorOutputConfigs()
+#     .with_neutral_mode(signals.NeutralModeValue.COAST)
+#     .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+# ).with_slot0(
+#     configs.Slot0Configs()
+#     .with_k_p(15)
+#     .with_k_i(0)
+#     .with_k_d(0)
+#     .with_k_s(8.5)
+#     .with_k_v(0.095)
+#     .with_k_a(0)
+# ).with_current_limits(
+#     configs.CurrentLimitsConfigs()
+#     .with_stator_current_limit(80)
+#     .with_stator_current_limit_enable(True)
+#     .with_supply_current_limit(80)
+#     .with_supply_current_limit_enable(True)
+# )
         
 hood_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()

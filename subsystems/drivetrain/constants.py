@@ -1,7 +1,7 @@
 from phoenix6 import units
 from wpimath.geometry import Translation2d
 from generated.tuner_constants import TunerConstants
-from wpimath.units import rotationsToRadians
+from wpimath.units import rotationsToRadians, degreesToRadians
 
 max_speed = (
     1.0 * TunerConstants.speed_at_12_volts
@@ -22,7 +22,7 @@ snake_mode_kP = 5
 snake_mode_kI = 0
 snake_mode_kD = 0
 
-drive_at_angle_tolerance: units.radian = 0.035
+drive_at_angle_tolerance: units.radian = degreesToRadians(3)
 drivetrain_shooting_velocity_tolerance: units.meters_per_second = 0.5
 
 autoalign_pid_p = 5

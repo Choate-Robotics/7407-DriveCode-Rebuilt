@@ -92,8 +92,7 @@ class SetShooterIdle(commands2.Command):
         self.addRequirements(self.subsystem)
 
     def initialize(self):
-        self.subsystem.set_left_target_velocity(idle_velocity)
-        self.subsystem.set_right_target_velocity(idle_velocity)
+        self.subsystem.set_target_velocity(idle_velocity)
         self.subsystem.set_hood_angle(min_hood_angle)
 
     def execute(self):
@@ -124,8 +123,7 @@ class SetShooter(commands2.Command):
         self.angle = angle
 
     def initialize(self):
-        self.subsystem.set_left_target_velocity(self.velocity)
-        self.subsystem.set_right_target_velocity(self.velocity)
+        self.subsystem.set_target_velocity(self.velocity)
         self.subsystem.set_hood_angle(self.angle)
 
     def execute(self):
@@ -145,8 +143,7 @@ class SetShooterSlow(commands2.Command):
         self.addRequirements(self.subsystem)
 
     def initialize(self):
-        self.subsystem.set_left_target_velocity(slow_velocity)
-        self.subsystem.set_right_target_velocity(slow_velocity)
+        self.subsystem.set_target_velocity(slow_velocity)
         self.subsystem.set_hood_angle(hood_clear_angle)
 
     def execute(self):
@@ -181,8 +178,7 @@ class TuneShooter(commands2.Command):
         pass
 
     def execute(self):
-        self.subsystem.set_left_target_velocity(self.flywheel_rps_sub.get())
-        self.subsystem.set_right_target_velocity(self.flywheel_rps_sub.get())
+        self.subsystem.set_target_velocity(self.flywheel_rps_sub.get())
         self.subsystem.set_hood_angle(self.hood_angle_sub.get() / 360)
 
     def isFinished(self):
