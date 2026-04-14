@@ -1,8 +1,9 @@
 from wpimath.geometry import Pose2d, Pose3d, Translation2d, Translation3d, Rotation2d
 from utils import alliance_flip_util, field_constants
+from wpimath.kinematics import ChassisSpeeds
 import math
 
-from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS
+from subsystems.shooter.constants import DIST_M, HOOD_DEG, RPS, PASS_DIST_M, PASS_HOOD_DEG, PASS_RPS, PASS_FORWARD_COMP
 from utils.field_constants import Hub
 import numpy as np
 
@@ -77,3 +78,30 @@ def pass_setpoints_from_pose(robot_pose: Pose2d) -> tuple[float, float]:
     rps: float = float(np.interp(distance_m, PASS_DIST_M, PASS_RPS))
 
     return hood_deg, rps
+
+def get_field_relative_velocity(robot_pose: Pose2d, speeds: ChassisSpeeds) -> Translation2d:
+    """
+    Convert robot-relative chassis speeds to field-relative translation velocity.
+    """
+    field = ChassisSpeeds.fromRobotRelativeSpeeds(
+        speeds.vx,
+        speeds.vy,
+        speeds.omega,
+        robot_pose.rotation()
+    )
+    return Translation2d(field.vx, field.vy)
+
+def get_pass_on_move_target(robot_pose: Pose2d, speeds: ChassisSpeeds) -> Translation2d:
+    """
+    Very basic pass-on-move compensation:
+    - compensate ONLY field-relative X motion
+    """
+    pass_target: Translation2d = get_pass_setpoint(robot_pose)
+    field_velocity: Translation2d = get_field_relative_velocity(robot_pose, speeds)
+
+    shift_x = field_velocity.X() * PASS_FORWARD_COMP
+
+    return Translation2d(
+        pass_target.X() - shift_x,
+        pass_target.Y(),
+    )

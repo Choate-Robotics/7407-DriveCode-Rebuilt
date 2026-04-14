@@ -134,3 +134,6 @@ PASS_TABLE = load_shooter_table_csv("pass_table.csv")
 PASS_DIST_M = PASS_TABLE[:, 0]
 PASS_HOOD_DEG = PASS_TABLE[:, 2]
 PASS_RPS = PASS_TABLE[:, 1]
+
+PASS_FORWARD_COMP = 0.1
+SOM_VELOCITY_THRESHOLD = 0.1

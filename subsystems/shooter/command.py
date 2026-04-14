@@ -28,14 +28,24 @@ class AimShooter(commands2.Command):
         pass
 
     def execute(self):
-        """
-        if you are in passing zone, set shooter to passing setpoints
-        else, set shooter to shooting setpoints
-        """
-        if alliance_flip_util.get_x(self.drivetrain.get_pose().X()) < field_constants.LinesVertical.NEUTRAL_ZONE_NEAR:
-            self.subsystem.target_stationary(self.drivetrain.get_pose(), False)
-        else:
-            self.subsystem.target_stationary(self.drivetrain.get_pose(), True)
+        pose = self.drivetrain.get_pose()
+        speeds = self.drivetrain.get_speeds()
+
+        passing = alliance_flip_util.get_x(pose.X()) >= field_constants.LinesVertical.NEUTRAL_ZONE_NEAR
+
+        # Keep shooter setpoints normal
+        self.subsystem.target_stationary(pose, passing)
+
+        # Very simple pass-on-move enable logic for this branch
+        pass_on_move_enabled = passing and abs(speeds.vx) > SOM_VELOCITY_THRESHOLD
+
+        if pass_on_move_enabled:
+            self.drivetrain.virtual_target = shooter_utils.get_pass_on_move_target(
+                pose,
+                speeds,
+            )
+        elif passing:
+            self.drivetrain.virtual_target = shooter_utils.get_pass_setpoint(pose)
 
     def isFinished(self):
         return False
