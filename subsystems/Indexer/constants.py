@@ -6,7 +6,7 @@ NT_INDEXER = True
 indexer_motor_id = 22
 tower_motor_id = 21
 
-indexer_speed = 0.8
+indexer_speed = 1
 indexer_velocity = 85
 tower_speed = 30
 tower_duty_cycle = 1
