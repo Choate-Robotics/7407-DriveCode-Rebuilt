@@ -37,43 +37,37 @@ class AimDrivetrain(commands2.Command):
         pass
 
     def execute(self):
-        """
-        1. Calculate target angle based on ROBOT POSE and position on field -> determine passing or shooting
-        2. Calculate v_x and v_y based on controller inputs
-        3. If speed is too high, drive at angle
-        4. Check if drivetrain is facing angle within tolerance
-        5. If facing angle and speed is 0, apply brake
-        6. Else: drive at angle
-        """
         self.pose = self.drivetrain.get_pose()
-        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.NEUTRAL_ZONE_NEAR:
-            self.target = alliance_flip_util.get_alliance(field_constants.Hub.INNER_CENTER_POINT).toTranslation2d()
-            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.pose,
-                self.target,
-            ))
-            # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
+        self.passing = alliance_flip_util.get_x(self.pose.X()) >= field_constants.LinesVertical.NEUTRAL_ZONE_NEAR
 
+        if not self.passing:
+            self.target = alliance_flip_util.get_alliance(
+                field_constants.Hub.INNER_CENTER_POINT
+            ).toTranslation2d()
         else:
             self.target = shooter_utils.get_pass_setpoint(self.pose)
-            self.target_angle = alliance_flip_util.get_alliance(shooter_utils.angle_aim_to_target(
-                self.pose,
-                self.target
-            ))
-            # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
+
+        raw_target_angle = shooter_utils.angle_aim_to_target(
+            self.pose,
+            self.target,
+        )
+        self.target_angle = alliance_flip_util.get_alliance(raw_target_angle)
 
         self.distance_pub.set(self.pose.translation().distance(self.target))
+        # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
         # self.angle_pub.set(self.target_angle.degrees())
 
         self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
         self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband) * max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
-        self.is_facing_angle = self.drivetrain.is_facing_angle(alliance_flip_util.get_alliance(self.target_angle).radians())
+        self.is_facing_angle = self.drivetrain.is_facing_angle(
+            alliance_flip_util.get_alliance(self.target_angle).radians()
+        )
 
-        if self.is_facing_angle and self.cmd_speed == 0:
+        # Freeze only for scoring, never for passing
+        if (not self.passing) and self.is_facing_angle and self.cmd_speed == 0:
             self.drivetrain.set_control(self._brake)
-
         else:
             self.drivetrain.set_control(
                 self._aim_at.with_target_direction(self.target_angle)
@@ -81,8 +75,13 @@ class AimDrivetrain(commands2.Command):
                 .with_velocity_y(self.v_y)
             )
 
-        self.drivetrain.ready_to_shoot = self.cmd_speed < drivetrain_shooting_velocity_tolerance and self.is_facing_angle
-        # self.ready_pub.set(self.drivetrain.ready_to_shoot)
+        if self.passing:
+            self.drivetrain.ready_to_shoot = self.is_facing_angle
+        else:
+            self.drivetrain.ready_to_shoot = (
+                self.cmd_speed < drivetrain_shooting_velocity_tolerance
+                and self.is_facing_angle
+            )
 
     def isFinished(self) -> bool:
         return False
