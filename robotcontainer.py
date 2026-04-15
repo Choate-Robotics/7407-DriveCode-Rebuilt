@@ -15,6 +15,7 @@ from robot_constants import *
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SendableChooser, SmartDashboard
+from wpimath.filter import Debouncer
 
 import autos
 from utils import math_utils
@@ -176,9 +177,9 @@ class RobotContainer:
             )
         )
 
-        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).whileTrue(
-        #     Index(self.indexer, self.intake)
-        # )
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
+            RunIndexer(self.indexer)
+        )
 
         # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
