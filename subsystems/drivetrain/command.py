@@ -75,13 +75,11 @@ class AimDrivetrain(commands2.Command):
                 .with_velocity_y(self.v_y)
             )
 
-        if self.passing:
-            self.drivetrain.ready_to_shoot = self.is_facing_angle
-        else:
-            self.drivetrain.ready_to_shoot = (
-                self.cmd_speed < drivetrain_shooting_velocity_tolerance
-                and self.is_facing_angle
-            )
+        self.drivetrain.ready_to_shoot = (
+            self.cmd_speed < drivetrain_shooting_velocity_tolerance
+            and self.is_facing_angle
+            and not self.passing
+        )
 
     def isFinished(self) -> bool:
         return False

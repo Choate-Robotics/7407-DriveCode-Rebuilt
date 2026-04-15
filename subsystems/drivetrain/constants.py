@@ -23,7 +23,7 @@ snake_mode_kI = 0
 snake_mode_kD = 0
 
 drive_at_angle_tolerance: units.radian = degreesToRadians(3)
-drivetrain_shooting_velocity_tolerance: units.meters_per_second = 0.5
+drivetrain_shooting_velocity_tolerance: units.meters_per_second = 0.3
 
 autoalign_pid_p = 5
 autoalign_pid_i = 0

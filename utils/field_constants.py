@@ -35,7 +35,7 @@ FIELD_WIDTH = _layout.getFieldWidth()
 
 # passing setpoints
 pass_target_1: Translation2d = Translation2d(3, 2)
-pass_target_2: Translation2d = Translation2d(1, 1)
+pass_target_2: Translation2d = Translation2d(1, 2)
 
 pass_offset: meters = 0.75
 
