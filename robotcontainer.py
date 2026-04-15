@@ -79,6 +79,7 @@ class RobotContainer:
         self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
         self.auto_selection.addOption("Double swipe left greedy", autos.double_swipe(self, "DoubleSwipeLeftGreedy"))
         self.auto_selection.addOption("Double swipe right greedy", autos.double_swipe(self, "DoubleSwipeRightGreedy"))
+        self.auto_selection.addOption("Depot", autos.depot(self))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
@@ -177,7 +178,7 @@ class RobotContainer:
             )
         )
 
-        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).and_(DriverStation.isTeleop()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
             RunIndexer(self.indexer)
         )
 
