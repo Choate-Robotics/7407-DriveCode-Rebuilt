@@ -232,6 +232,10 @@ class RobotContainer:
             InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio))
         )
 
+        self.operator_controller.rightStick().whileTrue(
+            RunIndexerReversed(self.indexer)
+        )
+
         self.operator_controller.leftBumper().onTrue(
             IntakeIndex(self.intake).andThen(RunIntake(self.intake, index_speed))
         ).onFalse(DeployIntake(self.intake, speed=0))
