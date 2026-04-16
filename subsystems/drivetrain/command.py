@@ -171,10 +171,12 @@ class DriveAtAngle(commands2.Command):
         )
 
         self.addRequirements(self.drivetrain)
+
+        self.base_target_angle = target_angle
         self.target_angle = target_angle
 
     def initialize(self):
-        self.target_angle = alliance_flip_util.get_alliance(self.target_angle)
+        self.target_angle = alliance_flip_util.get_alliance(self.base_target_angle)
 
     def execute(self):
         """
