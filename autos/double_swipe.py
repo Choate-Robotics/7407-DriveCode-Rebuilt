@@ -36,7 +36,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
                 IntakeIndex(robot_container.intake).withTimeout(0.2),
                 DeployIntake(robot_container.intake).withTimeout(0.2)
             )))
-        ).withTimeout(3),
+        ).withTimeout(6),
 
         SetShooterIdle(robot_container.shooter).withTimeout(0.2),
         
@@ -59,7 +59,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
                 IntakeIndex(robot_container.intake).withTimeout(0.2),
                 DeployIntake(robot_container.intake).withTimeout(0.2)
             )))
-        ).withTimeout(5),
+        ),
     )
 
     return AutoRoutine(command, paths[0].getStartingHolonomicPose())
