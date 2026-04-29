@@ -23,7 +23,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
                 RunIntake(robot_container.intake)
             )
         ),
-        InstantCommand(robot_container.drivetrain.set_control(requests.Idle())),
+        InstantCommand(lambda: robot_container.drivetrain.set_control(requests.Idle())),
         WaitCommand(0.3),
         ParallelDeadlineGroup(
             WaitUntilCommand(lambda: robot_container.shooter.ready_to_shoot() and robot_container.drivetrain.ready_to_shoot),
