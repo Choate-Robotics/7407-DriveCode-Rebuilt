@@ -70,17 +70,16 @@ class RobotContainer:
         self.backup_gyro = hardware.Pigeon2(26, "canivore")
 
         self.field_odometry = FieldOdometry(self.drivetrain, cams, self.backup_gyro)
+        
+        SmartDashboard.setDefaultNumber("Auto Wait Time", 4.0)
 
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
         self.auto_selection.setDefaultOption("Drive Forward", autos.leave(self))
-        # self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right(self))
-        # self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left(self))
-        # self.auto_selection.addOption("Elims right", autos.elims_right(self))
-        # self.auto_selection.addOption("Double swipe left", autos.double_swipe(self, "DoubleSwipeLeft"))
-        # self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
         self.auto_selection.addOption("Double swipe left greedy", autos.double_swipe(self, "DoubleSwipeLeftGreedy"))
         self.auto_selection.addOption("Double swipe right greedy", autos.double_swipe(self, "DoubleSwipeRightGreedy"))
+        self.auto_selection.addOption("Follow left greedy", autos.double_swipe(self, "SingleSwipeLeftGreedy"))
+        self.auto_selection.addOption("Follow right greedy", autos.double_swipe(self, "SingeSwipeRightGreedy"))
         self.auto_selection.addOption("Depot", autos.depot(self))
 
         SmartDashboard.putData("Auto", self.auto_selection)
