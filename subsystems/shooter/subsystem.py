@@ -27,6 +27,8 @@ class Shooter(Subsystem):
         self.left_target_velocity = 0
         self.hood_target_angle = 0
 
+        self.flywheel_trim = 0
+
         apply_config(self.hood_cancoder, hood_cancoder_config)
         apply_config(self.hood_motor, hood_config)
         
@@ -133,7 +135,13 @@ class Shooter(Subsystem):
             hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 
         self.set_hood_angle(hood_deg/360)
-        self.set_target_velocity(rps)
+        self.set_target_velocity(rps + self.flywheel_trim)
+
+    def trim_down(self):
+        self.flywheel_trim -= flywheel_trim_amount
+
+    def trim_up(self):
+        self.flywheel_trim += flywheel_trim_amount
         
     def update_table(self):
         table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")

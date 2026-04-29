@@ -252,6 +252,16 @@ class RobotContainer:
             IntakeIndex(self.intake).andThen(RunIntake(self.intake, index_speed))
         ).onFalse(DeployIntake(self.intake, speed=0))
 
+        # trim flywheel
+
+        self.operator_controller.x().onTrue(
+            InstantCommand(lambda: self.shooter.trim_down())
+        )
+
+        self.operator_controller.b().onTrue(
+            InstantCommand(lambda: self.shooter.trim_up())
+        )
+
         # deploy climb
         # self.operator_controller.start().onTrue(
         #     DeployClimbL1(self.climber)
