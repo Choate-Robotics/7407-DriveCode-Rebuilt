@@ -172,8 +172,22 @@ class RobotContainer:
             )
         )
 
-        # command used to tune the shooter by taking in a value from networktables
+        # only aim shooter
         self.driver_controller.leftTrigger().whileTrue(
+            SelectCommand(
+                {
+                    0: self.hub,
+                    90: self.pass_right,
+                    180: self.tower,
+                    270: self.pass_left,
+                    -1: AimShooter(self.shooter, self.drivetrain)
+                },
+                self.operator_controller.getHID().getPOV
+            )
+        )
+
+        # command used to tune the shooter by taking in a value from networktables
+        self.driver_controller.leftBumper().whileTrue(
             ParallelCommandGroup(
                 TuneShooter(self.shooter, self.drivetrain),
                 AimDrivetrain(self.drivetrain, self.driver_controller)
@@ -181,19 +195,14 @@ class RobotContainer:
         )
 
         # automatically index
-        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).and_(lambda: DriverStation.isTeleop()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
-        #     RunIndexer(self.indexer)
-        # )
+        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).and_(lambda: DriverStation.isTeleop()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
+            RunIndexer(self.indexer)
+        )
 
         # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
             SnakeMode(self.drivetrain, self.driver_controller)
         )
-
-        #Auto aligns the robot depending on which field element is closer (trenches or bumps)
-        # self.driver_controller.leftBumper().whileTrue(
-        #     AutoAlign(self.drivetrain, self.driver_controller)
-        # )
 
         # force the indexer to spin
         self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
