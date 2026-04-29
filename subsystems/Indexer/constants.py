@@ -12,6 +12,9 @@ indexer_velocity = 85
 tower_speed = 30
 tower_duty_cycle = 1
 
+hopper_current_threshold = 15
+hopper_debounce_time = 0.25
+
 indexer_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()
     .with_neutral_mode(signals.NeutralModeValue.COAST)

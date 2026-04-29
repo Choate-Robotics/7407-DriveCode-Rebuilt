@@ -4,6 +4,7 @@ from commands2 import Subsystem
 from phoenix6 import hardware, controls
 import ntcore
 from utils.phoenix_util import apply_config
+from wpimath.filter import Debouncer
 
 class Indexer(Subsystem):
 
@@ -19,6 +20,8 @@ class Indexer(Subsystem):
 
         self.indexer_running: bool = False
         self.indexer_reversed: bool = False
+
+        self.hopper_debouncer = Debouncer(hopper_debounce_time, Debouncer.DebounceType.kRising)
 
         apply_config(self.indexer_motor, self.indexer_config)
         apply_config(self.tower_motor, self.tower_config)
@@ -117,6 +120,12 @@ class Indexer(Subsystem):
         gets tower motor velocity (rotations per second)
         """
         return self.tower_motor.get_rotor_velocity().value
+    
+    def hopper_empty(self) -> bool:
+        """
+        debounces twindexer current to detect if hopper is empty
+        """
+        return self.hopper_debouncer.calculate(self.get_indexer_motor_current() <= hopper_current_threshold)
 
     def update_table(self) -> None:
         """
