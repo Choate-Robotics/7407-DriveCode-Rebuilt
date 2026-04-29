@@ -13,7 +13,7 @@ from subsystems import *
 from sensors import *
 from robot_constants import *
 
-from phoenix6 import swerve
+from phoenix6 import swerve, hardware
 from wpilib import DriverStation, SendableChooser, SmartDashboard
 from wpimath.filter import Debouncer
 
@@ -67,7 +67,9 @@ class RobotContainer:
             self.front_cam
         ]
 
-        self.field_odometry = FieldOdometry(self.drivetrain, cams)
+        self.backup_gyro = hardware.Pigeon2(26, "canivore")
+
+        self.field_odometry = FieldOdometry(self.drivetrain, cams, self.backup_gyro)
 
         # Initialize auto chooser
         self.auto_selection = SendableChooser()

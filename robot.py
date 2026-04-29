@@ -61,7 +61,6 @@ class MyRobot(wpilib.TimedRobot):
         self.time_pub.set(current_time - self.time)
         self.time = current_time
 
-
         self.robot.field_odometry.update()
         
 
@@ -79,6 +78,7 @@ class MyRobot(wpilib.TimedRobot):
         starting_pose = get_alliance(auto.start_pose)
         self.robot.drivetrain.reset_pose(starting_pose)
         self.robot.drivetrain.seed_field_centric(get_alliance(starting_pose.rotation()))
+        self.robot.backup_gyro.set_yaw(starting_pose.rotation().degrees())
         self.scheduler.schedule(commands2.SequentialCommandGroup(
             auto.command,
         ))

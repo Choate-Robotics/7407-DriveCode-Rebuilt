@@ -250,6 +250,8 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         )
 
         self.ready_to_shoot = False
+        self.gyro_broken = False
+        self.last_gyro_yaw = 0
 
     def get_pose(self) -> Pose2d:
         return self.get_state().pose
@@ -325,6 +327,10 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
                     else self._BLUE_ALLIANCE_PERSPECTIVE_ROTATION
                 )
                 self._has_applied_operator_perspective = True
+
+        current_gyro_yaw = self.pigeon2.get_yaw().value_as_double
+        self.gyro_broken = current_gyro_yaw == self.last_gyro_yaw
+        self.last_gyro_yaw = current_gyro_yaw
 
     def _start_sim_thread(self):
         def _sim_periodic():

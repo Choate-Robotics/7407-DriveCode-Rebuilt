@@ -2,15 +2,17 @@ from .photonvision import PhotonCamCustom
 from subsystems import CommandSwerveDrivetrain
 from utils.field_constants import *
 import robot_constants
+from phoenix6.hardware import Pigeon2
 
 from photonlibpy import EstimatedRobotPose
 
 from wpimath.geometry import Translation2d
 
 class FieldOdometry:
-    def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom]):
+    def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom], backup_gyro: Pigeon2):
         self.drivetrain = drivetrain
         self.cams = cams
+        self.backup_gyro = backup_gyro
 
         self.use_vision = True
 
@@ -76,3 +78,6 @@ class FieldOdometry:
             if est:
                 self.add_vision_measure(cam, est)
                 # cam.update_tables()
+
+        if self.drivetrain.gyro_broken:
+            self.drivetrain.reset_rotation(Rotation2d(math.radians(self.backup_gyro.get_yaw().value)))
