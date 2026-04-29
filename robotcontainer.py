@@ -131,38 +131,28 @@ class RobotContainer:
         # Rezero drivetrain
         self.driver_controller.povDown().onTrue(
             self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
-        )
-
-        # stationary commands
-
-        self.tower = ParallelCommandGroup(
-            DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
-            SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
-        )
-        
-        self.hub = ParallelCommandGroup(
-            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
-            SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle)            
-        )
-
-        self.pass_right = ParallelCommandGroup(
-            DriveAtAngle(self.drivetrain, self.driver_controller, rightpass_drivetrain_angle),
-            SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle)            
-        )
-
-        self.pass_left = ParallelCommandGroup(
-            DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
-            SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
-        )            
+        )       
 
         # aim drivetrain and shooter based on operator input
         self.driver_controller.rightTrigger().whileTrue(
             SelectCommand(
                 {
-                    0: self.hub,
-                    90: self.pass_right,
-                    180: self.tower,
-                    270: self.pass_left,
+                    0: ParallelCommandGroup(
+                        DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+                        SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle)            
+                    ),
+                    90: ParallelCommandGroup(
+                        DriveAtAngle(self.drivetrain, self.driver_controller, rightpass_drivetrain_angle),
+                        SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle)            
+                    ),
+                    180: ParallelCommandGroup(
+                        DriveAtAngle(self.drivetrain, self.driver_controller, tower_drivetrain_angle),
+                        SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle)
+                    ),
+                    270: ParallelCommandGroup(
+                        DriveAtAngle(self.drivetrain, self.driver_controller, hub_drivetrain_angle),
+                        SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle)
+                    ),
                     -1: ParallelCommandGroup(
                         AimShooter(self.shooter, self.drivetrain),
                         AimDrivetrain(self.drivetrain, self.driver_controller)
@@ -173,14 +163,14 @@ class RobotContainer:
         )
 
         # only aim shooter
-        self.driver_controller.leftTrigger().whileTrue(
+        self.driver_controller.rightTrigger().whileTrue(
             SelectCommand(
                 {
-                    0: self.hub,
-                    90: self.pass_right,
-                    180: self.tower,
-                    270: self.pass_left,
-                    -1: AimShooter(self.shooter, self.drivetrain)
+                    0: SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle),           
+                    90: SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle),         
+                    180: SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle),
+                    270: SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle),
+                    -1: AimShooter(self.shooter, self.drivetrain),
                 },
                 self.operator_controller.getHID().getPOV
             )

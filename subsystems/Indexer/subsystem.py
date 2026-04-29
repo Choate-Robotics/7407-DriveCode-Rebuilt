@@ -125,7 +125,7 @@ class Indexer(Subsystem):
         """
         debounces twindexer current to detect if hopper is empty
         """
-        return self.hopper_debouncer.calculate(self.get_indexer_motor_current() <= hopper_current_threshold)
+        return self.hopper_debouncer.calculate(self.get_indexer_motor_current() <= hopper_current_threshold and self.indexer_running)
 
     def update_table(self) -> None:
         """
