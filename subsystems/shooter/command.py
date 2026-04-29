@@ -87,7 +87,7 @@ class SetShooterIdle(commands2.Command):
         self.addRequirements(self.subsystem)
 
     def initialize(self):
-        self.subsystem.set_target_velocity(idle_velocity)
+        self.subsystem.stop()
         self.subsystem.set_hood_angle(min_hood_angle)
 
     def execute(self):

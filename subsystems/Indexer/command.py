@@ -9,13 +9,14 @@ class RunIndexer(commands2.Command):
     """
     Runs Indexer
     """
-    def __init__(self, subsystem: Indexer):
+    def __init__(self, subsystem: Indexer, speed=indexer_speed):
         super().__init__()
         self.subsystem = subsystem
+        self.speed = speed
         self.addRequirements(self.subsystem)
 
     def initialize(self) -> None:
-        self.subsystem.run_indexer()
+        self.subsystem.run_indexer(self.speed)
         self.subsystem.run_tower()
     
     def execute(self) -> None:
@@ -39,6 +40,7 @@ class RunIndexerReversed(commands2.Command):
 
     def initialize(self) -> None:
         self.subsystem.run_indexer_reverse()
+        self.subsystem.run_tower()
     
     def execute(self) -> None:
         pass
@@ -48,6 +50,7 @@ class RunIndexerReversed(commands2.Command):
 
     def end(self, interrupted) -> None:
         self.subsystem.stop_indexer_motor()
+        self.subsystem.stop_tower_motor()
 
 class AutoUnjamming(commands2.Command):
     """

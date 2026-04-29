@@ -75,8 +75,8 @@ class RobotContainer:
         # self.auto_selection.addOption("One loop climb right", autos.one_loop_climb_right(self))
         # self.auto_selection.addOption("One loop climb left", autos.one_loop_climb_left(self))
         # self.auto_selection.addOption("Elims right", autos.elims_right(self))
-        self.auto_selection.addOption("Double swipe left", autos.double_swipe(self, "DoubleSwipeLeft"))
-        self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
+        # self.auto_selection.addOption("Double swipe left", autos.double_swipe(self, "DoubleSwipeLeft"))
+        # self.auto_selection.addOption("Double swipe right", autos.double_swipe(self, "DoubleSwipeRight"))
         self.auto_selection.addOption("Double swipe left greedy", autos.double_swipe(self, "DoubleSwipeLeftGreedy"))
         self.auto_selection.addOption("Double swipe right greedy", autos.double_swipe(self, "DoubleSwipeRightGreedy"))
         self.auto_selection.addOption("Depot", autos.depot(self))
@@ -178,9 +178,10 @@ class RobotContainer:
             )
         )
 
-        Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).and_(lambda: DriverStation.isTeleop()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
-            RunIndexer(self.indexer)
-        )
+        # automatically index
+        # Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).and_(lambda: DriverStation.isTeleop()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
+        #     RunIndexer(self.indexer)
+        # )
 
         # drive in "snake mode" (intake faces direction of travel)
         self.driver_controller.rightBumper().whileTrue(
@@ -232,7 +233,7 @@ class RobotContainer:
             InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio))
         )
 
-        self.operator_controller.rightStick().whileTrue(
+        self.operator_controller.rightStick().or_(self.driver_controller.b()).whileTrue(
             RunIndexerReversed(self.indexer)
         )
 

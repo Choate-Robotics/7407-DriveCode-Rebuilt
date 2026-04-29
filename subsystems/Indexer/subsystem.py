@@ -31,12 +31,12 @@ class Indexer(Subsystem):
         self.tower_motor_velocity_pub = self.table.getDoubleTopic("tower motor velocity").publish()
         self.indexer_motor_velocity_pub = self.table.getDoubleTopic("indexer motor velocity").publish()
 
-    def run_indexer(self):
+    def run_indexer(self, speed=indexer_speed):
         """
         Runs the indexer motor
         """
         self.indexer_motor.set_control(
-            self.control_duty_cycle.with_output(indexer_speed)
+            self.control_duty_cycle.with_output(speed)
         )
 
         self.indexer_running = True
