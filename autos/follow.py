@@ -13,7 +13,8 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
     paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(2)]
     wait_time = SmartDashboard.getNumber("Auto Wait Time", 4.0)
     command = SequentialCommandGroup(
-        WaitCommand(wait_time).andThen(ParallelDeadlineGroup(
+        WaitCommand(wait_time),
+        ParallelDeadlineGroup(
             AutoBuilder.followPath(paths[0]),
             SequentialCommandGroup(
                 WaitCommand(1),
@@ -21,7 +22,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
                 InstantCommand(lambda: robot_container.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio)),
                 RunIntake(robot_container.intake)
             )
-        )),
+        ),
         InstantCommand(robot_container.drivetrain.set_control(requests.Idle())),
         WaitCommand(0.3),
         ParallelDeadlineGroup(
