@@ -10,12 +10,12 @@ from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantComma
 
 
 def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
-    paths = [PathPlannerPath.fromChoreoTrajectory(path_name, i) for i in range(2)]
+    path = PathPlannerPath.fromChoreoTrajectory(path_name, 0)
     wait_time = SmartDashboard.getNumber("Auto Wait Time", 4.0)
     command = SequentialCommandGroup(
         WaitCommand(wait_time),
         ParallelDeadlineGroup(
-            AutoBuilder.followPath(paths[0]),
+            AutoBuilder.followPath(path),
             SequentialCommandGroup(
                 WaitCommand(1),
                 DeployIntake(robot_container.intake).withTimeout(1),
@@ -41,4 +41,4 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
         ),
     )
 
-    return AutoRoutine(command, paths[0].getStartingHolonomicPose())
+    return AutoRoutine(command, path.getStartingHolonomicPose())
