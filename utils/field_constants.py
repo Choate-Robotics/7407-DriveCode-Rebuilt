@@ -23,7 +23,7 @@ from wpilib import DriverStation
 
 
 # Load the AprilTag layout (equivalent to AprilTagLayoutType.OFFICIAL.getLayout())
-_layout = AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltAndyMark)
+_layout = AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltWelded)
 
 # AprilTag related constants
 APRILTAG_COUNT = len(_layout.getTags())

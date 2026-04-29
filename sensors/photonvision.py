@@ -14,7 +14,7 @@ class PhotonCamCustom:
         self.name = name
         self.robot_to_camera = robot_to_camera
         self.estimator = PhotonPoseEstimator(
-            AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltAndyMark),
+            AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltWelded),
             self.robot_to_camera
         )
         self.table = (
