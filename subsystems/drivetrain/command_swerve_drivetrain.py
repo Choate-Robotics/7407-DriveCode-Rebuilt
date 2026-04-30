@@ -8,6 +8,7 @@ from wpilib import DriverStation, Notifier, RobotController
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds
+from wpimath.filter import Debouncer
 
 from generated.tuner_constants import TunerSwerveDrivetrain
 
@@ -249,6 +250,8 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
             self
         )
 
+        self.gyro_debouncer = Debouncer(0.25, Debouncer.DebounceType.kRising)
+
         self.ready_to_shoot = False
         self.gyro_broken = False
         self.last_gyro_yaw = 0
@@ -329,7 +332,7 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
                 self._has_applied_operator_perspective = True
 
         current_gyro_yaw = self.pigeon2.get_yaw().value_as_double
-        self.gyro_broken = current_gyro_yaw == self.last_gyro_yaw
+        self.gyro_broken = self.gyro_debouncer.calculate(current_gyro_yaw == self.last_gyro_yaw)
         self.last_gyro_yaw = current_gyro_yaw
 
     def _start_sim_thread(self):
