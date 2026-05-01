@@ -39,7 +39,7 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(12)
+    .with_k_p(10)
     .with_k_i(0)
     .with_k_d(0)
     .with_k_s(6)

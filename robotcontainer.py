@@ -58,14 +58,14 @@ class RobotContainer:
         self.intake = Intake()
 
         # Initialize odometry
-        self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
-        self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
-        self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
+        # self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
+        # self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
+        # self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
         self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
         cams = [
-            self.left_cam,
-            self.right_cam,
-            self.back_cam,
+            # self.left_cam,
+            # self.right_cam,
+            # self.back_cam,
             self.front_cam
         ]
 
