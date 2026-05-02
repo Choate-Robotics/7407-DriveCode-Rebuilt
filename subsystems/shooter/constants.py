@@ -39,11 +39,11 @@ left_flywheel_config = configs.TalonFXConfiguration().with_motor_output(
     .with_inverted(signals.InvertedValue.CLOCKWISE_POSITIVE)
 ).with_slot0(
     configs.Slot0Configs()
-    .with_k_p(9)
+    .with_k_p(12)
     .with_k_i(0)
     .with_k_d(0)
-    .with_k_s(7.1)
-    .with_k_v(0.018)
+    .with_k_s(6)
+    .with_k_v(0.023)
     .with_k_a(0)
 ).with_current_limits(
     configs.CurrentLimitsConfigs()
@@ -137,5 +137,5 @@ PASS_DIST_M = PASS_TABLE[:, 0]
 PASS_HOOD_DEG = PASS_TABLE[:, 2]
 PASS_RPS = PASS_TABLE[:, 1]
 
-PASS_FORWARD_COMP = 1
+PASS_FORWARD_COMP = 2
 SOM_VELOCITY_THRESHOLD = 0.05

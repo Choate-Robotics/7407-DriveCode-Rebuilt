@@ -62,6 +62,8 @@ class MyRobot(wpilib.TimedRobot):
         self.time = current_time
 
         self.robot.field_odometry.update()
+
+        self.time_table.putBoolean("gyro broken", self.robot.drivetrain.gyro_broken)
         
 
     def disabledInit(self) -> None:

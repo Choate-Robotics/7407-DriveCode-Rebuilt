@@ -21,6 +21,8 @@ import autos
 from utils import math_utils
 from typing import Callable
 
+from utils import alliance_flip_util
+
 class RobotContainer:
     """
     This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -131,7 +133,10 @@ class RobotContainer:
 
         # Rezero drivetrain
         self.driver_controller.povDown().onTrue(
-            self.drivetrain.runOnce(self.drivetrain.seed_field_centric)
+            ParallelCommandGroup(
+                self.drivetrain.runOnce(self.drivetrain.seed_field_centric),
+                InstantCommand(lambda: self.backup_gyro.set_yaw(alliance_flip_util.get_alliance(Rotation2d()).degrees()))
+            )
         )       
 
         # aim drivetrain and shooter based on operator input
@@ -164,7 +169,7 @@ class RobotContainer:
         )
 
         # only aim shooter
-        self.driver_controller.rightTrigger().whileTrue(
+        self.driver_controller.leftTrigger().whileTrue(
             SelectCommand(
                 {
                     0: SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle),           
