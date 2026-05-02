@@ -28,16 +28,19 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
             SetShooterAuto(robot_container.shooter, robot_container.drivetrain),
             AimDrivetrainAuto(robot_container.drivetrain),
         ).withTimeout(1),
-        ParallelDeadlineGroup(
-            WaitUntilCommand(lambda: robot_container.indexer.hopper_empty()).withTimeout(6.0),
+        ParallelCommandGroup(
+            # SequentialCommandGroup(
+            #     WaitCommand(3.5),
+            #     WaitUntilCommand(lambda: robot_container.indexer.hopper_empty()),
+            # ),
             SetShooterAuto(robot_container.shooter, robot_container.drivetrain),
             AimDrivetrainAuto(robot_container.drivetrain),
             RunIndexer(robot_container.indexer),
-            WaitCommand(0.7).andThen(RepeatCommand(SequentialCommandGroup(
+            WaitCommand(1.5).andThen(RepeatCommand(SequentialCommandGroup(
                 IntakeIndex(robot_container.intake).withTimeout(0.2),
                 DeployIntake(robot_container.intake).withTimeout(0.2)
             )))
-        ),
+        ).withTimeout(6.0),
 
         SetShooterIdle(robot_container.shooter).withTimeout(0.2),
         
@@ -56,7 +59,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
             SetShooterAuto(robot_container.shooter, robot_container.drivetrain),
             AimDrivetrainAuto(robot_container.drivetrain),
             RunIndexer(robot_container.indexer),
-            WaitCommand(0.3).andThen(RepeatCommand(SequentialCommandGroup(
+            WaitCommand(0.75).andThen(RepeatCommand(SequentialCommandGroup(
                 IntakeIndex(robot_container.intake).withTimeout(0.2),
                 DeployIntake(robot_container.intake).withTimeout(0.2)
             )))

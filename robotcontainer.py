@@ -83,6 +83,7 @@ class RobotContainer:
         self.auto_selection.addOption("Double swipe left shallow", autos.double_swipe(self, "DoubleSwipeLeftShallow"))
         self.auto_selection.addOption("Double swipe right shallow", autos.double_swipe(self, "DoubleSwipeRightShallow"))
         self.auto_selection.addOption("Follow left greedy", autos.follow(self, "SingleSwipeLeftGreedy"))
+        self.auto_selection.addOption("Follow left depot", autos.follow(self, "SingleSwipeDepot"))
         self.auto_selection.addOption("Follow right greedy", autos.follow(self, "SingleSwipeRightGreedy"))
         self.auto_selection.addOption("Depot", autos.depot(self))
 
@@ -237,7 +238,7 @@ class RobotContainer:
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
         self.operator_controller.leftStick().onTrue(
-            InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio))
+            InstantCommand(lambda: self.intake.zero_intake())
         )
 
         self.operator_controller.rightStick().or_(self.driver_controller.b()).whileTrue(

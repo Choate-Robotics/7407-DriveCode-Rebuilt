@@ -17,7 +17,6 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
         ParallelDeadlineGroup(
             AutoBuilder.followPath(path),
             SequentialCommandGroup(
-                WaitCommand(1.5),
                 DeployIntake(robot_container.intake).withTimeout(1),
                 InstantCommand(lambda: robot_container.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio)),
                 RunIntake(robot_container.intake)

@@ -26,12 +26,17 @@ class Intake(commands2.Subsystem):
         self.drive_motor_right.set_control(controls.Follower(drive_motor_left_id, signals.MotorAlignmentValue.OPPOSED))
 
         apply_config(self.slide_motor_left, slide_motor_configs)
-        apply_config(self.slide_motor_right, slide_motor_configs)
-        self.slide_motor_right.set_control(controls.Follower(slide_motor_left_id, signals.MotorAlignmentValue.OPPOSED))
+        apply_config(self.slide_motor_right, slide_motor_configs.with_motor_output(
+            configs.MotorOutputConfigs()
+                .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+                .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+        ))
+        # self.slide_motor_right.set_control(controls.Follower(slide_motor_left_id, signals.MotorAlignmentValue.OPPOSED))
 
 
         #initial zero
         self.slide_motor_left.set_position(intake_initial_position)
+        self.slide_motor_right.set_position(intake_initial_position)
         
         self.target_position = 0
         self.intake_running = False
@@ -95,6 +100,7 @@ class Intake(commands2.Subsystem):
         stop pivot motor
         """
         self.slide_motor_left.set_control(self.slide_voltage.with_output(0))
+        self.slide_motor_right.set_control(self.slide_voltage.with_output(0))
         
     def set_slide_motor_voltage(self, output: units.volt):
         """
@@ -102,6 +108,11 @@ class Intake(commands2.Subsystem):
         """
         self.output = output
         self.slide_motor_left.set_control(self.slide_voltage.with_output(self.output))
+        self.slide_motor_right.set_control(self.slide_voltage.with_output(self.output))
+
+    def zero_intake(self):
+        self.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio)
+        self.slide_motor_right.set_position(intake_deploy_position/slide_couple_ratio)
     
     def is_at_angle(self, angle: units.rotation):
         """
@@ -115,6 +126,7 @@ class Intake(commands2.Subsystem):
         """
         self.target_position = self.limit_slide_pos(pos) / slide_couple_ratio
         self.slide_motor_left.set_control(self.slide_position_voltage.with_position(self.target_position))
+        self.slide_motor_right.set_control(self.slide_position_voltage.with_position(self.target_position))
 
     def limit_slide_pos(self, pos: units.inches):
         """
