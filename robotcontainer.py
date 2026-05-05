@@ -86,6 +86,9 @@ class RobotContainer:
         self.auto_selection.addOption("Follow left depot", autos.follow(self, "SingleSwipeDepot"))
         self.auto_selection.addOption("Follow right greedy", autos.follow(self, "SingleSwipeRightGreedy"))
         self.auto_selection.addOption("Depot", autos.depot(self))
+        self.auto_selection.addOption("Straight line LEFT", autos.straight_line(self, "StraightLine"))
+        self.auto_selection.addOption("Straight line RIGHT", autos.straight_line(self, "RIGHTSTRAIGHTLINE"))
+        # self.auto_selection.addOption("COMP depot neutral", autos.comp_depot(self))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
