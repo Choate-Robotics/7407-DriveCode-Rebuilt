@@ -75,21 +75,21 @@ class PhotonCamCustom:
 
             return est_pose
         return None
-
-
-class PhotonController:
-    def __init__(self, cams: list[PhotonCamCustom]):
-        self.cams = cams
-
-    def init(self):
-        pass
-
-    def update_tables(self):
-        for cam in self.cams:
-            cam.update_tables()
-
-    def get_results(self) -> list[EstimatedRobotPose | None]:
-        return [cam.get_result() for cam in self.cams]
     
-    def get_individual_result(self, index: int):
-        return self.cams[index].get_result()
+    def get_unread_results(self) -> list[EstimatedRobotPose] | None:
+        """
+        Returns a list of EstimatedRobotPose from unread results
+        """
+        unread_results = self.cam.getAllUnreadResults()
+        if unread_results:
+            poses = list()
+            for result in unread_results:
+                est_pose = self.estimator.estimateCoprocMultiTagPose(result)
+                if est_pose is None:
+                    est_pose = self.estimator.estimateLowestAmbiguityPose(result)
+                if est_pose is not None:
+                    poses.append(est_pose)
+
+            return poses
+        return None
+

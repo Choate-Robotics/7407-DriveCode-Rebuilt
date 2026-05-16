@@ -1,5 +1,6 @@
 from .photonvision import PhotonCamCustom
 from subsystems import CommandSwerveDrivetrain
+from wpilib import Timer
 from utils.field_constants import *
 import robot_constants
 
@@ -8,11 +9,15 @@ from photonlibpy import EstimatedRobotPose
 from wpimath.geometry import Translation2d
 
 class FieldOdometry:
-    def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom]):
+    def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom] ):
         self.drivetrain = drivetrain
         self.cams = cams
-
+        self.last_update = Timer.getFPGATimestamp()
         self.use_vision = True
+        self.cam_last_update_times = list()
+        for cam in self.cams:
+            self.cam_last_update_times.append((cam, self.last_update))
+        self.loop_counter = 0
 
     def enable(self):
         self.use_vision = True
@@ -70,9 +75,29 @@ class FieldOdometry:
     def update(self):
         if not self.use_vision:
             return
+        
+        update_frequency = 0.01 # 10 hz
+        now = Timer.getFPGATimestamp()
+        if now - self.last_update < update_frequency:
+            return
+        self.last_update = now
+        self.loop_counter += 1
 
-        for cam in self.cams:
-            est = cam.get_result()
-            if est:
-                self.add_vision_measure(cam, est)
-                # cam.update_tables()
+        for i, (cam, last_update) in enumerate(self.cam_last_update_times): 
+            if cam.name == robot_constants.front_cam_name and self.loop_counter % 3 == 0:
+                ests = cam.get_unread_results()
+                if ests:
+                    for est in ests:
+                        self.add_vision_measure(cam, est) 
+                        self.cam_last_update_times[i] = (cam, now)
+            else:
+                if last_update == now:
+                    est = cam.get_results()
+                    if est:
+                        self.add_vision_measure(cam, est)
+                        self.cam_last_update_times[i] = (cam, now)
+                        
+                
+
+
+        
