@@ -58,14 +58,14 @@ class RobotContainer:
         self.intake = Intake()
 
         # Initialize odometry
-        self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
-        self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
-        self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
+        # self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
+        # self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
+        # self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
         self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
         cams = [
-            self.left_cam,
-            self.right_cam,
-            self.back_cam,
+            # self.left_cam,
+            # self.right_cam,
+            # self.back_cam,
             self.front_cam
         ]
 
@@ -83,8 +83,12 @@ class RobotContainer:
         self.auto_selection.addOption("Double swipe left shallow", autos.double_swipe(self, "DoubleSwipeLeftShallow"))
         self.auto_selection.addOption("Double swipe right shallow", autos.double_swipe(self, "DoubleSwipeRightShallow"))
         self.auto_selection.addOption("Follow left greedy", autos.follow(self, "SingleSwipeLeftGreedy"))
+        self.auto_selection.addOption("Follow left depot", autos.follow(self, "SingleSwipeDepot"))
         self.auto_selection.addOption("Follow right greedy", autos.follow(self, "SingleSwipeRightGreedy"))
         self.auto_selection.addOption("Depot", autos.depot(self))
+        self.auto_selection.addOption("Straight line LEFT", autos.straight_line(self, "StraightLine"))
+        self.auto_selection.addOption("Straight line RIGHT", autos.straight_line(self, "RIGHTSTRAIGHTLINE"))
+        # self.auto_selection.addOption("COMP depot neutral", autos.comp_depot(self))
 
         SmartDashboard.putData("Auto", self.auto_selection)
 

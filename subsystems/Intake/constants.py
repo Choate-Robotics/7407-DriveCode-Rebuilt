@@ -61,3 +61,9 @@ slide_motor_configs = (
         .with_stator_current_limit(40)
     )
 )
+
+# slide_motor_configs_right = slide_motor_configs_left.with_motor_output(
+#     configs.MotorOutputConfigs()
+#         .with_inverted(signals.InvertedValue.COUNTER_CLOCKWISE_POSITIVE)
+#         .with_neutral_mode(signals.NeutralModeValue.BRAKE)
+# )
