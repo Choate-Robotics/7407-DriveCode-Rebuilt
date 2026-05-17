@@ -212,7 +212,7 @@ class RobotContainer:
         )
         
         # deploy and run intake
-        self.operator_controller.rightTrigger().whileTrue(
+        self.operator_controller.rightBumper().whileTrue(
             SequentialCommandGroup(
                 DeployIntake(self.intake),
                 RunIntake(self.intake)
@@ -220,23 +220,23 @@ class RobotContainer:
         )
 
         # run intake in reverse
-        self.operator_controller.leftTrigger().whileTrue(
+        self.operator_controller.leftBumper().whileTrue(
             ReverseIntake(self.intake)
         )
 
-        self.operator_controller.rightBumper().onTrue(
+        self.operator_controller.y().onTrue(
             RetractIntake(self.intake)
         )
 
-        self.operator_controller.start().onTrue(
+        self.operator_controller.back().onTrue(
             InstantCommand(lambda: self.intake.set_slide_motor_voltage(-3))
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
-        self.operator_controller.back().onTrue(
+        self.operator_controller.start().onTrue(
             InstantCommand(lambda: self.intake.set_slide_motor_voltage(3))
         ).onFalse(InstantCommand(lambda: self.intake.stop_pivot()))
 
-        self.operator_controller.leftStick().onTrue(
+        self.operator_controller.a().onTrue(
             InstantCommand(lambda: self.intake.slide_motor_left.set_position(intake_deploy_position/slide_couple_ratio))
         )
 
@@ -244,7 +244,7 @@ class RobotContainer:
             RunIndexerReversed(self.indexer)
         )
 
-        self.operator_controller.leftBumper().onTrue(
+        self.operator_controller.leftStick().onTrue(
             IntakeIndex(self.intake).andThen(RunIntake(self.intake, index_speed))
         ).onFalse(DeployIntake(self.intake, speed=0))
 
