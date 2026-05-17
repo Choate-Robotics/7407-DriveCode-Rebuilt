@@ -36,7 +36,7 @@ def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
                 IntakeIndex(robot_container.intake).withTimeout(0.2),
                 DeployIntake(robot_container.intake).withTimeout(0.2)
         )))
-        ).withTimeout(1)
+        ).withTimeout(1),
         ParallelDeadlineGroup(
             AutoBuilder.followPath(path[1]),
             SequentialCommandGroup(
