@@ -5,3 +5,4 @@ from autos.follow import auto as follow
 from autos.depot import auto as depot
 from autos.straight_line import auto as straight_line
 from autos.middle_depot import auto as comp_depot
+from autos.double_swipe_battlecry import auto as double_swipe_battlecry

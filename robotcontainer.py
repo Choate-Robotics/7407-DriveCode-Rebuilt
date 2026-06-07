@@ -82,6 +82,8 @@ class RobotContainer:
         self.auto_selection.addOption("Double swipe right greedy", autos.double_swipe(self, "DoubleSwipeRightGreedy"))
         self.auto_selection.addOption("Double swipe left shallow", autos.double_swipe(self, "DoubleSwipeLeftShallow"))
         self.auto_selection.addOption("Double swipe right shallow", autos.double_swipe(self, "DoubleSwipeRightShallow"))
+        self.auto_selection.addOption("Double swipe right shallow dot", autos.double_swipe_battlecry(self, "DoubleSwipeShallowRightDot"))
+        self.auto_selection.addOption("Double swipe left shallow dot", autos.double_swipe_battlecry(self, "DoubleSwipeShallowLeftDot")
         self.auto_selection.addOption("Follow left greedy", autos.follow(self, "SingleSwipeLeftGreedy"))
         self.auto_selection.addOption("Follow left depot", autos.follow(self, "SingleSwipeDepot"))
         self.auto_selection.addOption("Follow right greedy", autos.follow(self, "SingleSwipeRightGreedy"))
