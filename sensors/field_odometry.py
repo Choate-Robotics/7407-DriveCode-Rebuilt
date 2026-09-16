@@ -1,6 +1,5 @@
 from .photonvision import PhotonCamCustom
 from subsystems import CommandSwerveDrivetrain
-from wpilib import Timer
 from utils.field_constants import *
 import robot_constants
 
@@ -83,26 +82,6 @@ class FieldOdometry:
         if est:
             self.add_vision_measure(self.current_cam, est)
 
-        # update_frequency = 0.01 # 10 hz
-        # now = Timer.getFPGATimestamp()
-        # if now - self.last_update < update_frequency:
-        #     return
-        # self.last_update = now
-        # self.loop_counter += 1
-
-        # for i, (cam, last_update) in enumerate(self.cam_last_update_times): 
-        #     if cam.name == robot_constants.front_cam_name and self.loop_counter % 3 == 0:
-        #         ests = cam.get_unread_results()
-        #         if ests:
-        #             for est in ests:
-        #                 self.add_vision_measure(cam, est) 
-        #                 self.cam_last_update_times[i] = (cam, now)
-        #     else:
-        #         if last_update == now:
-        #             est = cam.get_results()
-        #             if est:
-        #                 self.add_vision_measure(cam, est)
-        #                 self.cam_last_update_times[i] = (cam, now)
                         
                 
 
