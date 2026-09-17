@@ -8,11 +8,17 @@ from photonlibpy import EstimatedRobotPose
 from wpimath.geometry import Translation2d
 
 class FieldOdometry:
-    def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom]):
+    def __init__(self, drivetrain: CommandSwerveDrivetrain, cams: list[PhotonCamCustom] ):
         self.drivetrain = drivetrain
         self.cams = cams
-
+        # self.last_update = Timer.getFPGATimestamp()
         self.use_vision = True
+        self.cam_index = 0
+
+        # self.cam_last_update_times = list()
+        # for cam in self.cams:
+        #     self.cam_last_update_times.append((cam, self.last_update))
+        # self.loop_counter = 0
 
     def enable(self):
         self.use_vision = True
@@ -70,9 +76,14 @@ class FieldOdometry:
     def update(self):
         if not self.use_vision:
             return
+        self.current_cam = self.cams[self.cam_index]
+        est = self.current_cam.get_unread_results()
+        self.cam_index += 1 % len(self.cams)
+        if est:
+            self.add_vision_measure(self.current_cam, est)
 
-        for cam in self.cams:
-            est = cam.get_result()
-            if est:
-                self.add_vision_measure(cam, est)
-                # cam.update_tables()
+                        
+                
+
+
+        
