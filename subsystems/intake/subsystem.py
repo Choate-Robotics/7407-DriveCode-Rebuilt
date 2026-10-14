@@ -1,3 +1,4 @@
+from robot_constants import NT_UPDATE_EVERY
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals, units
 import math
@@ -10,6 +11,7 @@ from utils.phoenix_util import apply_config
 class Intake(commands2.Subsystem):
     def __init__(self):
         super().__init__()
+        self._nt_loop = 0
 
         self.drive_motor_left = hardware.TalonFX(drive_motor_left_id)
         self.drive_motor_right = hardware.TalonFX(drive_motor_right_id)
@@ -150,5 +152,6 @@ class Intake(commands2.Subsystem):
         self.slide_stator_currentpub.set(self.get_pivot_motor_stator_current().value)
 
     def periodic(self):
-        if NT_INTAKE:
+        self._nt_loop = (self._nt_loop + 1) % NT_UPDATE_EVERY
+        if NT_INTAKE and self._nt_loop == 0:
             self.update_table()

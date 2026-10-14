@@ -1,0 +1,338 @@
+{
+  "version": 1.0,
+  "grid_size": 128,
+  "tabs": [
+    {
+      "name": "Teleoperated",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Field",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Field",
+              "period": 0.06,
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Auto",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Auto Wait Time",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Auto Wait Time",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Driver Only Mode",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/Controls/Driver Only Mode",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "All Connected",
+            "x": 128.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Health/All Connected",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "Device Health",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Health/Status",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Log Status",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Logging/Status",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Hub Active",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Match/Hub Active",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Match Time",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/SmartDashboard/Match/Match Time",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 10,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "Won Auto",
+            "x": 384.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Match/Won Auto",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Shift",
+            "x": 384.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Match/Shift",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Shift Time",
+            "x": 640.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/SmartDashboard/Match/Shift Time",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 15,
+              "yellow_start_time": 5
+            }
+          },
+          {
+            "title": "Sees Tag",
+            "x": 640.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision/Sees Tag",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "gyro broken",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Timing/gyro broken",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "angle error",
+            "x": 896.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/shooter/hood angle error",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": -10.0,
+              "max_value": 10.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "RPS error",
+            "x": 1152.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/shooter/left velocity error",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": -10.0,
+              "max_value": 10.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Loop time",
+            "x": 896.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Timing/Loop time",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": 0.0,
+              "max_value": 0.06,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "robotPeriodic ms",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Timing/robotPeriodic ms",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": 0.0,
+              "max_value": 40.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "flywheel trim",
+            "x": 1152.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/shooter/flywheel trim",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "hood trim",
+            "x": 1280.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/shooter/hood trim",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autonomous",
+      "grid_layout": {
+        "layouts": [],
+        "containers": []
+      }
+    }
+  ]
+}

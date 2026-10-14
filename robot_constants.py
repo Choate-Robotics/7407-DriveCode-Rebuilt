@@ -4,6 +4,11 @@ import math
 
 LOGGING = True
 
+# Subsystems publish their dashboard values (update_table) every Nth loop instead of
+# every loop: 50 Hz -> 10 Hz. Those reads were most of the CAN signal refreshes per
+# loop, and the .hoot logs already record every motor signal at full rate.
+NT_UPDATE_EVERY = 5
+
 
 # photonvision 
 left_cam_name = "left_cam"

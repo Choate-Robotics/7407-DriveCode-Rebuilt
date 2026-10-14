@@ -3,7 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
-from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand, InstantCommand
+from commands2 import ParallelCommandGroup, SequentialCommandGroup, SelectCommand, InstantCommand, ConditionalCommand, ScheduleCommand
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
 
@@ -22,6 +22,7 @@ from utils import math_utils
 from typing import Callable
 
 from utils import alliance_flip_util
+from utils.device_health import DeviceHealth, find_devices
 
 class RobotContainer:
     """
@@ -30,6 +31,8 @@ class RobotContainer:
     periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
     subsystems, commands, and button mappings) should be declared here.
     """
+
+    _DRIVER_ONLY_MODE_KEY = "Controls/Driver Only Mode"
 
     def __init__(self) -> None:
 
@@ -58,22 +61,22 @@ class RobotContainer:
         self.intake = Intake()
 
         # Initialize odometry
-        # self.left_cam = PhotonCamCustom(left_cam_name, left_cam_transform)
-        # self.right_cam = PhotonCamCustom(right_cam_name, right_cam_transform)
-        # self.back_cam = PhotonCamCustom(back_cam_name, back_cam_transform)
-        self.front_cam = PhotonCamCustom(front_cam_name, front_cam_transform)
-        cams = [
-            # self.left_cam,
-            # self.right_cam,
-            # self.back_cam,
-            self.front_cam
-        ]
+        # front_cam and front_left_cam run on the coprocessor (see the vision repo),
+        # which publishes both cameras' pose observations as one batched NT4 struct-array
+        # topic - one read per loop covers both cameras, instead of polling one PhotonCamera
+        # per loop in rotation.
+        self.vision = BatchedVisionSource()
 
         self.backup_gyro = hardware.Pigeon2(26, "canivore")
 
-        self.field_odometry = FieldOdometry(self.drivetrain, cams, self.backup_gyro)
+        self.field_odometry = FieldOdometry(self.drivetrain, self.vision, self.backup_gyro,
+                                            speeds_supplier=lambda: self._logger.latest_speeds)
         
         SmartDashboard.setDefaultNumber("Auto Wait Time", 4.0)
+
+        # Not persistent - always boots up in normal (two-driver) control mode.
+        SmartDashboard.setDefaultBoolean(self._DRIVER_ONLY_MODE_KEY, False)
+        self._driver_only = False
 
         # Initialize auto chooser
         self.auto_selection = SendableChooser()
@@ -94,11 +97,38 @@ class RobotContainer:
 
         SmartDashboard.putData("Auto", self.auto_selection)
 
+        # Health/ on the dashboard + Elastic pop-ups when a device disconnects
+        self.device_health = DeviceHealth(find_devices(self), self.vision)
+
     def telemetrize_drivetrain(self):
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
-        
+
+    def refresh_driver_only_mode(self) -> None:
+        """Read the switch once per loop (from robotPeriodic) instead of in every trigger."""
+        self._driver_only = SmartDashboard.getBoolean(self._DRIVER_ONLY_MODE_KEY, False)
+
+    def _drive_request(self):
+        # Note that X is defined as forward according to WPILib convention,
+        # and Y is defined as to the left according to WPILib convention.
+        vx, vy = math_utils.radial_curve(
+            -self.driver_controller.getLeftY(),
+            -self.driver_controller.getLeftX(),
+            translation_deadband_min,
+            translation_deadband_max,
+        )
+        return (
+            self._drive.with_velocity_x(vx * max_speed)  # Drive forward with negative Y (forward)
+            .with_velocity_y(vy * max_speed)  # Drive left with negative X (left)
+            .with_rotational_rate(
+                math_utils.curve(-self.driver_controller.getRightX(), deadband, curve) * max_angular_rate
+            )  # Drive counterclockwise with negative X (left)
+        )
+
+    def _driver_only_mode(self) -> bool:
+        return self._driver_only
+
     def configureButtonBindings(self) -> None:
         """
         button-command mappings for the indexer subsystem
@@ -108,19 +138,7 @@ class RobotContainer:
         # and Y is defined as to the left according to WPILib convention.
         self.drivetrain.setDefaultCommand(
             # Drivetrain will execute this command periodically
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(
-                        math_utils.curve(-self.driver_controller.getLeftY(), deadband) * max_speed
-                    )  # Drive forward with negative Y (forward)
-                    .with_velocity_y(
-                        math_utils.curve(-self.driver_controller.getLeftX(), deadband) * max_speed
-                    )  # Drive left with negative X (left)
-                    .with_rotational_rate(
-                        math_utils.curve(-self.driver_controller.getRightX(), deadband, curve) * max_angular_rate
-                    )  # Drive counterclockwise with negative X (left)
-                )
-            )
+            self.drivetrain.apply_request(self._drive_request)
         )
 
         self.shooter.setDefaultCommand(
@@ -174,46 +192,95 @@ class RobotContainer:
             )
         )
 
-        # only aim shooter
+        # deploy and run intake (both modes; mirrors operator's right trigger)
         self.driver_controller.leftTrigger().whileTrue(
-            SelectCommand(
-                {
-                    0: SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle),           
-                    90: SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle),         
-                    180: SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle),
-                    270: SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle),
-                    -1: AimShooter(self.shooter, self.drivetrain),
-                },
-                self.operator_controller.getHID().getPOV
+            SequentialCommandGroup(
+                DeployIntake(self.intake),
+                RunIntake(self.intake)
             )
         )
 
-        # command used to tune the shooter by taking in a value from networktables
+        # Driver buttons that do different things in driver-only mode are bound once, with
+        # the mode picked at press time (flipping the mode mid-press takes effect on the
+        # next press). Held branches run as proxies so each only requires its own
+        # subsystems (a ConditionalCommand requires both branches'); one-shot branches
+        # that must finish after release use ScheduleCommand, like the old onTrue/onFalse.
+
+        # left bumper: static shot (only aim shooter) / driver-only: intake indexing
+        # (mirrors operator's left bumper)
         self.driver_controller.leftBumper().whileTrue(
-            ParallelCommandGroup(
-                TuneShooter(self.shooter, self.drivetrain),
-                AimDrivetrain(self.drivetrain, self.driver_controller)
+            ConditionalCommand(
+                IntakeIndex(self.intake).andThen(RunIntake(self.intake, index_speed)).asProxy(),
+                SelectCommand(
+                    {
+                        0: SetShooter(self.shooter, hub_flywheel_velocity, hub_hood_angle),
+                        90: SetShooter(self.shooter, rightpass_flywheel_velocity, rightpass_hood_angle),
+                        180: SetShooter(self.shooter, tower_flywheel_velocity, tower_hood_angle),
+                        270: SetShooter(self.shooter, tower_flywheel_velocity, hub_hood_angle),
+                        -1: AimShooter(self.shooter, self.drivetrain),
+                    },
+                    self.operator_controller.getHID().getPOV
+                ).asProxy(),
+                self._driver_only_mode,
             )
+        ).onFalse(
+            ConditionalCommand(ScheduleCommand(DeployIntake(self.intake, speed=0)), InstantCommand(), self._driver_only_mode)
         )
+
+        # command used to tune the shooter by taking in a value from networktables
+        # self.driver_controller.leftBumper().whileTrue(
+        #     ParallelCommandGroup(
+        #         TuneShooter(self.shooter, self.drivetrain),
+        #         AimDrivetrain(self.drivetrain, self.driver_controller)
+        #     )
+        # )
 
         # automatically index
         Trigger(lambda: self.drivetrain.ready_to_shoot and self.shooter.ready_to_shoot()).and_(lambda: DriverStation.isTeleop()).debounce(0.2, Debouncer.DebounceType.kFalling).whileTrue(
             RunIndexer(self.indexer)
         )
 
-        # drive in "snake mode" (intake faces direction of travel)
+        # right bumper: snake mode (intake faces direction of travel) / driver-only:
+        # retract intake (mirrors operator's right bumper; runs to completion like onTrue)
         self.driver_controller.rightBumper().whileTrue(
-            SnakeMode(self.drivetrain, self.driver_controller)
+            ConditionalCommand(
+                ScheduleCommand(RetractIntake(self.intake)),
+                SnakeMode(self.drivetrain, self.driver_controller).asProxy(),
+                self._driver_only_mode,
+            )
+        )
+
+        # driver-only mode: zero intake (mirrors operator's L3)
+        self.driver_controller.leftStick().onTrue(
+            ConditionalCommand(InstantCommand(lambda: self.intake.zero_intake()), InstantCommand(), self._driver_only_mode)
+        )
+
+        # driver-only mode: run indexer backward (mirrors operator's R3)
+        self.driver_controller.rightStick().whileTrue(
+            ConditionalCommand(RunIndexerReversed(self.indexer).asProxy(), InstantCommand(), self._driver_only_mode)
+        )
+
+        # driver-only mode: manual intake in/out (mirrors operator's start/back)
+        self.driver_controller.start().onTrue(
+            ConditionalCommand(InstantCommand(lambda: self.intake.set_slide_motor_voltage(-3)), InstantCommand(), self._driver_only_mode)
+        ).onFalse(
+            ConditionalCommand(InstantCommand(lambda: self.intake.stop_pivot()), InstantCommand(), self._driver_only_mode)
+        )
+
+        self.driver_controller.back().onTrue(
+            ConditionalCommand(InstantCommand(lambda: self.intake.set_slide_motor_voltage(3)), InstantCommand(), self._driver_only_mode)
+        ).onFalse(
+            ConditionalCommand(InstantCommand(lambda: self.intake.stop_pivot()), InstantCommand(), self._driver_only_mode)
         )
 
         # force the indexer to spin
-        self.operator_controller.a().or_(self.driver_controller.a()).whileTrue(
+        self.driver_controller.a().whileTrue(
             # Index(self.indexer, self.intake)
             RunIndexer(self.indexer)
         )
 
         # reverse the indexer
-        self.operator_controller.y().or_(self.driver_controller.y()).whileTrue(
+        self.driver_controller.y().whileTrue(
             ClearTower(self.indexer, self.shooter)
         )
         
@@ -262,6 +329,16 @@ class RobotContainer:
 
         self.operator_controller.b().onTrue(
             InstantCommand(lambda: self.shooter.trim_up())
+        )
+
+        # trim hood (Y up, A down; mirrors X/B for the flywheel)
+
+        self.operator_controller.a().onTrue(
+            InstantCommand(lambda: self.shooter.trim_hood_down())
+        )
+
+        self.operator_controller.y().onTrue(
+            InstantCommand(lambda: self.shooter.trim_hood_up())
         )
 
         # deploy climb

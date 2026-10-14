@@ -16,6 +16,7 @@ flywheel_velocity_threshold: units.rotations_per_second = 4.0
 hood_angle_threshold: units.rotation = 2 / 360
 
 flywheel_trim_amount = 0.25
+hood_trim_amount = 0.5  # degrees per operator press (ready tolerance is 2 deg)
 
 hood_gear_ratio = 69 # 69:1
 max_hood_angle: units.rotation = 50 / 360
@@ -29,7 +30,7 @@ slow_velocity: units.rotations_per_second = 10
 hood_cancoder_config = configs.CANcoderConfiguration().with_magnet_sensor(
     configs.MagnetSensorConfigs()
     .with_absolute_sensor_discontinuity_point(1)
-    .with_magnet_offset(-0.44)
+    .with_magnet_offset(.312)
     .with_sensor_direction(signals.SensorDirectionValue.CLOCKWISE_POSITIVE)
 )
 

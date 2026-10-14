@@ -1,3 +1,4 @@
+from robot_constants import NT_UPDATE_EVERY
 from .constants import *
 from phoenix6.hardware import CANcoder
 from phoenix6 import StatusSignal, controls, configs, hardware, signals 
@@ -33,6 +34,7 @@ class Climber(commands2.Subsystem):
 
     def __init__(self) -> None:
         super().__init__()
+        self._nt_loop = 0
         self.moving = False
         self.zeroed = True
         self.motor = hardware.TalonFX(left_motor_id)
@@ -71,5 +73,6 @@ class Climber(commands2.Subsystem):
         self.current_pub.set(self.motor.get_supply_current().value)
 
     def periodic(self) -> None:
-        if NT_CLIMBER:
+        self._nt_loop = (self._nt_loop + 1) % NT_UPDATE_EVERY
+        if NT_CLIMBER and self._nt_loop == 0:
             self.update_table()

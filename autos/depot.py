@@ -1,4 +1,4 @@
-from pathplannerlib.path import PathPlannerPath
+from utils.choreo_paths import load_path
 from pathplannerlib.auto import AutoBuilder
 from phoenix6.swerve import requests
 from autos import AutoRoutine
@@ -9,7 +9,7 @@ from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantComma
 
 
 def auto(robot_container: RobotContainer) -> AutoRoutine:
-    paths = [PathPlannerPath.fromChoreoTrajectory("Depot", i) for i in range(1)]
+    paths = [load_path("Depot", i) for i in range(1)]
     command = SequentialCommandGroup(
         ParallelDeadlineGroup(
             WaitUntilCommand(lambda: robot_container.shooter.ready_to_shoot() and robot_container.drivetrain.ready_to_shoot),
@@ -31,7 +31,7 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
                 RunIntake(robot_container.intake)
             )
         ),
-        InstantCommand(robot_container.drivetrain.set_control(requests.Idle())),
+        InstantCommand(lambda: robot_container.drivetrain.set_control(requests.Idle())),
         WaitCommand(0.1),
         ParallelDeadlineGroup(
             WaitUntilCommand(lambda: robot_container.shooter.ready_to_shoot() and robot_container.drivetrain.ready_to_shoot),
@@ -43,7 +43,7 @@ def auto(robot_container: RobotContainer) -> AutoRoutine:
             AimDrivetrainAuto(robot_container.drivetrain),
             RunIndexer(robot_container.indexer),
             WaitCommand(0.3).andThen(RepeatCommand(SequentialCommandGroup(
-                IntakeIndex(robot_container.intake).withTimeout(0.2),
+                IntakeIndex(robot_container.intake).withTimeout(0.3),
                 DeployIntake(robot_container.intake).withTimeout(0.2)
             )))
         )

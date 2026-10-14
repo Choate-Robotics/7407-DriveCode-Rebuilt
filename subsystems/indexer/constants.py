@@ -12,8 +12,14 @@ indexer_velocity = 85
 tower_speed = 30
 tower_duty_cycle = 1
 
-hopper_current_threshold = 15
-hopper_debounce_time = 0.25
+# Hopper-empty detection: twindexer supply current at or under the threshold for the
+# debounce time. Gaps between balls reach ~0.25 s often, so the debounce has to be
+# longer than that. 12 A (from match hoot logs) never fired on the robot with an empty
+# hopper, and 20 A stopped ~2 s after the last ball.
+hopper_current_threshold = 25
+hopper_debounce_time = 0.6
+# In auto, always feed for at least this long before trusting hopper_empty()
+hopper_min_shoot_time = 2.0
 
 indexer_config = configs.TalonFXConfiguration().with_motor_output(
     configs.MotorOutputConfigs()

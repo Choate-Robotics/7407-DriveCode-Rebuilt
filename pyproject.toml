@@ -35,3 +35,8 @@ requires = [
     # "robotpy-rev",
     # "photonlibpy"
 ]
+
+[tool.robotpy.pyfrc]
+# Tests start several simulated robots at once; robotInit can take over the default 2 s
+# when they all load paths together, which made tests (and so deploys) fail at random.
+init_timeout = 10

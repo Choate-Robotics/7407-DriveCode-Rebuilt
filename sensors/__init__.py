@@ -1,2 +1,3 @@
 from sensors.photonvision import PhotonCamCustom, PhotonController
+from sensors.batched_vision import BatchedVisionSource
 from sensors.field_odometry import FieldOdometry

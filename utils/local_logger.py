@@ -1,5 +1,8 @@
+import atexit
 import os
-from wpilib import DataLogManager, DriverStation, TimedRobot, Timer
+import threading
+import time
+from wpilib import DataLogManager, DriverStation, SmartDashboard, TimedRobot, Timer
 from wpilib.deployinfo import getDeployData
 from wpiutil.log import StringLogEntry
 from robot_constants import LOGGING
@@ -19,6 +22,58 @@ class BColors:
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
     SETUP = "\u001b[46;1m"
+
+
+def start_log_status(period_s: float = 2.0):
+    """ Publishes logging health to the dashboard under Logging/ from a background thread,
+    so the file checks never cost robot loop time. Call once from robotInit.
+
+    Logging/USB Mounted    a USB stick is mounted at /u
+    Logging/Log Dir        where DataLogManager is writing
+    Logging/On USB         the log is going to the USB stick
+    Logging/Writing        the newest .wpilog in Log Dir grew since the last check
+    Logging/Status         one-line summary """
+    if not LOGGING:
+        return
+
+    def run():
+        last_size = None
+        while True:
+            log_dir = DataLogManager.getLogDir()
+            # /u is a symlink to the stick's real mount point on the roboRIO, so check where
+            # it points; ismount("/u") itself is always False there.
+            usb_mounted = os.path.ismount(os.path.realpath("/u"))
+            on_usb = log_dir.startswith("/u")
+
+            size = None
+            try:
+                logs = [os.path.join(log_dir, f) for f in os.listdir(log_dir) if f.endswith(".wpilog")]
+                if logs:
+                    size = os.path.getsize(max(logs, key=os.path.getmtime))
+            except OSError:
+                pass
+            writing = size is not None and last_size is not None and size > last_size
+            last_size = size
+
+            if size is None:
+                status = f"NOT LOGGING: no log file in {log_dir}"
+            elif not writing:
+                status = f"NOT LOGGING: log file in {log_dir} isn't growing"
+            elif on_usb:
+                status = "OK: logging to USB"
+            elif usb_mounted:
+                status = "WARNING: USB plugged in but logging to internal storage"
+            else:
+                status = "WARNING: no USB, logging to internal storage"
+
+            SmartDashboard.putBoolean("Logging/USB Mounted", usb_mounted)
+            SmartDashboard.putString("Logging/Log Dir", log_dir)
+            SmartDashboard.putBoolean("Logging/On USB", on_usb)
+            SmartDashboard.putBoolean("Logging/Writing", writing)
+            SmartDashboard.putString("Logging/Status", status)
+            time.sleep(period_s)
+
+    threading.Thread(target=run, name="log-status", daemon=True).start()
 
 
 class LocalLogger:
@@ -44,10 +99,18 @@ class LocalLogger:
                 DataLogManager.start(usb_path)
                 DataLogManager.log("Logging to USB stick at /u/logs")
             else:
-                DataLogManager.start("logs/")  # Default internal storage
+                # No directory = WPILib's default internal storage (/home/lvuser/logs),
+                # which it creates if needed. A relative "logs/" pointed inside the deployed
+                # code folder, where the folder doesn't exist, so nothing was saved.
+                DataLogManager.start()
                 DataLogManager.log("USB not found, logging to internal storage.")
 
             self.log_data = DataLogManager.getLog()
+
+            # Stop the log's writer thread before Python exits. Otherwise, on the Mac, the
+            # process aborts on exit ("mutex lock failed") with code 134, which makes
+            # `robotpy test` fail and blocks `robotpy deploy`. Registering twice is harmless.
+            atexit.register(DataLogManager.stop)
             self.custom_entry = StringLogEntry(self.log_data, f"messages/{self.name}")
 
     def _robot_log_setup(self):

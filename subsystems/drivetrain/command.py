@@ -6,7 +6,39 @@ from phoenix6 import swerve
 from utils import alliance_flip_util, field_constants, math_utils, shooter_utils
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d, Transform2d
 from utils.field_constants import Hub, LinesHorizontal, LinesVertical
+from wpilib import Timer
 import ntcore
+
+
+def hub_aim_tolerance(distance: float) -> float:
+    """Allowed heading error (rad) at this distance from the hub: a fixed sideways miss
+    limit, clamped between aim_min_tolerance and drive_at_angle_tolerance."""
+    return min(drive_at_angle_tolerance,
+               max(aim_min_tolerance, math.atan2(aim_lateral_tolerance, max(distance, 1e-3))))
+
+
+class AimSettle:
+    """True once aimed at the hub: inside the distance-based tolerance, or stalled (not
+    rotating for aim_stall_time) inside drive_at_angle_tolerance."""
+
+    def __init__(self):
+        self._stalled_since = None
+
+    def reset(self):
+        self._stalled_since = None
+
+    def update(self, drivetrain: CommandSwerveDrivetrain, target_angle: float, distance: float) -> bool:
+        omega = abs(drivetrain.get_speeds().omega)
+        if drivetrain.is_facing_angle(target_angle, hub_aim_tolerance(distance)) and omega < aim_settled_rate:
+            self._stalled_since = None
+            return True
+        not_turning = omega < aim_stall_rate
+        if drivetrain.is_facing_angle(target_angle) and not_turning:
+            if self._stalled_since is None:
+                self._stalled_since = Timer.getFPGATimestamp()
+            return Timer.getFPGATimestamp() - self._stalled_since >= aim_stall_time
+        self._stalled_since = None
+        return False
 
 
 class AimDrivetrain(commands2.Command):
@@ -30,11 +62,14 @@ class AimDrivetrain(commands2.Command):
         self.distance_pub = self.table.getDoubleTopic("distance to target").publish()
 
         self.ready_pub = self.table.getBooleanTopic("Ready to shoot").publish()
+        self.aim_error_pub = self.table.getDoubleTopic("Aim error deg").publish()
+        self.aim_tolerance_pub = self.table.getDoubleTopic("Aim tolerance deg").publish()
 
         self.target = None
+        self.settle = AimSettle()
 
     def initialize(self):
-        pass
+        self.settle.reset()
 
     def execute(self):
         self.pose = self.drivetrain.get_pose()
@@ -53,17 +88,29 @@ class AimDrivetrain(commands2.Command):
         )
         self.target_angle = alliance_flip_util.get_alliance(raw_target_angle)
 
-        self.distance_pub.set(self.pose.translation().distance(self.target))
+        self.distance = self.pose.translation().distance(self.target)
+        self.distance_pub.set(self.distance)
         # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
         # self.angle_pub.set(self.target_angle.degrees())
 
-        self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
-        self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband) * max_speed
+        self.v_x, self.v_y = math_utils.radial_curve(
+            -self.controller.getLeftY(),
+            -self.controller.getLeftX(),
+            translation_deadband_min,
+            translation_deadband_max,
+        )
+        self.v_x *= max_speed
+        self.v_y *= max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
-        self.is_facing_angle = self.drivetrain.is_facing_angle(
-            alliance_flip_util.get_alliance(self.target_angle).radians()
-        )
+        field_angle = alliance_flip_util.get_alliance(self.target_angle).radians()
+        if self.passing:  # passes target a big zone: plain 3 deg tolerance
+            self.settle.reset()
+            self.is_facing_angle = self.drivetrain.is_facing_angle(field_angle)
+        else:
+            self.is_facing_angle = self.settle.update(self.drivetrain, field_angle, self.distance)
+            self.aim_error_pub.set(math.degrees(math_utils.bounded_angle_diff(self.pose.rotation().radians(), field_angle)))
+            self.aim_tolerance_pub.set(math.degrees(hub_aim_tolerance(self.distance)))
 
         # Freeze only for scoring, never for passing
         if (not self.passing) and self.is_facing_angle and self.cmd_speed == 0:
@@ -109,9 +156,10 @@ class AimDrivetrainAuto(commands2.Command):
         # self.ready_pub = self.table.getBooleanTopic("Ready to shoot").publish()
 
         self.target = None
+        self.settle = AimSettle()
 
     def initialize(self):
-        pass
+        self.settle.reset()
 
     def execute(self):
         """
@@ -139,7 +187,13 @@ class AimDrivetrainAuto(commands2.Command):
             ))
             # self.pose_pub.set(Pose2d(self.target, Rotation2d()))
 
-        self.is_facing_angle = self.drivetrain.is_facing_angle(alliance_flip_util.get_alliance(self.target_angle).radians())
+        field_angle = alliance_flip_util.get_alliance(self.target_angle).radians()
+        if alliance_flip_util.get_x(self.pose.X()) < field_constants.LinesVertical.ALLIANCE_ZONE:
+            distance = self.pose.translation().distance(self.target)
+            self.is_facing_angle = self.settle.update(self.drivetrain, field_angle, distance)
+        else:  # passing: plain 3 deg tolerance
+            self.settle.reset()
+            self.is_facing_angle = self.drivetrain.is_facing_angle(field_angle)
 
         self.drivetrain.set_control(
             self._aim_at.with_target_direction(self.target_angle)
@@ -185,8 +239,14 @@ class DriveAtAngle(commands2.Command):
         5. Else: drive at angle
         """
 
-        self.v_x = math_utils.curve(-self.controller.getLeftY(), deadband) * max_speed
-        self.v_y = math_utils.curve(-self.controller.getLeftX(), deadband, curve) * max_speed
+        self.v_x, self.v_y = math_utils.radial_curve(
+            -self.controller.getLeftY(),
+            -self.controller.getLeftX(),
+            translation_deadband_min,
+            translation_deadband_max,
+        )
+        self.v_x *= max_speed
+        self.v_y *= max_speed
 
         self.cmd_speed = math.hypot(self.v_x, self.v_y)
         self.is_facing_angle = self.drivetrain.is_facing_angle(self.target_angle.radians())
@@ -235,8 +295,12 @@ class SnakeMode(commands2.Command):
         Uses aformentioned inputs to drive the robot like a car
         e.g. drives in the direction the robot is facing
         """
-        joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
-        joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+        joystick_y, joystick_x = math_utils.radial_curve(
+            -self.controller.getLeftY(),
+            -self.controller.getLeftX(),
+            translation_deadband_min,
+            translation_deadband_max,
+        )
         aiming_joystick_x = math_utils.curve(-self.controller.getRightX(), deadband, curve)
         target_angle = math.degrees(math.atan2(joystick_x,joystick_y))
         
@@ -326,8 +390,12 @@ class AutoAlign(commands2.Command):
 
     def execute(self):
         self.robot_rotation = self.drivetrain.get_pose().rotation().degrees()
-        joystick_y = math_utils.curve(-self.controller.getLeftY(), deadband)
-        joystick_x = math_utils.curve(-self.controller.getLeftX(), deadband)
+        joystick_y, joystick_x = math_utils.radial_curve(
+            -self.controller.getLeftY(),
+            -self.controller.getLeftX(),
+            translation_deadband_min,
+            translation_deadband_max,
+        )
 
         if self.left_dist <= self.right_dist:
             if self.closest_left == "left_trench":

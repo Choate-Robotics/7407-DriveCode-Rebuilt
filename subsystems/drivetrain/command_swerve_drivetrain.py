@@ -4,13 +4,13 @@ import math
 from utils.math_utils import bounded_angle_diff
 from phoenix6 import SignalLogger, swerve, units, utils
 from typing import Callable, overload
-from wpilib import DriverStation, Notifier, RobotController
+from wpilib import DriverStation, Notifier, RobotController, Timer
 from wpilib.sysid import SysIdRoutineLog
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.kinematics import ChassisSpeeds
-from wpimath.filter import Debouncer
 
 from generated.tuner_constants import TunerSwerveDrivetrain
+from utils import alliance_flip_util
 
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
@@ -236,11 +236,13 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
 
         pp_config = RobotConfig.fromGUISettings()
 
+        self._auto_request = swerve.requests.ApplyRobotSpeeds().with_drive_request_type(auto_drive_request_type)
+
         AutoBuilder.configure(
             self.get_pose,
             self.reset_pose,
             self.get_speeds,
-            lambda speeds, feedforwards: self.set_control(swerve.requests.ApplyRobotSpeeds().with_speeds(speeds).with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons).with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)),
+            lambda speeds, feedforwards: self.set_control(self._auto_request.with_speeds(speeds).with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons).with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)),
             PPHolonomicDriveController(
                 PIDConstants(5, 0, 0),
                 PIDConstants(5, 0, 0)
@@ -250,32 +252,82 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
             self
         )
 
-        self.gyro_debouncer = Debouncer(0.25, Debouncer.DebounceType.kRising)
+        # gyro_broken: see gyro_check_min_turn_rate in constants.py
+        self._gyro_frozen_s = 0.0
+        self._last_gyro_check = Timer.getFPGATimestamp()
+        # Wheel-measured rotation rate, recorded from the odometry thread's state (no
+        # extra get_state() copy in the main loop). The user's telemetry function, if
+        # any, still gets every state - see register_telemetry below.
+        self._wheel_omega = 0.0
+        # Gyro yaw as the odometry thread read it (raw_heading: the Pigeon yaw, unaffected
+        # by vision or resets), so gyro_broken doesn't need its own CAN read every loop.
+        self._raw_yaw: float | None = None
+        self._user_telemetry = None
+        TunerSwerveDrivetrain.register_telemetry(self, self._on_odometry)
 
         self.ready_to_shoot = False
         self.gyro_broken = False
         self.last_gyro_yaw = 0
 
+        # get_state() copies the whole swerve state and takes the odometry thread's lock,
+        # so it's fetched at most once per loop and shared by everything that asks.
+        # Cleared at the start of every loop (periodic) and whenever the pose is reset.
+        self._cached_state: swerve.SwerveDrivetrain.SwerveDriveState | None = None
+
+    def _state(self) -> swerve.SwerveDrivetrain.SwerveDriveState:
+        if self._cached_state is None:
+            self._cached_state = self.get_state()
+        return self._cached_state
+
     def get_pose(self) -> Pose2d:
-        return self.get_state().pose
-    
+        return self._state().pose
+
     def get_speeds(self) -> ChassisSpeeds:
-        return self.get_state().speeds
-    
+        return self._state().speeds
+
+    def reset_pose(self, pose: Pose2d):
+        TunerSwerveDrivetrain.reset_pose(self, pose)
+        self._cached_state = None
+
+    def reset_translation(self, translation: Translation2d):
+        TunerSwerveDrivetrain.reset_translation(self, translation)
+        self._cached_state = None
+
+    def reset_rotation(self, rotation: Rotation2d):
+        TunerSwerveDrivetrain.reset_rotation(self, rotation)
+        self._cached_state = None
+
+    def seed_field_centric(self, rotation: Rotation2d = Rotation2d()):
+        TunerSwerveDrivetrain.seed_field_centric(self, rotation)
+        self._cached_state = None
+
+    def register_telemetry(self, telemetry_function):
+        """Same as Phoenix's register_telemetry; the function is called from our own
+        odometry callback, which also records the wheel rotation rate for gyro_broken."""
+        self._user_telemetry = telemetry_function
+
+    def _on_odometry(self, state):
+        self._wheel_omega = state.speeds.omega
+        self._raw_yaw = state.raw_heading.radians()
+        if self._user_telemetry is not None:
+            self._user_telemetry(state)
+
     def should_flip_path(self) -> bool:
-        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+        return alliance_flip_util.should_flip()
     
-    def is_facing_angle(self, angle: units.radian) -> bool:
+    def is_facing_angle(self, angle: units.radian, tolerance: units.radian = drive_at_angle_tolerance) -> bool:
         """
-        Returns whether the drivetrain is facing the specified angle within a small tolerance.
+        Returns whether the drivetrain is facing the specified angle within a tolerance.
 
         :param angle: The angle to check against in radians.
         :type angle: units.radian
+        :param tolerance: Allowed error in radians (default drive_at_angle_tolerance).
+        :type tolerance: units.radian
         :returns: Whether the drivetrain is facing the specified angle.
         :rtype: bool
         """
         self.current_yaw = self.get_pose().rotation().radians()
-        self.tolerance = drive_at_angle_tolerance
+        self.tolerance = tolerance
         return abs(bounded_angle_diff(self.current_yaw, angle)) <= self.tolerance
 
     def apply_request(
@@ -316,6 +368,10 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
         return self._sys_id_routine_to_apply.dynamic(direction)
 
     def periodic(self):
+        # New loop: the next get_pose()/get_speeds() fetches fresh state. Subsystem
+        # periodics run before commands, so commands always see this loop's state.
+        self._cached_state = None
+
         # Periodically try to apply the operator perspective.
         # If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
         # This allows us to correct the perspective in case the robot code restarts mid-match.
@@ -331,8 +387,20 @@ class CommandSwerveDrivetrain(Subsystem, TunerSwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
-        current_gyro_yaw = self.pigeon2.get_yaw().value_as_double
-        self.gyro_broken = self.gyro_debouncer.calculate(current_gyro_yaw == self.last_gyro_yaw)
+        now = Timer.getFPGATimestamp()
+        dt = min(now - self._last_gyro_check, 0.1)
+        self._last_gyro_check = now
+        current_gyro_yaw = self._raw_yaw
+        if current_gyro_yaw is None:  # no odometry update yet
+            pass
+        elif current_gyro_yaw != self.last_gyro_yaw:
+            self._gyro_frozen_s = 0.0
+            self.gyro_broken = False
+        elif abs(self._wheel_omega) > gyro_check_min_turn_rate:
+            self._gyro_frozen_s += dt
+            if self._gyro_frozen_s >= gyro_frozen_time:
+                self.gyro_broken = True
+        # otherwise (not turning, yaw unchanged): keep the current state
         self.last_gyro_yaw = current_gyro_yaw
 
     def _start_sim_thread(self):

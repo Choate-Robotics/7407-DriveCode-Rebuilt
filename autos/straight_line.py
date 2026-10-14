@@ -1,19 +1,19 @@
-from pathplannerlib.path import PathPlannerPath
+from utils.choreo_paths import load_path
 from pathplannerlib.auto import AutoBuilder
 from phoenix6.swerve import requests
 from autos import AutoRoutine
 from robotcontainer import RobotContainer
 from wpilib import SmartDashboard
 from subsystems import *
-from commands2 import SequentialCommandGroup, ParallelCommandGroup, InstantCommand, ParallelDeadlineGroup, RepeatCommand, WaitCommand, WaitUntilCommand
+from commands2 import DeferredCommand, SequentialCommandGroup, ParallelCommandGroup, InstantCommand, ParallelDeadlineGroup, RepeatCommand, WaitCommand, WaitUntilCommand
 
 
 
 def auto(robot_container: RobotContainer, path_name: str) -> AutoRoutine:
-    path = PathPlannerPath.fromChoreoTrajectory(path_name, 0)
-    wait_time = SmartDashboard.getNumber("Auto Wait Time", 4.0)
+    path = load_path(path_name, 0)
     command = SequentialCommandGroup(
-        WaitCommand(wait_time),
+        # Read when auto starts, so the dashboard value at match time is the one used
+        DeferredCommand(lambda: WaitCommand(SmartDashboard.getNumber("Auto Wait Time", 4.0))),
         ParallelDeadlineGroup(
             AutoBuilder.followPath(path),
             SequentialCommandGroup(

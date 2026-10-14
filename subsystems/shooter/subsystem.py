@@ -1,3 +1,4 @@
+from robot_constants import NT_UPDATE_EVERY
 from .constants import *
 import math
 import ntcore
@@ -10,6 +11,7 @@ from phoenix6 import hardware, controls, configs, signals
 class Shooter(Subsystem):
     def __init__(self):
         super().__init__()
+        self._nt_loop = 0
         self.left_leader_motor = hardware.TalonFX(left_lead_id)
         self.left_follower_motor = hardware.TalonFX(left_follower_id)
 
@@ -28,6 +30,7 @@ class Shooter(Subsystem):
         self.hood_target_angle = 0
 
         self.flywheel_trim = 0
+        self.hood_trim = 0  # degrees
 
         apply_config(self.hood_cancoder, hood_cancoder_config)
         apply_config(self.hood_motor, hood_config)
@@ -45,6 +48,15 @@ class Shooter(Subsystem):
         self.hood_angle_pub = self.table.getDoubleTopic("hood angle").publish()
         self.hood_target_angle_pub = self.table.getDoubleTopic("hood target angle").publish()
         self.shooter_ready_pub = self.table.getBooleanTopic("shooter ready").publish()
+        # actual - target, published by the robot since Elastic can't combine topics
+        self.left_velocity_error_pub = self.table.getDoubleTopic("left velocity error").publish()
+        self.hood_angle_error_pub = self.table.getDoubleTopic("hood angle error").publish()
+        # Operator's flywheel trim (rps), published when it changes
+        self.flywheel_trim_pub = self.table.getDoubleTopic("flywheel trim").publish()
+        self.flywheel_trim_pub.set(self.flywheel_trim)
+        # Operator's hood trim (degrees), published when it changes
+        self.hood_trim_pub = self.table.getDoubleTopic("hood trim").publish()
+        self.hood_trim_pub.set(self.hood_trim)
 
     def set_target_velocity(self, velocity: units.rotations_per_second):
         """
@@ -134,24 +146,40 @@ class Shooter(Subsystem):
         else:
             hood_deg, rps = shooter_utils.shot_setpoints_from_pose(robot_pose)
 
-        self.set_hood_angle(hood_deg/360)
+        self.set_hood_angle((hood_deg + self.hood_trim)/360)  # clamped to the hood limits there
         self.set_target_velocity(rps + self.flywheel_trim)
 
     def trim_down(self):
         self.flywheel_trim -= flywheel_trim_amount
+        self.flywheel_trim_pub.set(self.flywheel_trim)
 
     def trim_up(self):
         self.flywheel_trim += flywheel_trim_amount
+        self.flywheel_trim_pub.set(self.flywheel_trim)
+
+    def trim_hood_down(self):
+        self.hood_trim -= hood_trim_amount
+        self.hood_trim_pub.set(self.hood_trim)
+
+    def trim_hood_up(self):
+        self.hood_trim += hood_trim_amount
+        self.hood_trim_pub.set(self.hood_trim)
         
     def update_table(self):
-        table = ntcore.NetworkTableInstance.getDefault().getTable("shooter")
-
-        self.left_velocity_pub.set(self.get_velocity())
+        velocity = self.get_velocity()
+        hood_angle = self.get_hood_angle().value * 360
+        self.left_velocity_pub.set(velocity)
         self.left_target_velocity_pub.set(self.left_target_velocity)
-        self.hood_angle_pub.set(self.get_hood_angle().value * 360)
+        self.hood_angle_pub.set(hood_angle)
         self.hood_target_angle_pub.set(self.hood_target_angle * 360)
+        # Errors only while shooting (a real target, not idle or the slow spin), so the
+        # dashboard graphs show shots instead of the gap between idle and the last target.
+        if self.left_target_velocity > slow_velocity:
+            self.left_velocity_error_pub.set(velocity - self.left_target_velocity)
+            self.hood_angle_error_pub.set(hood_angle - self.hood_target_angle * 360)
         self.shooter_ready_pub.set(self.ready_to_shoot())
 
     def periodic(self):
-        if NT_SHOOTER:
+        self._nt_loop = (self._nt_loop + 1) % NT_UPDATE_EVERY
+        if NT_SHOOTER and self._nt_loop == 0:
             self.update_table()

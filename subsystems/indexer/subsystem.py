@@ -1,4 +1,5 @@
 
+from robot_constants import NT_UPDATE_EVERY
 from .constants import *
 from commands2 import Subsystem
 from phoenix6 import hardware, controls
@@ -10,6 +11,7 @@ class Indexer(Subsystem):
 
     def __init__(self):
         super().__init__()
+        self._nt_loop = 0
         self.indexer_motor: hardware.TalonFX = hardware.TalonFX(indexer_motor_id, "canivore")
         self.tower_motor: hardware.TalonFX = hardware.TalonFX(tower_motor_id)
         self.control_duty_cycle = controls.DutyCycleOut(0)
@@ -22,6 +24,8 @@ class Indexer(Subsystem):
         self.indexer_reversed: bool = False
 
         self.hopper_debouncer = Debouncer(hopper_debounce_time, Debouncer.DebounceType.kRising)
+        self._hopper_empty: bool = False
+        self._hopper_empty_count = 0
 
         apply_config(self.indexer_motor, self.indexer_config)
         apply_config(self.tower_motor, self.tower_config)
@@ -33,6 +37,13 @@ class Indexer(Subsystem):
         self.indexer_motor_current_pub = self.table.getDoubleTopic("indexer motor current").publish()
         self.tower_motor_velocity_pub = self.table.getDoubleTopic("tower motor velocity").publish()
         self.indexer_motor_velocity_pub = self.table.getDoubleTopic("indexer motor velocity").publish()
+        self.hopper_empty_pub = self.table.getBooleanTopic("hopper empty").publish()
+        # Times the hopper has read empty since boot. In auto the reading ends the volley,
+        # which stops the indexer and clears "hopper empty" within a loop - too short to
+        # see on a dashboard - so this count is the lasting record that it fired.
+        self.hopper_empty_count_pub = self.table.getIntegerTopic("hopper empty count").publish()
+        self.hopper_empty_pub.set(False)
+        self.hopper_empty_count_pub.set(0)
 
     def run_indexer(self, speed=indexer_speed):
         """
@@ -123,9 +134,10 @@ class Indexer(Subsystem):
     
     def hopper_empty(self) -> bool:
         """
-        debounces twindexer current to detect if hopper is empty
+        whether the hopper is empty: twindexer current has stayed low while feeding
+        (debounced every loop in periodic)
         """
-        return self.hopper_debouncer.calculate(self.get_indexer_motor_current() <= hopper_current_threshold and self.indexer_running)
+        return self._hopper_empty
 
     def update_table(self) -> None:
         """
@@ -140,5 +152,19 @@ class Indexer(Subsystem):
         self.tower_motor_velocity_pub.set(self.get_tower_motor_velocity())
 
     def periodic(self):
-        if NT_INDEXER:
+        # Debounced every loop: a Debouncer that hasn't been called for longer than its
+        # debounce time returns True on its first True input, skipping the debounce.
+        # The current is only read while the indexer is running.
+        hopper_empty = self.hopper_debouncer.calculate(
+            self.indexer_running and self.get_indexer_motor_current() <= hopper_current_threshold
+        )
+        if hopper_empty != self._hopper_empty:
+            self._hopper_empty = hopper_empty
+            self.hopper_empty_pub.set(hopper_empty)
+            if hopper_empty:
+                self._hopper_empty_count += 1
+                self.hopper_empty_count_pub.set(self._hopper_empty_count)
+
+        self._nt_loop = (self._nt_loop + 1) % NT_UPDATE_EVERY
+        if NT_INDEXER and self._nt_loop == 0:
             self.update_table()
